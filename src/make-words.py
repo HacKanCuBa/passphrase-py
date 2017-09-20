@@ -9,7 +9,7 @@ import urllib.request
 from passphrase import read_words_from_diceware
 
 
-def diceware_to_words(filepath, output=None):
+def diceware_to_words(filepath: str, output: str=None) -> None:
     words = read_words_from_diceware(filepath)
     if output is None:
         print('\n'.join(words))
@@ -18,7 +18,7 @@ def diceware_to_words(filepath, output=None):
             wordsfile.write('\n'.join(words))
 
 
-def get_eff_wordlist():
+def get_eff_wordlist() -> str:
     wordlistfile = 'eff_large_wordlist.txt'
     with urllib.request.urlopen(
         'https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt'
