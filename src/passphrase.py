@@ -7797,6 +7797,11 @@ NUMS_AMMOUNT_MAX_DEFAULT = 10000
 VERSION = '0.1.0'
 
 
+def print_version() -> None:
+    print("Passphrase v{}\nby HacKan (https://hackan.net) FOSS under GNU "
+          "GPL v3.0 or newer".format(VERSION))
+
+
 def read_words_from_file(inputfile: str) -> list:
     words = [word.strip() for word in open(inputfile, mode='rt')]
     return words
@@ -7863,6 +7868,12 @@ if __name__ == "__main__":
             numsammountmin=NUMS_AMMOUNT_MIN_DEFAULT,
             version=VERSION
         )
+    )
+
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="print program version and licensing information and exit"
     )
 
     class WordsAction(argparse.Action):
@@ -7964,6 +7975,11 @@ if __name__ == "__main__":
     gen_password = args.password
     ammount_w = args.words
     ammount_n = args.numbers
+    show_version = args.version
+
+    if show_version is True:
+        print_version()
+        exit()
 
     if inputfile is None:
         words = WORDS_DEFAULT
