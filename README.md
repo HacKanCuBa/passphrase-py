@@ -92,6 +92,67 @@ gpg: encrypted with 1 passphrase
 :~$ passphrase -q -o pass.txt
 ```
 
+## Is this really secure?
+
+First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on known libraries and does not interferes with the random algorithm. The whole program is quite big, but most of it is just the menues and the word list. The generator algorithms are very short and simple:
+
+[For Python 3.6+](https://github.com/HacKanCuBa/passphrase-py/blob/e5f7bf30cc04cd257d1b05dbfad760f676e0b3e6/src/passphrase.py#L7830):
+
+```python
+    from secrets import choice, randbelow
+
+    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
+        passphrase = []
+        for i in range(0, amount_w):
+            passphrase.append(choice(wordlist))
+
+        for i in range(0, amount_n):
+            passphrase.append(randbelow(MAX_NUM))
+
+        return passphrase
+
+    def generate_password(length: int) -> str:
+        characters = digits + ascii_letters + punctuation
+        return ''.join(choice(characters) for i in range(0, length + 1))
+
+```
+
+The whole magic is done by `choice(wordlist)` or `choice(characters)`, that returns a random value from the given list, and `randbelow(MAX_NUM)`, which returns a random natural number lower than the given maximum.
+
+[For Python 3.2+](https://github.com/HacKanCuBa/passphrase-py/blob/e5f7bf30cc04cd257d1b05dbfad760f676e0b3e6/src/passphrase.py#L7849):
+
+```python
+    from libnacl import randombytes_uniform
+
+    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
+        passphrase = []
+        index = None
+        num = None
+        for i in range(0, amount_w):
+            index = randombytes_uniform(len(wordlist))
+            passphrase.append(wordlist[index])
+
+        for i in range(0, amount_n):
+            num = randombytes_uniform(MAX_NUM)
+            passphrase.append(num)
+
+        return passphrase
+
+    def generate_password(length: int) -> str:
+        characters = digits + ascii_letters + punctuation
+        passwd = []
+        index = None
+        for i in range(0, length + 1):
+            index = randombytes_uniform(len(characters))
+            passwd.append(characters[index])
+
+        return ''.join(passwd)
+```
+
+The whole magic is done by `randombytes_uniform()`, that returns a random natural number lower than the given value, which is then used as index for the word or character list.
+
+Both algorithms are very similar and pretty straight forward, easy to understand and verify. *Boring crypto is the best crypto*.
+
 ## License
 
 **Passphrase** is made by [HacKan](https://hackan.net) under GNU GPL v3.0+. You are free to use, share, modify and share modifications under the terms of that [license](LICENSE).
