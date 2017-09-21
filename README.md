@@ -1,6 +1,10 @@
 # Passphrase
 
-**Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. It's currently based on the security of Python's [Lib/secrets](https://docs.python.org/3/library/secrets.html#module-secrets), both passphrases and passwords are securelly generated using `secrets.choice()`:
+**Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords.
+
+For **Python 3.2+**, it's currently based on the security of [LibNaCl's](https://github.com/saltstack/libnacl) [randombytes_uniform](https://download.libsodium.org/doc/generating_random_data/#usage), both passphrases and passwords are securelly generated using `libnacl.randombytes_uniform()`.
+
+For **Python 3.6+**, it's currently based on the security of Python's [Lib/secrets](https://docs.python.org/3/library/secrets.html#module-secrets), both passphrases and passwords are securelly generated using `secrets.choice()` and `secrets.randbelow()`:
 
 > The `secrets` module is used for generating cryptographically strong random numbers suitable for managing data such as passwords, account authentication, security tokens, and related secrets.
 
@@ -10,16 +14,24 @@ A secure passphrase must be of at least 5 words, but 7 is better, and maybe you 
 
 ## Requirements
 
-* Python 3.6
+For **Python 3.6+**:
+
 * flake8 [optional] for linting
 
-[passphrase.py](/src/passphrase.py) is a stand-alone, self contained (the word list is embedded in it) script, and has no requirements besides Python 3.6 (because the `secrets` module is present since that Python version). I'm planning to implement PyNaCl so it can be used with Python 3.x.
+For **Python 3.2+**:
+
+* LibNaCl 1.5+
+* flake8 [optional] for linting
+
+[passphrase.py](/src/passphrase.py) is a stand-alone, self contained script (the word list is embedded in it). It detects whether you have Python 3.6+ or lower, and acts accordingly. For Python 3.6+, it uses `Lib/secrets` (and is preferred); for Python 3.2+, `libnacl.randombytes_uniform`.
 
 ## How to use it
 
-Just download the script, preferrably fom the [latest release](/releases/latest) - releases are always signed - and give it execution permission. It can be run as `:~$ python3.6 src/passphrase.py`, or if you copy it to /usr/local/bin (system-wide availability) or ~/.local/bin (user-wide availability), as `:~$ passphrase`.
+Just download the script, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed - and give it execution permission. It can be run as `:~$ python3.6 src/passphrase.py`, or if you copy it to /usr/local/bin (system-wide availability) or ~/.local/bin (user-wide availability), as `:~$ passphrase`.
 
 You can use `make install` to install it system-wide (requires root or `sudo`) or `make altinstall` for user-wide. Installing it simply copies the script to destination along with the man page.
+
+To install requirements, use pip: `pip3 install -r requirements.txt`.
 
 ### Examples of use
 
@@ -74,7 +86,7 @@ gpg: encrypted with 1 passphrase
 589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2  -
 ```
 
-### Generate a passphrase avoiding [shoulder surfing](https://en.wikipedia.org/wiki/Shoulder_surfing_(computer_security))
+#### Generate a passphrase avoiding [shoulder surfing](https://en.wikipedia.org/wiki/Shoulder_surfing_(computer_security))
 
 ```
 :~$ passphrase -q -o pass.txt
@@ -98,4 +110,3 @@ gpg: encrypted with 1 passphrase
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-

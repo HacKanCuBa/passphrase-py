@@ -3,10 +3,11 @@
 """Generates passphrases based on a word list using cryptographically secure
 random number generator"""
 
+from string import digits, ascii_letters, punctuation
+from sys import stderr, version_info
+from os.path import isfile
 
-import os
-import secrets
-from sys import stderr
+assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
 # EFF large wordlist
 WORDS_DEFAULT = (
@@ -7793,7 +7794,7 @@ WORDS_AMOUNT_MIN_DEFAULT = 5
 NUMS_AMOUNT_MIN_DEFAULT = 0
 PASSWD_LEN_MIN_DEFAULT = 8
 
-VERSION = '0.2.1'
+VERSION = '0.2.3'
 
 
 def print_error(string: str) -> None:
@@ -7815,23 +7816,6 @@ def read_words_from_diceware(inputfile: str) -> list:
     return words
 
 
-def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
-    passphrase = []
-    for i in range(0, amount_w):
-        passphrase.append(secrets.choice(wordlist))
-
-    for i in range(0, amount_n):
-        passphrase.append(secrets.randbelow(MAX_NUM))
-
-    return passphrase
-
-
-def generate_password(length: int) -> str:
-    import string
-    characters = string.digits + string.ascii_letters + string.punctuation
-    return ''.join(secrets.choice(characters) for i in range(0, length + 1))
-
-
 def bigger_than_zero(value: int) -> int:
     ivalue = int(value)
     if ivalue < 0:
@@ -7839,6 +7823,54 @@ def bigger_than_zero(value: int) -> int:
             "{} should be bigger than 0".format(ivalue)
         )
     return ivalue
+
+
+if version_info >= (3, 6):
+    # Use Lib/secrets
+    from secrets import choice, randbelow
+
+    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
+        passphrase = []
+        for i in range(0, amount_w):
+            passphrase.append(choice(wordlist))
+
+        for i in range(0, amount_n):
+            passphrase.append(randbelow(MAX_NUM))
+
+        return passphrase
+
+    def generate_password(length: int) -> str:
+        characters = digits + ascii_letters + punctuation
+        return ''.join(choice(characters) for i in range(0, length + 1))
+
+
+else:
+    # Use libnacl
+    from libnacl import randombytes_uniform
+
+    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
+        passphrase = []
+        index = None
+        num = None
+        for i in range(0, amount_w):
+            index = randombytes_uniform(len(wordlist))
+            passphrase.append(wordlist[index])
+
+        for i in range(0, amount_n):
+            num = randombytes_uniform(MAX_NUM)
+            passphrase.append(num)
+
+        return passphrase
+
+    def generate_password(length: int) -> str:
+        characters = digits + ascii_letters + punctuation
+        passwd = []
+        index = None
+        for i in range(0, length + 1):
+            index = randombytes_uniform(len(characters))
+            passwd.append(characters[index])
+
+        return ''.join(passwd)
 
 
 if __name__ == "__main__":
@@ -7966,7 +7998,7 @@ if __name__ == "__main__":
 
     if inputfile is None:
         words = WORDS_DEFAULT
-    elif os.path.isfile(inputfile) is True:
+    elif isfile(inputfile) is True:
         if is_diceware is True:
             words = read_words_from_diceware(inputfile)
         else:
