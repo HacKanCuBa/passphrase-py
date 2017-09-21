@@ -6,7 +6,7 @@
 
 It also makes use of the [EFF Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
-A secure passphrase must be of at least 5 words. 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 12 characters, and preffer more than 16. Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
+A secure passphrase must be of at least 5 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters (NIST's latest recommendation), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
 ## Requirements
 
@@ -40,7 +40,7 @@ jasmine identity chemo suave clerk copartner 853727
 #### Generate a password of 16 characters (minimum recommended)
 
 ```
-:~$ passphrase -p -w 16
+:~$ passphrase -p 16
 E`31nDL0^$oYu5='
 ```
 
@@ -58,6 +58,24 @@ unnamed unmanned appendix fineness riverside
 ```
 :~$ passphrase -o pass.txt
 :~$ passphrase > pass.txt
+```
+
+#### Generate a passphrase and use it with GPG
+
+```
+:~$ passphrase -o pass.txt | gpg --symmetric --batch --passphrase-fd 0 somefile.txt
+:~$ sha256sum somefile.txt
+589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2  somefile.txt
+:~$ cat pass.txt | gpg --decrypt --batch --passphrase-fd 0 somefile.txt.gpg | sha256sum -
+gpg: AES256 encrypted data
+gpg: encrypted with 1 passphrase
+589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2  -
+```
+
+### Generate a passphrase avoiding [shoulder surfing](https://en.wikipedia.org/wiki/Shoulder_surfing_(computer_security))
+
+```
+:~$ passphrase -q -o pass.txt
 ```
 
 ## License

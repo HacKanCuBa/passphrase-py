@@ -6,7 +6,7 @@ random number generator"""
 
 import os
 import secrets
-
+from sys import stderr
 
 # EFF large wordlist
 WORDS_DEFAULT = (
@@ -7789,12 +7789,15 @@ WORDS_DEFAULT = (
 )
 
 MAX_NUM = 999999
-WORDS_AMMOUNT_MIN_DEFAULT = 5
-WORDS_AMMOUNT_MAX_DEFAULT = 10000
-NUMS_AMMOUNT_MIN_DEFAULT = 0
-NUMS_AMMOUNT_MAX_DEFAULT = 10000
+WORDS_AMOUNT_MIN_DEFAULT = 5
+NUMS_AMOUNT_MIN_DEFAULT = 0
+PASSWD_LEN_MIN_DEFAULT = 8
 
-VERSION = '0.1.0'
+VERSION = '0.2.1'
+
+
+def print_error(string: str) -> None:
+    print("Error: {}".format(string), file=stderr)
 
 
 def print_version() -> None:
@@ -7812,12 +7815,12 @@ def read_words_from_diceware(inputfile: str) -> list:
     return words
 
 
-def generate(wordlist: list, ammount_w: int, ammount_n: int) -> list:
+def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
     passphrase = []
-    for i in range(0, ammount_w):
+    for i in range(0, amount_w):
         passphrase.append(secrets.choice(wordlist))
 
-    for i in range(0, ammount_n):
+    for i in range(0, amount_n):
         passphrase.append(secrets.randbelow(MAX_NUM))
 
     return passphrase
@@ -7829,43 +7832,54 @@ def generate_password(length: int) -> str:
     return ''.join(secrets.choice(characters) for i in range(0, length + 1))
 
 
+def bigger_than_zero(value: int) -> int:
+    ivalue = int(value)
+    if ivalue < 0:
+        raise argparse.ArgumentTypeError(
+            "{} should be bigger than 0".format(ivalue)
+        )
+    return ivalue
+
+
 if __name__ == "__main__":
     import argparse
+    from sys import exit
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='Passphrase v{version} - Copyright HacKan '
-        '(https://hackan.net) GNU GPL v3.0+\n'
+        '(https://hackan.net) GNU GPL v3.0+.\n\n'
         'Generates a cryptographically secure passphrase, based on '
         'a wordlist, or a\npassword, and prints it to standard output.\n'
-        'By default, it uses EFF Large Wordlist for passphrases.\n'
+        'By default, it uses an embedded EFF Large Wordlist for passphrases.\n'
         'Passphrases with less than 5 words are considered insecure. '
         'A safe bet is \nbetween 5 and 7 words, plus at least a number.\n'
-        'For passwords, use at least 12 characters, but prefer 16 '
-        'or more.\n\n'
+        'For passwords, use at least {passwdmin} characters, but prefer '
+        '{passwdpref} or more.\n\n'
+        'Instead of words and numbers, a password (random string of '
+        'printable\ncharacters from Python String standard) can be generated '
+        'by\n-p | --password, specifying the length.\n'
         'A custom wordlist can be specified by -i | --input, the format must '
         'be: \nsingle column, one word per line. If -d | --diceware is used, '
         'the input\nfile is treated as a diceware wordlist (two columns).'
         '\nOptionally, -o | --output can be used to specify an output file '
         '(existing \nfile is overwritten).\n'
-        'Instead of words and numbers, a password (random string of\n'
-        'printable characters from Python String standard) can be generated '
-        'by\n-p | --password.\n'
-        'The number of words (or characters for password mode) is '
-        '{wordsammountmin} by default, but it\ncan be changed by '
-        '-w | --words.\n'
-        'The number of numbers is {numsammountmin} by default, but it can be '
+        'The number of words is {wordsamountmin} by default, but it '
+        'can be changed by -w | --words.\n'
+        'The number of numbers is {numsamountmin} by default, but it can be '
         'changed by\n-n | --numbers. The generated numbers are between 0 and '
         '{maxnum}.\n'
         'The default separator is a blank space, but any character or '
         'character\nsequence can be specified by -s | --separator.\n'
         '\nExample output:\n'
         '\tDefault parameters:\tchalice sheath postcard modular cider\n'
-        '\tWords=3, Numbers=2:\tdepraved widow 1822 32264\n'
-        '\tWords=20, Password mode:\tsF#s@B+iR#ZIL-yUWKPR'.format(
+        '\tWords=3, Numbers=2:\tdepraved widow office 1822 32264\n'
+        '\tPassword, 20 chars:\tsF#s@B+iR#ZIL-yUWKPR'.format(
             maxnum=MAX_NUM,
-            wordsammountmin=WORDS_AMMOUNT_MIN_DEFAULT,
-            numsammountmin=NUMS_AMMOUNT_MIN_DEFAULT,
+            wordsamountmin=WORDS_AMOUNT_MIN_DEFAULT,
+            numsamountmin=NUMS_AMOUNT_MIN_DEFAULT,
+            passwdmin=PASSWD_LEN_MIN_DEFAULT,
+            passwdpref=PASSWD_LEN_MIN_DEFAULT + 4,
             version=VERSION
         )
     )
@@ -7875,76 +7889,43 @@ if __name__ == "__main__":
         action="store_true",
         help="print program version and licensing information and exit"
     )
-
-    class WordsAction(argparse.Action):
-
-        def __call__(self, parser, namespace, values, option_string=None):
-            if values < 0 or values > 1000:
-                parser.error(
-                    "Ammount of words for {} is invalid: must be between "
-                    "{wordsammountmin} and {wordsammountmax})".format(
-                        option_string,
-                        wordsammountmin=WORDS_AMMOUNT_MIN_DEFAULT,
-                        wordsammountmax=WORDS_AMMOUNT_MAX_DEFAULT
-                    )
-                )
-
-            setattr(namespace, self.dest, values)
-
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="quiet mode, it won't print anything but error messages "
+             "(usefull with -o | --output)"
+    )
+    parser.add_argument(
+        "-p",
+        "--password",
+        type=bigger_than_zero,
+        const=PASSWD_LEN_MIN_DEFAULT,
+        nargs='?',
+        help="generate a password of specified lenght from all printable "
+             "characters"
+    )
     parser.add_argument(
         "-w",
         "--words",
-        type=int,
-        action=WordsAction,
-        default=5,
-        help="specify the number of words or characters in password mode "
-             "(between {wordsammountmin} and {wordsammountmax})".format(
-                 wordsammountmin=WORDS_AMMOUNT_MIN_DEFAULT,
-                 wordsammountmax=WORDS_AMMOUNT_MAX_DEFAULT
-             )
-        )
-
-    class WordsAction(argparse.Action):
-
-        def __call__(self, parser, namespace, values, option_string=None):
-            if values < 0 or values > 1000:
-                parser.error(
-                    "Ammount of numbers for {} is invalid: must be between "
-                    "{numsammountmin} and {numsammountmax})".format(
-                        option_string,
-                        numsammountmin=NUMS_AMMOUNT_MIN_DEFAULT,
-                        numsammountmax=NUMS_AMMOUNT_MAX_DEFAULT
-                    )
-                )
-
-            setattr(namespace, self.dest, values)
-
+        type=bigger_than_zero,
+        default=WORDS_AMOUNT_MIN_DEFAULT,
+        help="specify the amount of words (0 or more)"
+    )
     parser.add_argument(
         "-n",
         "--numbers",
-        type=int,
-        action=WordsAction,
-        default=0,
-        help="specify the number of numbers (between {numsammountmin} and "
-             "{numsammountmax})".format(
-                 numsammountmin=NUMS_AMMOUNT_MIN_DEFAULT,
-                 numsammountmax=NUMS_AMMOUNT_MAX_DEFAULT
-             )
+        type=bigger_than_zero,
+        default=NUMS_AMOUNT_MIN_DEFAULT,
+        help="specify the amount of numbers (0 or more)"
     )
-
     parser.add_argument(
         "-s",
         "--separator",
         type=str,
         default=' ',
         help="specify a separator character (space by default)"
-    )
-    parser.add_argument(
-        "-p",
-        "--password",
-        action="store_true",
-        help="generate a password from all printable characters (length in "
-             "characters with --w | --words)"
     )
     parser.add_argument(
         "-o",
@@ -7963,6 +7944,7 @@ if __name__ == "__main__":
         "-d",
         "--diceware",
         action="store_true",
+        default=False,
         help="specify input file as a diceware list (format: two colums)"
     )
 
@@ -7972,10 +7954,11 @@ if __name__ == "__main__":
     outputfile = args.output
     separator = args.separator
     is_diceware = args.diceware
-    gen_password = args.password
-    ammount_w = args.words
-    ammount_n = args.numbers
+    passwordlen = args.password
+    amount_w = args.words
+    amount_n = args.numbers
     show_version = args.version
+    quiet = args.quiet
 
     if show_version is True:
         print_version()
@@ -7989,19 +7972,21 @@ if __name__ == "__main__":
         else:
             words = read_words_from_file(inputfile)
     else:
-        raise ValueError("Input file doesn't exist")
+        print_error("Input file doesn't exist")
+        exit()
 
-    if gen_password is True:
-        passphrase = generate_password(ammount_w)
+    if passwordlen is not None:
+        passphrase = generate_password(passwordlen)
         separator = ''
     else:
-        passphrase = generate(wordlist=words, ammount_w=ammount_w,
-                              ammount_n=ammount_n)
+        passphrase = generate(wordlist=words, amount_w=amount_w,
+                              amount_n=amount_n)
 
-    if outputfile is None:
+    if quiet is False:
         print("".join('{}{}'.format(w, separator)
               for w in map(str, passphrase))[0:-1:])
-    else:
+
+    if outputfile is not None:
         with open(outputfile, mode='wt', encoding='utf-8') as outfile:
             outfile.write("".join('{}{}'.format(w, separator)
                           for w in map(str, passphrase))[0:-1:])
