@@ -19,9 +19,11 @@ A secure passphrase must be of at least 5 words, but 7 is better, and maybe you 
 
 Just download the script, preferrably fom the [latest release](/releases/latest) - releases are always signed - and give it execution permission. It can be run as `:~$ python3.6 src/passphrase.py`, or if you copy it to /usr/local/bin (system-wide availability) or ~/.local/bin (user-wide availability), as `:~$ passphrase`.
 
-Check the [man page](man/passphrase.md) for more information.
+You can use `make install` to install it system-wide (requires root or `sudo`) or `make altinstall` for user-wide. Installing it simply copies the script to destination along with the man page.
 
 ### Examples of use
+
+Check the [man page](man/passphrase.md) for more information.
 
 #### Generate a passphrase of 5 words (default settings)
 
