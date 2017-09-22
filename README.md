@@ -12,6 +12,8 @@ It also makes use of the [EFF Large Wordlist](https://www.eff.org/es/document/pa
 
 A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters (NIST's latest recommendation), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
+If you specify a list different than the EFF Large Wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. **Passphrase** calculates the minimum secure amount of words automatically and warns if the chosen number is low.
+
 ## Requirements
 
 For **Python 3.6+**:

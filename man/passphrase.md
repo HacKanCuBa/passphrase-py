@@ -12,8 +12,6 @@ usage: passphrase.py \[-h\] \[--version\] \[-q\] \[-p \[PASSWORD\]\]
 
 \[-n NUMBERS\] \[-s SEPARATOR\] \[-o OUTPUT\] \[-i INPUT\] \[-d\]
 
-Passphrase v0.2.3-1 - Copyright HacKan (https://hackan.net) GNU GPL v3.0+.
-
 Generates a cryptographically secure passphrase, based on a wordlist, or
 a password, and prints it to standard output. By default, it uses an
 embedded EFF Large Wordlist for passphrases. Passphrases with less than
@@ -31,7 +29,7 @@ treated as a diceware wordlist (two columns). Optionally, **-o** |
 overwritten). The number of words is 6 by default, but it can be changed
 by **-w** | **--words**. The number of numbers is 0 by default, but it
 can be changed by **-n** | **--numbers**. The generated numbers are
-between 0 and 999999. The default separator is a blank space, but any
+between 100000 and 999999. The default separator is a blank space, but any
 character or character sequence can be specified by **-s** |
 **--separator**.
 
@@ -39,7 +37,7 @@ character or character sequence can be specified by **-s** |
 
 Default parameters: `chalice sheath postcard modular cider`
 
-Words=3, Numbers=2: `depraved widow office 1822 32264`
+Words=3, Numbers=2: `depraved widow office 184022 320264`
 
 Password, 20 chars: `sF\#s@B+iR\#ZIL-yUWKPR`
 

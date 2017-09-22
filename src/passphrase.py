@@ -5,9 +5,16 @@ random number generator"""
 
 from string import digits, ascii_letters, punctuation
 from sys import stderr, version_info
+from math import log, ceil, fabs, log10
 from os.path import isfile
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
+
+# Numpy's replacement
+try:
+    from numpy import count_nonzero as np_count_nonzero, unique as np_unique
+except ImportError:
+    pass
 
 # EFF large wordlist
 WORDS_DEFAULT = (
@@ -7789,16 +7796,18 @@ WORDS_DEFAULT = (
     'zoom'
 )
 
+VERSION = '0.2.4'
+
 MAX_NUM = 999999
-WORDS_AMOUNT_MIN_DEFAULT = 6
+MIN_NUM = 100000
+WORDS_AMOUNT_MIN_DEFAULT = 6  # Just for EFF's Large Wordlist
 NUMS_AMOUNT_MIN_DEFAULT = 0
-PASSWD_LEN_MIN_DEFAULT = 8
+PASSWD_LEN_MIN_DEFAULT = 8  # From NIST's recomendation: http://bit.ly/2bpkyBc
+ENTROPY_BITS_MIN = 77  # From EFF's post: http://bit.ly/2p96a2a
 
-VERSION = '0.2.3-1'
 
-
-def print_error(string: str) -> None:
-    print("Error: {}".format(string), file=stderr)
+def print_stderr(string: str) -> None:
+    print("{}".format(string), file=stderr)
 
 
 def print_version() -> None:
@@ -7825,6 +7834,50 @@ def bigger_than_zero(value: int) -> int:
     return ivalue
 
 
+def entropy_bits(lst: list) -> float:
+    # Based on https://stackoverflow.com/a/45091961
+    n_lst = len(lst)
+
+    if n_lst <= 1:
+        return 0.0
+
+    # Some Numpy replacements
+    try:
+        value, counts = np_unique(lst, return_counts=True)
+    except NameError:
+        counts = [lst.count(x) for x in set(lst)]
+
+    try:
+        probs = counts / n_lst
+    except TypeError:
+        probs = [c / n_lst for c in counts]
+
+    try:
+        n_classes = np_count_nonzero(probs)
+    except NameError:
+        n_classes = len([x for x in probs if x != 0])
+
+    if n_classes <= 1:
+        return 0.0
+
+    # Compute entropy
+    ent = 0.0
+    for i in probs:
+        # log2() can be used if python 3.3+
+        ent -= i * log(i, 2)
+
+    return ent
+
+
+def entropy_bits_nrange(minimum: int, maximum: int) -> float:
+    # Shannon:
+    # d = fabs(maximum - minimum)
+    # ent = -(1/d) * log(1/d, 2) * d
+    # Aprox form: digits * log2(10)
+    ent = ceil(log10(fabs(maximum - minimum))) * 3.321928
+    return ent
+
+
 if version_info >= (3, 6):
     # Use Lib/secrets
     from secrets import choice, randbelow
@@ -7835,7 +7888,7 @@ if version_info >= (3, 6):
             passphrase.append(choice(wordlist))
 
         for i in range(0, amount_n):
-            passphrase.append(randbelow(MAX_NUM))
+            passphrase.append(randbelow(MAX_NUM - MIN_NUM + 1) + MIN_NUM)
 
         return passphrase
 
@@ -7850,14 +7903,12 @@ else:
 
     def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
         passphrase = []
-        index = None
-        num = None
         for i in range(0, amount_w):
             index = randombytes_uniform(len(wordlist))
             passphrase.append(wordlist[index])
 
         for i in range(0, amount_n):
-            num = randombytes_uniform(MAX_NUM)
+            num = randombytes_uniform(MAX_NUM - MIN_NUM + 1) + MIN_NUM
             passphrase.append(num)
 
         return passphrase
@@ -7900,14 +7951,15 @@ if __name__ == "__main__":
         'The number of words is {wordsamountmin} by default, but it '
         'can be changed by -w | --words.\n'
         'The number of numbers is {numsamountmin} by default, but it can be '
-        'changed by\n-n | --numbers. The generated numbers are between 0 and '
-        '{maxnum}.\n'
+        'changed by\n-n | --numbers. The generated numbers are between '
+        '{minnum} and {maxnum}.\n'
         'The default separator is a blank space, but any character or '
         'character\nsequence can be specified by -s | --separator.\n'
         '\nExample output:\n'
         '\tDefault parameters:\tchalice sheath postcard modular cider\n'
-        '\tWords=3, Numbers=2:\tdepraved widow office 1822 32264\n'
+        '\tWords=3, Numbers=2:\tdepraved widow office 184022 320264\n'
         '\tPassword, 20 chars:\tsF#s@B+iR#ZIL-yUWKPR'.format(
+            minnum=MIN_NUM,
             maxnum=MAX_NUM,
             wordsamountmin=WORDS_AMOUNT_MIN_DEFAULT,
             numsamountmin=NUMS_AMOUNT_MIN_DEFAULT,
@@ -7943,7 +7995,6 @@ if __name__ == "__main__":
         "-w",
         "--words",
         type=bigger_than_zero,
-        default=WORDS_AMOUNT_MIN_DEFAULT,
         help="specify the amount of words (0 or more)"
     )
     parser.add_argument(
@@ -8005,13 +8056,36 @@ if __name__ == "__main__":
         else:
             words = read_words_from_file(inputfile)
     else:
-        print_error("Input file doesn't exist")
+        print_stderr("Error: Input file doesn't exist")
         exit()
 
     if passwordlen is not None:
         passphrase = generate_password(passwordlen)
         separator = ''
     else:
+        # Thanks to @julianor for this tip to calculate default amount of
+        # entropy: minbitlen/log2(len(wordlist)).
+        # I set the minimum entropy bits and calculate the amount of words
+        # needed, cosidering the entropy of the wordlist.
+        # Then: entropy_w * amount_w + entropy_n * amount_n >= ENTROPY_BITS_MIN
+        entropy_n = entropy_bits_nrange(MIN_NUM, MAX_NUM)
+        entropy_w = entropy_bits(words)
+        amount_w_e = (ENTROPY_BITS_MIN - entropy_n * amount_n) / entropy_w
+        # print("entropy_n={}".format(entropy_n))
+        # print("entropy_w={}".format(entropy_w))
+        # print("amount_w_e={}".format(amount_w_e))
+
+        if amount_w_e > -1:
+            amount_w_default = ceil(abs(amount_w_e))
+        else:
+            amount_w_default = 0
+
+        if amount_w is None:
+            amount_w = amount_w_default
+        elif amount_w < amount_w_default:
+            print_stderr("Warning: Insecure amount of words chosen! Should be "
+                         "bigger than or equal to {}".format(amount_w_default))
+
         passphrase = generate(wordlist=words, amount_w=amount_w,
                               amount_n=amount_n)
 
