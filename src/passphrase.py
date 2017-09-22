@@ -7790,11 +7790,11 @@ WORDS_DEFAULT = (
 )
 
 MAX_NUM = 999999
-WORDS_AMOUNT_MIN_DEFAULT = 5
+WORDS_AMOUNT_MIN_DEFAULT = 6
 NUMS_AMOUNT_MIN_DEFAULT = 0
 PASSWD_LEN_MIN_DEFAULT = 8
 
-VERSION = '0.2.3'
+VERSION = '0.2.3-1'
 
 
 def print_error(string: str) -> None:
@@ -7884,8 +7884,9 @@ if __name__ == "__main__":
         'Generates a cryptographically secure passphrase, based on '
         'a wordlist, or a\npassword, and prints it to standard output.\n'
         'By default, it uses an embedded EFF Large Wordlist for passphrases.\n'
-        'Passphrases with less than 5 words are considered insecure. '
-        'A safe bet is \nbetween 5 and 7 words, plus at least a number.\n'
+        'Passphrases with less than {wordsamountmin} words are considered '
+        'insecure. A safe bet is \nbetween {wordsamountmin} and 7 words, '
+        'plus at least a number.\n'
         'For passwords, use at least {passwdmin} characters, but prefer '
         '{passwdpref} or more.\n\n'
         'Instead of words and numbers, a password (random string of '

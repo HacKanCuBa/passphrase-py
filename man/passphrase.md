@@ -12,12 +12,12 @@ usage: passphrase.py \[-h\] \[--version\] \[-q\] \[-p \[PASSWORD\]\]
 
 \[-n NUMBERS\] \[-s SEPARATOR\] \[-o OUTPUT\] \[-i INPUT\] \[-d\]
 
-Passphrase v0.2.1 - Copyright HacKan (https://hackan.net) GNU GPL v3.0+.
+Passphrase v0.2.3-1 - Copyright HacKan (https://hackan.net) GNU GPL v3.0+.
 
 Generates a cryptographically secure passphrase, based on a wordlist, or
 a password, and prints it to standard output. By default, it uses an
 embedded EFF Large Wordlist for passphrases. Passphrases with less than
-5 words are considered insecure. A safe bet is between 5 and 7 words,
+6 words are considered insecure. A safe bet is between 6 and 7 words,
 plus at least a number. For passwords, use at least 8 characters, but
 prefer 12 or more.
 
@@ -28,7 +28,7 @@ specified by **-i** | **--input**, the format must be: single column,
 one word per line. If **-d** | **--diceware** is used, the input file is
 treated as a diceware wordlist (two columns). Optionally, **-o** |
 **--output** can be used to specify an output file (existing file is
-overwritten). The number of words is 5 by default, but it can be changed
+overwritten). The number of words is 6 by default, but it can be changed
 by **-w** | **--words**. The number of numbers is 0 by default, but it
 can be changed by **-n** | **--numbers**. The generated numbers are
 between 0 and 999999. The default separator is a blank space, but any

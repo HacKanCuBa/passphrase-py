@@ -10,7 +10,7 @@ For **Python 3.6+**, it's currently based on the security of Python's [Lib/secre
 
 It also makes use of the [EFF Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
-A secure passphrase must be of at least 5 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters (NIST's latest recommendation), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
+A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters (NIST's latest recommendation), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
 ## Requirements
 
@@ -37,11 +37,11 @@ To install requirements, use pip: `pip3 install -r requirements.txt`.
 
 Check the [man page](man/passphrase.md) for more information.
 
-#### Generate a passphrase of 5 words (default settings)
+#### Generate a passphrase of 6 words (default settings)
 
 ```
 :~$ passphrase
-trophy affiliate clobber vivacious aspect
+trophy affiliate clobber vivacious aspect thickness
 ```
 
 #### Generate a passphrase of 6 words and a number (minimum recommended)
