@@ -7796,13 +7796,12 @@ WORDS_DEFAULT = (
     'zoom'
 )
 
-VERSION = '0.2.4'
+VERSION = '0.2.5'
 
 MAX_NUM = 999999
 MIN_NUM = 100000
 WORDS_AMOUNT_MIN_DEFAULT = 6  # Just for EFF's Large Wordlist
 NUMS_AMOUNT_MIN_DEFAULT = 0
-PASSWD_LEN_MIN_DEFAULT = 8  # From NIST's recomendation: http://bit.ly/2bpkyBc
 ENTROPY_BITS_MIN = 77  # From EFF's post: http://bit.ly/2p96a2a
 
 
@@ -7928,6 +7927,9 @@ if __name__ == "__main__":
     import argparse
     from sys import exit
 
+    # entropy_bits(list(characters)) = 6.554588
+    PASSWD_LEN_MIN_GOOD = ceil(ENTROPY_BITS_MIN / 6.554588)
+
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='Passphrase v{version} - Copyright HacKan '
@@ -7963,8 +7965,8 @@ if __name__ == "__main__":
             maxnum=MAX_NUM,
             wordsamountmin=WORDS_AMOUNT_MIN_DEFAULT,
             numsamountmin=NUMS_AMOUNT_MIN_DEFAULT,
-            passwdmin=PASSWD_LEN_MIN_DEFAULT,
-            passwdpref=PASSWD_LEN_MIN_DEFAULT + 4,
+            passwdmin=PASSWD_LEN_MIN_GOOD,
+            passwdpref=PASSWD_LEN_MIN_GOOD + 4,
             version=VERSION
         )
     )
@@ -7986,7 +7988,7 @@ if __name__ == "__main__":
         "-p",
         "--password",
         type=bigger_than_zero,
-        const=PASSWD_LEN_MIN_DEFAULT,
+        const=PASSWD_LEN_MIN_GOOD,
         nargs='?',
         help="generate a password of specified lenght from all printable "
              "characters"
@@ -8060,6 +8062,12 @@ if __name__ == "__main__":
         exit()
 
     if passwordlen is not None:
+        if passwordlen < PASSWD_LEN_MIN_GOOD:
+            print_stderr(
+                "Warning: Insecure password length chosen! Should be bigger "
+                "than or equal to {}".format(PASSWD_LEN_MIN_GOOD)
+            )
+
         passphrase = generate_password(passwordlen)
         separator = ''
     else:
@@ -8070,21 +8078,23 @@ if __name__ == "__main__":
         # Then: entropy_w * amount_w + entropy_n * amount_n >= ENTROPY_BITS_MIN
         entropy_n = entropy_bits_nrange(MIN_NUM, MAX_NUM)
         entropy_w = entropy_bits(words)
-        amount_w_e = (ENTROPY_BITS_MIN - entropy_n * amount_n) / entropy_w
+        amount_w_good_e = (ENTROPY_BITS_MIN - entropy_n * amount_n) / entropy_w
         # print("entropy_n={}".format(entropy_n))
         # print("entropy_w={}".format(entropy_w))
-        # print("amount_w_e={}".format(amount_w_e))
+        # print("amount_w_good_e={}".format(amount_w_good_e))
 
-        if amount_w_e > -1:
-            amount_w_default = ceil(abs(amount_w_e))
+        if amount_w_good_e > -1:
+            amount_w_good = ceil(abs(amount_w_good_e))
         else:
-            amount_w_default = 0
+            amount_w_good = 0
 
         if amount_w is None:
-            amount_w = amount_w_default
-        elif amount_w < amount_w_default:
-            print_stderr("Warning: Insecure amount of words chosen! Should be "
-                         "bigger than or equal to {}".format(amount_w_default))
+            amount_w = amount_w_good
+        elif amount_w < amount_w_good:
+            print_stderr(
+                "Warning: Insecure amount of words chosen! Should be "
+                "bigger than or equal to {}".format(amount_w_good)
+            )
 
         passphrase = generate(wordlist=words, amount_w=amount_w,
                               amount_n=amount_n)

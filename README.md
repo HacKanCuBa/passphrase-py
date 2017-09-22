@@ -12,17 +12,19 @@ It also makes use of the [EFF Large Wordlist](https://www.eff.org/es/document/pa
 
 A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters (NIST's latest recommendation), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
-If you specify a list different than the EFF Large Wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. **Passphrase** calculates the minimum secure amount of words automatically and warns if the chosen number is low.
+If you specify a list different than the EFF Large Wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. **Passphrase** calculates the minimum secure amount of words automatically and warns if the chosen number is low. It does the same for a password if it is too short.
 
 ## Requirements
 
 For **Python 3.6+**:
 
+* numpy 1.13+ [optional] for faster entropy computation
 * flake8 [optional] for linting
 
 For **Python 3.2+**:
 
 * LibNaCl 1.5+
+* numpy 1.13+ [optional] for faster entropy computation
 * flake8 [optional] for linting
 
 [passphrase.py](/src/passphrase.py) is a stand-alone, self contained script (the word list is embedded in it). It detects whether you have Python 3.6+ or lower, and acts accordingly. For Python 3.6+, it uses `Lib/secrets` (and is preferred); for Python 3.2+, `libnacl.randombytes_uniform`.
@@ -63,10 +65,10 @@ E`31nDL0^$oYu5='
 #### Use an external wordlist to generate a passphrase
 
 ```
-:~$ passphrase -i my-wordlist.txt
-anguished estate placard deceptive entity
-:~$ passphrase -d -i my-dicewarelike-wordlist.txt
-unnamed unmanned appendix fineness riverside
+:~$ passphrase -i eff_short_wordlist_1_1column.txt
+wimp broke dash pasta zebra viral outer clasp
+:~$ passphrase -d -i eff_short_wordlist_1.txt 
+mouse trend coach stain shut rhyme baggy scale
 ```
 
 #### Save the output to a file
