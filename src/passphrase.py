@@ -1,12 +1,15 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3
 
-"""Generates passphrases based on a word list using cryptographically secure
-random number generator"""
+"""Passphrase - Generates passphrases based on a word list using
+cryptographically secure random number generator.
+by HacKan (https://hackan.net) under GNU GPL v3.0+
+"""
 
 from string import digits, ascii_letters, punctuation
 from sys import stderr, version_info
 from math import log, ceil, fabs, log10
 from os.path import isfile
+from os import urandom as _urandom
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
@@ -7796,13 +7799,13 @@ WORDS_DEFAULT = (
     'zoom'
 )
 
-VERSION = '0.2.5'
+VERSION = '0.3.0'
 
 MAX_NUM = 999999
 MIN_NUM = 100000
 WORDS_AMOUNT_MIN_DEFAULT = 6  # Just for EFF's Large Wordlist
 NUMS_AMOUNT_MIN_DEFAULT = 0
-ENTROPY_BITS_MIN = 77  # From EFF's post: http://bit.ly/2p96a2a
+ENTROPY_BITS_MIN = 77  # From EFF's post: http://bit.ly/2hlExE6
 
 
 def print_stderr(string: str) -> None:
@@ -7877,50 +7880,45 @@ def entropy_bits_nrange(minimum: int, maximum: int) -> float:
     return ent
 
 
-if version_info >= (3, 6):
-    # Use Lib/secrets
-    from secrets import choice, randbelow
-
-    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
-        passphrase = []
-        for i in range(0, amount_w):
-            passphrase.append(choice(wordlist))
-
-        for i in range(0, amount_n):
-            passphrase.append(randbelow(MAX_NUM - MIN_NUM + 1) + MIN_NUM)
-
-        return passphrase
-
-    def generate_password(length: int) -> str:
-        characters = digits + ascii_letters + punctuation
-        return ''.join(choice(characters) for i in range(0, length + 1))
+def getrandbits(k: int) -> int:
+    """getrandbits(k) -> x.  Generates an int with k random bits."""
+    # https://github.com/python/cpython/blob/3.6/Lib/random.py#L676
+    if k <= 0:
+        raise ValueError('number of bits must be greater than zero')
+    if k != int(k):
+        raise TypeError('number of bits should be an integer')
+    numbytes = (k + 7) // 8                       # bits / 8 and rounded up
+    x = int.from_bytes(_urandom(numbytes), 'big')
+    return x >> (numbytes * 8 - k)                # trim excess bits
 
 
-else:
-    # Use libnacl
-    from libnacl import randombytes_uniform
+def randbelow(n: int) -> int:
+    """Return a random int in the range [0,n).  Raises ValueError if n==0."""
+    # https://github.com/python/cpython/blob/3.6/Lib/random.py#L223
+    k = n.bit_length()  # don't use (n-1) here because n can be 1
+    r = getrandbits(k)  # 0 <= r < 2**k
+    while r >= n:
+        r = getrandbits(k)
+    return r
 
-    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
-        passphrase = []
-        for i in range(0, amount_w):
-            index = randombytes_uniform(len(wordlist))
-            passphrase.append(wordlist[index])
 
-        for i in range(0, amount_n):
-            num = randombytes_uniform(MAX_NUM - MIN_NUM + 1) + MIN_NUM
-            passphrase.append(num)
+def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
+    passphrase = []
+    for i in range(0, amount_w):
+        index = randbelow(len(wordlist))
+        passphrase.append(wordlist[index])
 
-        return passphrase
+    for i in range(0, amount_n):
+        num = randbelow(MAX_NUM - MIN_NUM + 1) + MIN_NUM
+        passphrase.append(num)
 
-    def generate_password(length: int) -> str:
-        characters = digits + ascii_letters + punctuation
-        passwd = []
-        index = None
-        for i in range(0, length + 1):
-            index = randombytes_uniform(len(characters))
-            passwd.append(characters[index])
+    return passphrase
 
-        return ''.join(passwd)
+
+def generate_password(length: int) -> list:
+    characters = list(digits + ascii_letters + punctuation)
+    passwd = generate(characters, length, 0)
+    return passwd
 
 
 if __name__ == "__main__":
@@ -7990,7 +7988,7 @@ if __name__ == "__main__":
         type=bigger_than_zero,
         const=PASSWD_LEN_MIN_GOOD,
         nargs='?',
-        help="generate a password of specified lenght from all printable "
+        help="generate a password of specified length from all printable "
              "characters"
     )
     parser.add_argument(
@@ -8077,7 +8075,8 @@ if __name__ == "__main__":
         # needed, cosidering the entropy of the wordlist.
         # Then: entropy_w * amount_w + entropy_n * amount_n >= ENTROPY_BITS_MIN
         entropy_n = entropy_bits_nrange(MIN_NUM, MAX_NUM)
-        entropy_w = entropy_bits(words)
+        # The entropy for EFF Large Wordlist is 12.9, no need to calculate
+        entropy_w = entropy_bits(words) if inputfile is not None else 12.9
         amount_w_good_e = (ENTROPY_BITS_MIN - entropy_n * amount_n) / entropy_w
         # print("entropy_n={}".format(entropy_n))
         # print("entropy_w={}".format(entropy_w))
@@ -8099,11 +8098,17 @@ if __name__ == "__main__":
         passphrase = generate(wordlist=words, amount_w=amount_w,
                               amount_n=amount_n)
 
+    rm_last_separator = -len(separator) if len(separator) > 0 else None
+
     if quiet is False:
         print("".join('{}{}'.format(w, separator)
-              for w in map(str, passphrase))[0:-1:])
+              for w in map(str, passphrase))[:rm_last_separator:], end='')
 
     if outputfile is not None:
         with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-            outfile.write("".join('{}{}'.format(w, separator)
-                          for w in map(str, passphrase))[0:-1:])
+            outfile.write(
+                "".join(
+                    '{}{}'.format(w, separator) for w in map(str, passphrase)
+                )[:rm_last_separator:],
+                end=''
+            )

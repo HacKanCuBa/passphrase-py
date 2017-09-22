@@ -2,38 +2,27 @@
 
 **Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords.
 
-For **Python 3.2+**, it's currently based on the security of [LibNaCl's](https://github.com/saltstack/libnacl) [randombytes_uniform](https://download.libsodium.org/doc/generating_random_data/#usage), both passphrases and passwords are securelly generated using `libnacl.randombytes_uniform()`.
+Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number.
 
-For **Python 3.6+**, it's currently based on the security of Python's [Lib/secrets](https://docs.python.org/3/library/secrets.html#module-secrets), both passphrases and passwords are securelly generated using `secrets.choice()` and `secrets.randbelow()`:
-
-> The `secrets` module is used for generating cryptographically strong random numbers suitable for managing data such as passwords, account authentication, security tokens, and related secrets.
-
-It also makes use of the [EFF Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
+It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
 A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters (NIST's latest recommendation), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
-If you specify a list different than the EFF Large Wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. **Passphrase** calculates the minimum secure amount of words automatically and warns if the chosen number is low. It does the same for a password if it is too short.
+Those settings mentioned are speciffically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low.
 
 ## Requirements
 
-For **Python 3.6+**:
+* **Python 3.2+**
+* NumPy 1.13+ [optional] for faster entropy computation
+* Flake8 [optional] for linting
 
-* numpy 1.13+ [optional] for faster entropy computation
-* flake8 [optional] for linting
-
-For **Python 3.2+**:
-
-* LibNaCl 1.5+
-* numpy 1.13+ [optional] for faster entropy computation
-* flake8 [optional] for linting
-
-[passphrase.py](/src/passphrase.py) is a stand-alone, self contained script (the word list is embedded in it). It detects whether you have Python 3.6+ or lower, and acts accordingly. For Python 3.6+, it uses `Lib/secrets` (and is preferred); for Python 3.2+, `libnacl.randombytes_uniform`.
+[passphrase.py](/src/passphrase.py) is a stand-alone, self contained script (the word list is embedded in it). It gets plenty of benefits from NumPy if you use external wordlists, because it computes the entropy of it, but it works fine without it. For the embedded one, it makes no difference.
 
 ## How to use it
 
 Just download the script, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed - and give it execution permission. It can be run as `:~$ python3.6 src/passphrase.py`, or if you copy it to /usr/local/bin (system-wide availability) or ~/.local/bin (user-wide availability), as `:~$ passphrase`.
 
-You can use `make install` to install it system-wide (requires root or `sudo`) or `make altinstall` for user-wide. Installing it simply copies the script to destination along with the man page.
+You can use `make install` to install it system-wide (requires root or `sudo`) or `make altinstall` for user-wide. Installing it simply copies the script to destination directory, along with the man page.
 
 To install requirements, use pip: `pip3 install -r requirements.txt`.
 
@@ -98,64 +87,53 @@ gpg: encrypted with 1 passphrase
 
 ## Is this really secure?
 
-First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on known libraries and does not interferes with the random algorithm. The whole program is quite big, but most of it is just the menues and the word list. The generator algorithms are very short and simple:
-
-[For Python 3.6+](https://github.com/HacKanCuBa/passphrase-py/blob/e5f7bf30cc04cd257d1b05dbfad760f676e0b3e6/src/passphrase.py#L7830):
+First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on `os.urandom`. The whole program is quite big, but most of it is just the menues and the word list. The generator algorithms are very short and simple:
 
 ```python
-    from secrets import choice, randbelow
+def getrandbits(k: int) -> int:
+    """getrandbits(k) -> x.  Generates an int with k random bits."""
+    # https://github.com/python/cpython/blob/3.6/Lib/random.py#L676
+    if k <= 0:
+        raise ValueError('number of bits must be greater than zero')
+    if k != int(k):
+        raise TypeError('number of bits should be an integer')
+    numbytes = (k + 7) // 8                       # bits / 8 and rounded up
+    x = int.from_bytes(_urandom(numbytes), 'big')
+    return x >> (numbytes * 8 - k)                # trim excess bits
 
-    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
-        passphrase = []
-        for i in range(0, amount_w):
-            passphrase.append(choice(wordlist))
 
-        for i in range(0, amount_n):
-            passphrase.append(randbelow(MAX_NUM))
+def randbelow(n: int) -> int:
+    """Return a random int in the range [0,n).  Raises ValueError if n==0."""
+    # https://github.com/python/cpython/blob/3.6/Lib/random.py#L223
+    k = n.bit_length()  # don't use (n-1) here because n can be 1
+    r = getrandbits(k)  # 0 <= r < 2**k
+    while r >= n:
+        r = getrandbits(k)
+    return r
 
-        return passphrase
 
-    def generate_password(length: int) -> str:
-        characters = digits + ascii_letters + punctuation
-        return ''.join(choice(characters) for i in range(0, length + 1))
+def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
+    passphrase = []
+    for i in range(0, amount_w):
+        index = randbelow(len(wordlist))
+        passphrase.append(wordlist[index])
 
+    for i in range(0, amount_n):
+        num = randbelow(MAX_NUM - MIN_NUM + 1) + MIN_NUM
+        passphrase.append(num)
+
+    return passphrase
+
+
+def generate_password(length: int) -> list:
+    characters = list(digits + ascii_letters + punctuation)
+    passwd = generate(characters, length + 1, 0)
+    return passwd
 ```
 
-The whole magic is done by `choice(wordlist)` or `choice(characters)`, that returns a random value from the given list, and `randbelow(MAX_NUM)`, which returns a random natural number lower than the given maximum.
+The whole magic is done by `randbelow()`, that returns a random natural number lower than the given value, that is then used as index for the word or character list. `randbelow()` uses `getrandbits()` which in turn uses `os.urandom` at the back. `os.urandom` always provides an interface to the OS's cryptographically secure random generator. And both `randbelow()` and `getrandbits()` where copyied from Python's Lib/random, but trimmed down so that they don't allow anything fishy. This also makes **Passphrase** independent from unnecessary libraries and potential vulnerabilities.
 
-[For Python 3.2+](https://github.com/HacKanCuBa/passphrase-py/blob/e5f7bf30cc04cd257d1b05dbfad760f676e0b3e6/src/passphrase.py#L7849):
-
-```python
-    from libnacl import randombytes_uniform
-
-    def generate(wordlist: list, amount_w: int, amount_n: int) -> list:
-        passphrase = []
-        index = None
-        num = None
-        for i in range(0, amount_w):
-            index = randombytes_uniform(len(wordlist))
-            passphrase.append(wordlist[index])
-
-        for i in range(0, amount_n):
-            num = randombytes_uniform(MAX_NUM)
-            passphrase.append(num)
-
-        return passphrase
-
-    def generate_password(length: int) -> str:
-        characters = digits + ascii_letters + punctuation
-        passwd = []
-        index = None
-        for i in range(0, length + 1):
-            index = randombytes_uniform(len(characters))
-            passwd.append(characters[index])
-
-        return ''.join(passwd)
-```
-
-The whole magic is done by `randombytes_uniform()`, that returns a random natural number lower than the given value, which is then used as index for the word or character list.
-
-Both algorithms are very similar and pretty straight forward, easy to understand and verify. *Boring crypto is the best crypto*.
+The algorithms are very straight forward, easy to understand and verify. *Boring crypto is the best crypto*.
 
 ## License
 
