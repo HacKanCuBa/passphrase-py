@@ -35,7 +35,7 @@ character or character sequence can be specified by **-s** |
 
 **Example output:**
 
-Default parameters: `chalice sheath postcard modular cider`
+Default parameters: `chalice sheath postcard modular cider size`
 
 Words=3, Numbers=2: `depraved widow office 184022 320264`
 
