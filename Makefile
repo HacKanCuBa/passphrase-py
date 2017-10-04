@@ -27,8 +27,9 @@ install-common:
 	mkdir $(TMPDIR)/src/
 	cp -f passphrase/*.py $(TMPDIR)/src/
 	cp -f passphrase/*.json $(TMPDIR)/src/
-	@sed -i 's/from .passphrase import Passphrase/from passphrase import Passphrase/g' "$(TMPDIR)/src/__main__.py"
-	@sed -i "s/from .secrets import randbelow/from secrets import randbelow/; s/from .calc import entropy_bits as calc_entropy_bits/from calc import entropy_bits as calc_entropy_bits/; s/from .calc import entropy_bits_nrange as calc_entropy_bits_nrange/from calc import entropy_bits_nrange as calc_entropy_bits_nrange/; s/from .calc import password_len_needed as calc_password_len_needed/from calc import password_len_needed as calc_password_len_needed/; s/from .calc import words_amount_needed as calc_words_amount_needed/from calc import words_amount_needed as calc_words_amount_needed/;" "$(TMPDIR)/src/passphrase.py"
+	@sed -i 's/from .passphrase/from passphrase/g' "$(TMPDIR)/src/__main__.py"
+	@sed -i 's/from .settings/from settings/g' "$(TMPDIR)/src/calc.py"
+	@sed -i "s/from .secrets/from secrets/g; s/from .calc/from calc/g; s/from .settings/from settings/g" "$(TMPDIR)/src/passphrase.py"
 	@if command -v zip 2> /dev/null; then \
 		zip -j -r $(TMPDIR)/passphrase.zip $(TMPDIR)/src/*; \
 	elif python3 -c 'from sys import version_info; assert (version_info >= (3, 5)), "Python 3.5+ required"' 2> /dev/null; then \

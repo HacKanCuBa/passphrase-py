@@ -1,14 +1,12 @@
 # Passphrase
 
-**Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. A passphrase is a list of words usually separated by a blank space.
+**Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. A passphrase is a list of words usually separated by a blank space. This tool acts like a [diceware](http://world.std.com/~reinhold/diceware.html) generator (more info in [EFF's website](https://www.eff.org/es/dice)).
 
-Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number.
-
-It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
+Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number. It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
 A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters ([NIST's latest recommendation](https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/)), and preffer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
-Those settings mentioned are specifically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low (when used as a script).
+Those settings mentioned are specifically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low (when used as a script), by calculating the list's entropy.
 
 ## Requirements
 
@@ -16,7 +14,8 @@ Those settings mentioned are specifically for the EFF's Large Wordlist. If you s
 * NumPy 1.13+ [optional] for faster entropy computation
 * Flake8 [optional] for linting
 
-Passphrase gets plenty of benefits from NumPy if you use an external wordlist, because it computes the entropy of it, but it works fine without it. For the sake of security, you might want to avoid using any external library.
+Passphrase gets plenty of benefits from NumPy if you use an external wordlist, because it computes the entropy of it, but it works fine without it.  
+For the sake of security, you might want to avoid using any external library. It's possible to entirely disable the use of NumPy by setting `TRY_NUMPY = False` in [settings.py](passphrase/settings.py).
 
 ## How to use it
 
@@ -183,6 +182,26 @@ def generate_password(self, length: int = None) -> list:
 The whole magic is done by `randbelow()`, that returns a random natural number lower than the given value, that is then used as index for the word or character list. `randbelow()` uses `getrandbits()` which in turn uses `os.urandom` at the back. `os.urandom` always provides an interface to the OS's cryptographically secure random generator. And both `randbelow()` and `getrandbits()` where copyied from Python's Lib/random, but trimmed down so that they don't allow anything fishy. This also makes **Passphrase** independent from unnecessary libraries and potential vulnerabilities.
 
 The algorithms are very straight forward, easy to understand and verify. *Boring crypto is the best crypto*.
+
+### Attack surface
+
+Let's analyze some possible attack scenarios and its mitigations. If you want to add something or you see a mistake, please write an [issue](https://github.com/HacKanCuBa/passphrase-py/issues).
+
+#### Attacker is root
+
+TL;DR: **game over**.
+
+An attacker that is *root* can do whatever it wants, so it's out of the scope of this analysis.
+
+#### Attacker can modify source code or wordlist
+
+If it can modify the source code somehow, or the default [wordlist](passphrase/wordlist.json), it's also game over since a software that succesfully checks itself doesn't exist yet. However, it could be mitigated by placing the files under the ownership of some privileged user (*root*).
+
+#### Attacker can modify external libraries
+
+**Passphrase** doesn't require any external library, but if NumPy exists, it will use it. Let's assume the attacker has full control over this library, which is used to improve entropy calculations.  
+The attacker could alter it so that the resulting entropy calculation is bigger than it should, so that Passphrase will recommend (or use) shorter passphrases or passwords. This attack would only be possible if Passphrase is being use as a script with default parameters or as a module in a script with entropy-based calculated parameters. In that scenario, the attack succeeds in reducing the difficulty in bruteforcing the passphrase/password by making Passphrase generate very short passphrases/passwords. However, using Passphrase like that is not the best practice: the user should realize that passphrases/passwords are too short, and should avoid using default parameters (as a general rule of thumb, always set what you want and expect).  
+Either way, this can be mitigated by setting `TRY_NUMPY = False` in [settings.py](passphrase/settings.py).
 
 ## License
 

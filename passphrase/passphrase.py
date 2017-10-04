@@ -11,14 +11,11 @@ from .calc import entropy_bits as calc_entropy_bits
 from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
 from .calc import password_len_needed as calc_password_len_needed
 from .calc import words_amount_needed as calc_words_amount_needed
+from .settings import MIN_NUM, MAX_NUM, ENTROPY_BITS_MIN
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
 __version__ = "0.4.1"
-
-MIN_NUM = 100000
-MAX_NUM = 999999
-ENTROPY_BITS_MIN = 77  # From EFF's post: http://bit.ly/2hlExE6
 
 
 class Passphrase():

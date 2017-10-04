@@ -2,6 +2,7 @@
 """
 
 from math import ceil, fabs, log10
+from .settings import TRY_NUMPY
 
 __version__ = "0.4.0"
 
@@ -13,11 +14,15 @@ except ImportError:
     def log2(num: float) -> float:
         return log(num, 2)
 
-# Numpy's replacement
-try:
-    from numpy import count_nonzero as np_count_nonzero, unique as np_unique
-except ImportError:
-    pass
+
+if TRY_NUMPY is True:
+    try:
+        from numpy import count_nonzero as np_count_nonzero
+        from numpy import unique as np_unique
+
+        NUMPY = True
+    except ImportError:
+        NUMPY = False
 
 
 def entropy_bits(lst: list) -> float:
@@ -27,20 +32,14 @@ def entropy_bits(lst: list) -> float:
     if n_lst <= 1:
         return 0.0
 
-    # Some Numpy replacements
-    try:
+    if TRY_NUMPY is True and NUMPY is True:
         value, counts = np_unique(lst, return_counts=True)
-    except NameError:
-        counts = [lst.count(x) for x in set(lst)]
-
-    try:
         probs = counts / n_lst
-    except TypeError:
-        probs = [c / n_lst for c in counts]
-
-    try:
         n_classes = np_count_nonzero(probs)
-    except NameError:
+    else:
+        # Some NumPy replacements
+        counts = [lst.count(x) for x in set(lst)]
+        probs = [c / n_lst for c in counts]
         n_classes = len([x for x in probs if x != 0])
 
     if n_classes <= 1:
