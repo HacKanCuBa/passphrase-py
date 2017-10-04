@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+
 PREFIX ?= /usr/local
 ALTPREFIX ?= $(HOME)/.local
 DESTDIR ?=
@@ -21,14 +23,22 @@ clean:
 package-install:
 	python3 setup.py install
 
-install-common: clean
+install-common:
 	mkdir $(TMPDIR)/src/
 	cp -f passphrase/*.py $(TMPDIR)/src/
 	cp -f passphrase/*.json $(TMPDIR)/src/
 	@sed -i 's/from .passphrase import Passphrase/from passphrase import Passphrase/g' "$(TMPDIR)/src/__main__.py"
 	@sed -i "s/from .secrets import randbelow/from secrets import randbelow/; s/from .calc import entropy_bits as calc_entropy_bits/from calc import entropy_bits as calc_entropy_bits/; s/from .calc import entropy_bits_nrange as calc_entropy_bits_nrange/from calc import entropy_bits_nrange as calc_entropy_bits_nrange/; s/from .calc import password_len_needed as calc_password_len_needed/from calc import password_len_needed as calc_password_len_needed/; s/from .calc import words_amount_needed as calc_words_amount_needed/from calc import words_amount_needed as calc_words_amount_needed/;" "$(TMPDIR)/src/passphrase.py"
-	zip -j -r $(TMPDIR)/passphrase.zip $(TMPDIR)/src/*
-	@echo '#!/usr/bin/env python3' | cat - "$(TMPDIR)/passphrase.zip" > "$(TMPDIR)/passphrase"
+	@if command -v zip 2> /dev/null; then \
+		zip -j -r $(TMPDIR)/passphrase.zip $(TMPDIR)/src/*; \
+	elif python3 -c 'from sys import version_info; assert (version_info >= (3, 5)), "Python 3.5+ required"' 2> /dev/null; then \
+		python3 -m zipapp "$(TMPDIR)/src" && \
+			mv "$(TMPDIR)/src.pyz" "$(TMPDIR)/passphrase.zip"; \
+	else \
+		echo "No zip command found and Python seems < 3.5, bailing out..." && \
+			exit 1; \
+	fi; \
+	echo '#!/usr/bin/env python3' | cat - "$(TMPDIR)/passphrase.zip" > "$(TMPDIR)/passphrase"
 	@chmod +x "$(TMPDIR)/passphrase"
 
 install: install-common
