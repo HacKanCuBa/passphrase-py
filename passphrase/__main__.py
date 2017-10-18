@@ -88,6 +88,12 @@ def main():
         help="print program version and licensing information and exit"
     )
     parser.add_argument(
+        "--newline",
+        action="store_true",
+        default=False,
+        help="print newline at the end of the passphrase/password"
+    )
+    parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
@@ -156,6 +162,7 @@ def main():
     amount_n = args.numbers
     show_version = args.version
     quiet = args.quiet
+    newline = args.newline
 
     if show_version is True:
         print_version()
@@ -195,11 +202,15 @@ def main():
     passphrase.separator = separator
 
     if quiet is False:
-        print(passphrase, end='')
+        if newline is True:
+            print(passphrase)
+        else:
+            print(passphrase, end='')
 
     if outputfile is not None:
         with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-            outfile.write(str(passphrase))
+            lf = '\n' if newline is True else ''
+            outfile.write(str(passphrase) + lf)
 
 
 if __name__ == "__main__":

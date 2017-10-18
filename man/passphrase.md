@@ -51,6 +51,10 @@ show this help message and exit
 
 print program version and licensing information and exit
 
+**--newline**
+
+print newline at the end of the passphrase/password
+
 **-q**, **--quiet**
 
 quiet mode, it won’t print anything but error messages (usefull with
