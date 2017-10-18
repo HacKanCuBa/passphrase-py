@@ -3,13 +3,14 @@ Passphrase
 
 **Passphrase** is a tool to generate **cryptographically secure**
 passphrases and passwords. A passphrase is a list of words usually
-separated by a blank space.
+separated by a blank space. This tool acts like a
+`diceware <http://world.std.com/~reinhold/diceware.html>`__ generator
+(more info in `EFF's website <https://www.eff.org/es/dice>`__).
 
 Its security is based on Python's
 `os.urandom <https://docs.python.org/3/library/os.html#os.urandom>`__ to
-get cryptographically secure random bits to make an integer number.
-
-It also makes use of the `EFF's Large
+get cryptographically secure random bits to make an integer number. It
+also makes use of the `EFF's Large
 Wordlist <https://www.eff.org/es/document/passphrase-wordlists>`__ as
 words reference for passphrases.
 
@@ -17,7 +18,7 @@ A secure passphrase must be of at least 6 words, but 7 is better, and
 maybe you can add a random number to the list. If you need a password,
 make it bigger than 8 characters (`NIST's latest
 recommendation <https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/>`__),
-and preffer more than 12 (I recommend 16 or more). Passwords are
+and prefer more than 12 (I recommend 16 or more). Passwords are
 comprised of digits, upper and lower case letters and punctuation
 symbols - more specifically: ``ascii_letters``, ``digits`` and
 ``punctuation`` from
@@ -30,7 +31,7 @@ passphrase to be secure changes: for shorter lists, the amount
 increases. The minimum secure amount of words (for a passphrase) or
 characters (for a password) are calculated by **Passphrase** and a
 warning is shown if the chosen number is too low (when used as a
-script).
+script), by calculating the list's entropy.
 
 Requirements
 ------------
@@ -39,10 +40,12 @@ Requirements
 -  NumPy 1.13+ [optional] for faster entropy computation
 -  Flake8 [optional] for linting
 
-Passphrase gets plenty of benefits from NumPy if you use an external
-wordlist, because it computes the entropy of it, but it works fine
-without it. For the sake of security, you might want to avoid using any
-external library.
+| Passphrase gets plenty of benefits from NumPy if you use an external
+  wordlist, because it computes the entropy of it, but it works fine
+  without it.
+| For the sake of security, you might want to avoid using any external
+  library. It's possible to entirely disable the use of NumPy by setting
+  ``TRY_NUMPY = False`` in `settings.py <passphrase/settings.py>`__.
 
 How to use it
 -------------
@@ -65,6 +68,8 @@ can also do ``make package-install`` with the same outcome. Run it with
 Examples of use
 ^^^^^^^^^^^^^^^
 
+A good example is how `I implemented it <passphrase/__main__.py>`__.
+
 .. code:: python
 
     from passphrase.passphrase import Passphrase
@@ -83,10 +88,6 @@ Examples of use
     passphrase.amount_w = passphrase.words_amount_needed()
     passphrase.generate()
     # >>> ['grub', 'mummy', 'woozy', 'whole', 'ritzy', 'sift', 'train', 'radar']
-
-    # Another way to do the same
-    passphrase.generate(None, passphrase.words_amount_needed())
-    # >>> ['echo', 'payer', 'trait', 'deal', 'scrap', 'guru', 'mop', 'snout']
 
     # Change the wordlist (note than no other parameter is changed!)
     passphrase.import_words_from_file('/tmp/some_other_wordlist.txt', False)
@@ -176,7 +177,8 @@ First of all, we will say that a password or passphrase generator
 algorithm is secure if its output is *trully* random. To achieve that,
 **Passphrase** relies entirely on ``os.urandom``. The whole program is
 quite big, but most of it is just the menues and the word list. The
-generator algorithms are very short and simple:
+generator algorithms are very short and simple (simplified code with
+type-checking removed):
 
 .. code:: python
 
@@ -184,19 +186,15 @@ generator algorithms are very short and simple:
     # passphrase > secrets.py
     def getrandbits(nbits: int) -> int:
         """Generates an int with nbits random bits."""
-        # https://github.com/python/cpython/blob/3.6/Lib/random.py#L676
-        if nbits <= 0:
-            raise ValueError('number of bits must be greater than zero')
-        if nbits != int(nbits):
-            raise TypeError('number of bits should be an integer')
+
         nbytes = (nbits + 7) // 8                       # bits / 8 and rounded up
         num = int.from_bytes(_urandom(nbytes), 'big')
-        return num >> (nbytes * 8 - nbits)                # trim excess bits
+        return num >> (nbytes * 8 - nbits)              # trim excess bits
 
     def randbelow(num: int) -> int:
-        """Return a random int in the range [0,num).  Raises ValueError if n==0."""
-        # https://github.com/python/cpython/blob/3.6/Lib/random.py#L223
-        nbits = num.bit_length()  # don't use (n-1) here because n can be 1
+        """Return a random int in the range [0,num)."""
+
+        nbits = num.bit_length()      # don't use (n-1) here because n can be 1
         randnum = getrandbits(nbits)  # 0 <= randnum < 2**nbits
         while randnum >= num:
             randnum = getrandbits(nbits)
@@ -205,46 +203,90 @@ generator algorithms are very short and simple:
 
     ## Passphrase or password generation using the random number as index of a list
     # passphrase > passphrase.py
-    def generate(self,
-                 wordlist: list = None,
-                 amount_w: int = None,
-                 amount_n: int = None) -> list:
-        wordlist = self._wordlist if wordlist is None else wordlist
-        amount_w = self.amount_w if amount_w is None else amount_w
-        amount_n = self.amount_n if amount_n is None else amount_n
+    def generate(self) -> list:
+        """Generates a list of words randomly chosen from a wordlist"""
 
         passphrase = []
-        for _ in range(0, amount_w):
-            index = randbelow(len(wordlist))
-            passphrase.append(wordlist[index])
+        for _ in range(0, self.amount_w):
+            index = randbelow(len(self.wordlist))
+            passphrase.append(self.wordlist[index])
 
-        for _ in range(0, amount_n):
-            num = randbelow(self.randnum_max - self.randnum_min + 1)
-            num += self.randnum_min
+        for _ in range(0, self.amount_n):
+            num = randbelow(self.randnum_max - self.randnum_min + 1) + self.randnum_min
             passphrase.append(num)
 
-        self.last_result = passphrase
         return passphrase
 
-    def generate_password(self, length: int = None) -> list:
-        length = self.passwordlen if length is None else length
+    def generate_password(self) -> list:
+        """Generates a list of random characters"""
+
         characters = list(digits + ascii_letters + punctuation)
-        password = self.generate(characters, length, 0)
-        self.last_result = password
+        password = []
+        for _ in range(0, self.passwordlen):
+            index = randbelow(len(characters))
+            password.append(characters[index])
+
         return password
 
-The whole magic is done by ``randbelow()``, that returns a random
+The whole magic is done by
+```randbelow()`` <passphrase/secrets.py#L24>`__, that returns a random
 natural number lower than the given value, that is then used as index
-for the word or character list. ``randbelow()`` uses ``getrandbits()``
-which in turn uses ``os.urandom`` at the back. ``os.urandom`` always
-provides an interface to the OS's cryptographically secure random
-generator. And both ``randbelow()`` and ``getrandbits()`` where copyied
-from Python's Lib/random, but trimmed down so that they don't allow
-anything fishy. This also makes **Passphrase** independent from
-unnecessary libraries and potential vulnerabilities.
+for the word or character list. ``randbelow()`` uses
+```getrandbits()`` <passphrase/secrets.py#L12>`__ which in turn uses
+``os.urandom`` at the back. ``os.urandom`` always provides an interface
+to the OS's cryptographically secure random generator. And both
+``randbelow()`` and ``getrandbits()`` where copyied from Python's
+Lib/random, but trimmed down so that they don't allow anything fishy.
+This also makes **Passphrase** independent from unnecessary libraries
+and potential vulnerabilities.
 
 The algorithms are very straight forward, easy to understand and verify.
 *Boring crypto is the best crypto*.
+
+Attack surface
+~~~~~~~~~~~~~~
+
+Let's analyze some possible attack scenarios and its mitigations. If you
+want to add something or you see a mistake, please write an
+`issue <https://github.com/HacKanCuBa/passphrase-py/issues>`__.
+
+Attacker is root
+^^^^^^^^^^^^^^^^
+
+TL;DR: **game over**.
+
+An attacker that is *root* can do whatever it wants, so it's out of the
+scope of this analysis.
+
+Attacker can modify source code or wordlist
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If it can modify the source code somehow, or the default
+`wordlist <passphrase/wordlist.json>`__, it's also game over since a
+software that succesfully checks itself doesn't exist yet. However, it
+could be mitigated by placing the files under the ownership of some
+privileged user (*root*).
+
+Attacker can modify external libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| **Passphrase** doesn't require any external library, but if NumPy
+  exists, it will use it. Let's assume the attacker has full control
+  over this library, which is used to improve entropy calculations.
+| The attacker could alter it so that the resulting entropy calculation
+  is bigger than it should, so that Passphrase will recommend (or use)
+  shorter passphrases or passwords. This attack would only be possible
+  if Passphrase is being use as a script with default parameters or as a
+  module in a script with entropy-based calculated parameters. In that
+  scenario, the attack succeeds in reducing the difficulty in
+  bruteforcing the passphrase/password by making Passphrase generate
+  very short passphrases/passwords. However, using Passphrase like that
+  is not the best practice: the user should realize that
+  passphrases/passwords are too short, and should avoid using default
+  parameters (as a general rule of thumb, always set what you want and
+  expect).
+| Either way, this can be mitigated by setting ``TRY_NUMPY = False`` in
+  `settings.py <passphrase/settings.py>`__.
 
 License
 -------

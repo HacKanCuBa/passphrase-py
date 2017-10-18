@@ -15,7 +15,7 @@ from .settings import MIN_NUM, MAX_NUM, ENTROPY_BITS_MIN
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 
 class Passphrase():
@@ -32,16 +32,110 @@ class Passphrase():
         last_result: The last generated passphrase or password.
     """
 
-    passwordlen = 12    # For EFF Large Wordlist
-    amount_n = 0
-    amount_w = 6        # For EFF Large Wordlist
+    _passwordlen = 12    # For EFF Large Wordlist
+    _amount_n = 0
+    _amount_w = 6        # For EFF Large Wordlist
     last_result = []
-    randnum_min = MIN_NUM
-    randnum_max = MAX_NUM
-    entropy_bits_req = ENTROPY_BITS_MIN
+    _randnum_min = MIN_NUM
+    _randnum_max = MAX_NUM
+    _entropy_bits_req = ENTROPY_BITS_MIN
     _wordlist = []
     _wordlist_entropy_bits = 0
     _external_wordlist = False
+    _separator = ' '
+
+    @property
+    def entropy_bits_req(self):
+        return self._entropy_bits_req
+
+    @entropy_bits_req.setter
+    def entropy_bits_req(self, entropybits: float) -> None:
+        if not isinstance(entropybits, (int, float)):
+            raise TypeError('entropy_bits_req can only be int or float')
+        if entropybits < 0:
+            raise ValueError('entropy_bits_req should be greater than 0')
+        self._entropy_bits_req = float(entropybits)
+
+    @property
+    def randnum_min(self):
+        return self._randnum_min
+
+    @randnum_min.setter
+    def randnum_min(self, randnum: int) -> None:
+        if not isinstance(randnum, int):
+            raise TypeError('randnum_min can only be int')
+        if randnum < 0:
+            raise ValueError('randnum_min should be greater than 0')
+        self._randnum_min = randnum
+
+    @property
+    def randnum_max(self):
+        return self._randnum_max
+
+    @randnum_max.setter
+    def randnum_max(self, randnum: int) -> None:
+        if not isinstance(randnum, int):
+            raise TypeError('randnum_max can only be int')
+        if randnum < 0:
+            raise ValueError('randnum_max should be greater than 0')
+        self._randnum_max = randnum
+
+    @property
+    def amount_w(self):
+        return self._amount_w
+
+    @amount_w.setter
+    def amount_w(self, amount: int) -> None:
+        if not isinstance(amount, int):
+            raise TypeError('amount_w can only be int')
+        if amount < 0:
+            raise ValueError('amount_w should be greater than 0')
+        self._amount_w = amount
+
+    @property
+    def amount_n(self):
+        return self._amount_n
+
+    @amount_n.setter
+    def amount_n(self, amount: int) -> None:
+        if not isinstance(amount, int):
+            raise TypeError('amount_n can only be int')
+        if amount < 0:
+            raise ValueError('amount_n should be greater than 0')
+        self._amount_n = amount
+
+    @property
+    def passwordlen(self):
+        return self._passwordlen
+
+    @passwordlen.setter
+    def passwordlen(self, length: int) -> None:
+        if not isinstance(length, int):
+            raise TypeError('passwordlen can only be int')
+        if length < 0:
+            raise ValueError('passwordlen should be greater than 0')
+        self._passwordlen = length
+
+    @property
+    def separator(self):
+        return self._separator
+
+    @separator.setter
+    def separator(self, sep: str) -> None:
+        if not isinstance(sep, str):
+            raise TypeError('separator can only be string')
+        self._separator = sep
+
+    @property
+    def wordlist(self):
+        return self._wordlist
+
+    @wordlist.setter
+    def wordlist(self, words: list) -> None:
+        if not isinstance(words, (list, tuple)):
+            raise TypeError('wordlist can only be list or tuple')
+        self._wordlist = list(words)
+        self._external_wordlist = True
 
     def __init__(self,
                  inputfile: str = None,
@@ -59,6 +153,20 @@ class Passphrase():
             ).decode('utf-8'))
             self._wordlist = wordlist['wordlist']
             self._wordlist_entropy_bits = wordlist['entropy_bits']
+            self._external_wordlist = False
+
+    def __str__(self) -> str:
+        if self.last_result is None:
+            return ''
+
+        separator_len = len(self.separator)
+        rm_last_separator = -separator_len if separator_len > 0 else None
+        return "".join(
+            '{}{}'.format(w, self.separator) for w in map(
+                str,
+                self.last_result
+            )
+        )[:rm_last_separator:]
 
     @staticmethod
     def entropy_bits(lst: list) -> float:
@@ -71,8 +179,8 @@ class Passphrase():
         """
         size = len(lst)
         if (size == 2 and
-                isinstance(lst[0], int) is True and
-                isinstance(lst[1], int) is True):
+                isinstance(lst[0], (int, float)) is True and
+                isinstance(lst[1], (int, float)) is True):
             return calc_entropy_bits_nrange(lst[0], lst[1])
 
         return calc_entropy_bits(lst)
@@ -101,15 +209,14 @@ class Passphrase():
                                inputfile: str,
                                is_diceware: bool) -> None:
         if is_diceware is True:
-            self._wordlist = self._read_words_from_diceware(inputfile)
+            self.wordlist = self._read_words_from_diceware(inputfile)
         else:
-            self._wordlist = self._read_words_from_wordfile(inputfile)
-        self._external_wordlist = True
+            self.wordlist = self._read_words_from_wordfile(inputfile)
 
-    def password_len_needed(self) -> float:
+    def password_len_needed(self) -> int:
         return calc_password_len_needed(self.entropy_bits_req)
 
-    def words_amount_needed(self) -> float:
+    def words_amount_needed(self) -> int:
         # Thanks to @julianor for this tip to calculate default amount of
         # entropy: minbitlen/log2(len(wordlist)).
         # I set the minimum entropy bits and calculate the amount of words
@@ -130,30 +237,18 @@ class Passphrase():
             self.amount_n
         )
 
-    def stringify_last_result(self, separator: str = ' ') -> str:
-        if self.last_result is None:
-            return ''
+    def generate(self) -> list:
+        """Generates a list of words randomly chosen from a wordlist"""
 
-        separator_len = len(separator)
-        rm_last_separator = -separator_len if separator_len > 0 else None
-        return "".join(
-            '{}{}'.format(w, separator) for w in map(str, self.last_result)
-        )[:rm_last_separator:]
-
-    def generate(self,
-                 wordlist: list = None,
-                 amount_w: int = None,
-                 amount_n: int = None) -> list:
-        wordlist = self._wordlist if wordlist is None else wordlist
-        amount_w = self.amount_w if amount_w is None else amount_w
-        amount_n = self.amount_n if amount_n is None else amount_n
+        if len(self.wordlist) < 1:
+            raise ValueError('wordlist can\'t be empty')
 
         passphrase = []
-        for _ in range(0, amount_w):
-            index = randbelow(len(wordlist))
-            passphrase.append(wordlist[index])
+        for _ in range(0, self.amount_w):
+            index = randbelow(len(self.wordlist))
+            passphrase.append(self.wordlist[index])
 
-        for _ in range(0, amount_n):
+        for _ in range(0, self.amount_n):
             num = randbelow(self.randnum_max - self.randnum_min + 1)
             num += self.randnum_min
             passphrase.append(num)
@@ -161,9 +256,14 @@ class Passphrase():
         self.last_result = passphrase
         return passphrase
 
-    def generate_password(self, length: int = None) -> list:
-        length = self.passwordlen if length is None else length
+    def generate_password(self) -> list:
+        """Generates a list of random characters"""
+
         characters = list(digits + ascii_letters + punctuation)
-        password = self.generate(characters, length, 0)
+        password = []
+        for _ in range(0, self.passwordlen):
+            index = randbelow(len(characters))
+            password.append(characters[index])
+
         self.last_result = password
         return password
