@@ -11,7 +11,7 @@ from .passphrase import Passphrase
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
@@ -175,7 +175,8 @@ def main():
                 "than or equal to {}".format(PASSWD_LEN_MIN_GOOD)
             )
 
-        passphrase.generate_password(passwordlen)
+        passphrase.passwordlen = passwordlen
+        passphrase.generate_password()
         separator = ''
     else:
         passphrase.amount_n = amount_n
@@ -191,12 +192,14 @@ def main():
         passphrase.amount_w = amount_w
         passphrase.generate()
 
+    passphrase.separator = separator
+
     if quiet is False:
-        print(passphrase.stringify_last_result(separator), end='')
+        print(passphrase, end='')
 
     if outputfile is not None:
         with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-            outfile.write(passphrase.stringify_last_result(separator))
+            outfile.write(str(passphrase))
 
 
 if __name__ == "__main__":
