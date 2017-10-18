@@ -56,6 +56,13 @@ altinstall: install-common
 	@install -v -d "$(DESTDIR)$(ALTPREFIX)$(MANDIR)/man1" && install -m 0644 -v man/passphrase.1 "$(DESTDIR)$(ALTPREFIX)$(MANDIR)/man1/passphrase.1"
 	@install -v -d "$(DESTDIR)$(ALTPREFIX)$(BINDIR)/"
 	install -v -d "$(DESTDIR)$(ALTPREFIX)$(BINDIR)/" && install -m 0755 -v "$(TMPDIR)/passphrase" "$(DESTDIR)$(ALTPREFIX)$(BINDIR)/passphrase"
+	@if [[ "$$PATH" != *"$${HOME}/.local/bin"* ]]; then \
+		echo 'if [ -d "$$HOME/.local/bin" ]; then' >> "$(HOME)/.profile"; \
+		echo '    PATH="$$HOME/.local/bin:$$PATH"' >> "$(HOME)/.profile"; \
+		echo 'fi' >> "$(HOME)/.profile"; \
+		echo >> "$(HOME)/.profile"; \
+		echo "Local bin directory added to PATH. Source your .profile: source $(HOME)/.profile"; \
+	fi; \
 
 altuninstall:
 	@rm -vrf \
