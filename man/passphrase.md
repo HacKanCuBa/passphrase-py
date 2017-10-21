@@ -60,6 +60,10 @@ print newline at the end of the passphrase/password
 quiet mode, it won’t print anything but error messages (usefull with
 **-o** | **--output**)
 
+**--uuid4**
+
+generate an UUID v4 string
+
 **-p** \[PASSWORD\], **--password** \[PASSWORD\]
 
 generate a password of specified lenght from all printable characters

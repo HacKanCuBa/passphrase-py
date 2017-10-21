@@ -1,5 +1,6 @@
 from unittest import TestCase
 from random import randint
+from uuid import UUID
 
 import passphrase.passphrase
 
@@ -70,6 +71,15 @@ class TestValidInputs(TestCase):
         p = passp.generate_password()
         self.assertIsInstance(p, list)
         self.assertEqual(len(p), length)
+
+    def test_generate_uuid4(self):
+        passp = passphrase.passphrase.Passphrase()
+        p = passp.generate_uuid4()
+        self.assertIsInstance(p, list)
+        self.assertEqual(len(p), 5)
+        passp.separator = ''
+        uuid4 = UUID(str(passp), version=4)
+        self.assertEqual(str(passp), uuid4.hex)
 
     def test_import_words_from_file(self):
         passp = passphrase.passphrase.Passphrase()

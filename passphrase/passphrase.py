@@ -263,3 +263,24 @@ class Passphrase():
 
         self.last_result = password
         return password
+
+    def generate_uuid4(self) -> list:
+        """Generates a list of parts of a UUID version 4 string.
+
+        Usually, these parts are concatenated together using dashes.
+        """
+
+        # uuid4: 8-4-4-4-12: xxxxxxxx-xxxx-4xxx-{8,9,a,b}xxx-xxxxxxxxxxxx
+        # instead of requesting small amounts of bytes, it's better to do it
+        # for the full amount of them.
+        hexstr = randhex(30)
+
+        uuid4 = []
+        uuid4.append(hexstr[:8])
+        uuid4.append(hexstr[8:12])
+        uuid4.append('4' + hexstr[12:15])
+        uuid4.append('{:x}{}'.format(randbetween(8, 11), hexstr[15:18]))
+        uuid4.append(hexstr[18:])
+
+        self.last_result = uuid4
+        return uuid4
