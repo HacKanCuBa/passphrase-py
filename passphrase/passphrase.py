@@ -6,7 +6,7 @@ secure random number generator. Passwords are built from printable characters.
 
 from os.path import isfile
 from string import digits, ascii_letters, punctuation
-from .secrets import randbelow
+from .secrets import randchoice, randhex, randbetween
 from .calc import entropy_bits as calc_entropy_bits
 from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
 from .calc import password_len_needed as calc_password_len_needed
@@ -15,11 +15,11 @@ from .settings import MIN_NUM, MAX_NUM, ENTROPY_BITS_MIN
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 
 
 class Passphrase():
-    """Generates cryptographically secure passphrases and passwords
+    """Generates cryptographically secure passphrases and passwords.
 
     Attributes:
         wordlist: A list of words to be consumed by the passphrase generator.
@@ -170,7 +170,7 @@ class Passphrase():
 
     @staticmethod
     def entropy_bits(lst: list) -> float:
-        """Calculate the entropy of a wordlist or a numerical range
+        """Calculate the entropy of a wordlist or a numerical range.
 
         Keyword arguments:
         lst -- A wordlist or a numerical range as a list: (minimum, maximum)
@@ -238,32 +238,28 @@ class Passphrase():
         )
 
     def generate(self) -> list:
-        """Generates a list of words randomly chosen from a wordlist"""
+        """Generates a list of words randomly chosen from a wordlist."""
 
         if len(self.wordlist) < 1:
             raise ValueError('wordlist can\'t be empty')
 
         passphrase = []
         for _ in range(0, self.amount_w):
-            index = randbelow(len(self.wordlist))
-            passphrase.append(self.wordlist[index])
+            passphrase.append(randchoice(self.wordlist))
 
         for _ in range(0, self.amount_n):
-            num = randbelow(self.randnum_max - self.randnum_min + 1)
-            num += self.randnum_min
-            passphrase.append(num)
+            passphrase.append(randbetween(MIN_NUM, MAX_NUM))
 
         self.last_result = passphrase
         return passphrase
 
     def generate_password(self) -> list:
-        """Generates a list of random characters"""
+        """Generates a list of random characters."""
 
         characters = list(digits + ascii_letters + punctuation)
         password = []
         for _ in range(0, self.passwordlen):
-            index = randbelow(len(characters))
-            password.append(characters[index])
+            password.append(randchoice(characters))
 
         self.last_result = password
         return password
