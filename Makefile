@@ -10,7 +10,7 @@ TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX")
 all:
 	@echo "Passphrase by HacKan (https://hackan.net)"
 	@echo "Commands for this makefile:"
-	@echo "	install altinstall uninstall altuninstall package-install lint clean"
+	@echo "	install altinstall uninstall altuninstall package-install lint test clean"
 
 clean:
 	@rm -vrf \
@@ -72,4 +72,7 @@ altuninstall:
 lint:
 	flake8 .
 
-.PHONY: install altinstall uninstall altuninstall lint clean
+test:
+	nosetests -v
+
+.PHONY: install altinstall uninstall altuninstall lint test clean
