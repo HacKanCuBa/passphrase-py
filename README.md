@@ -84,6 +84,14 @@ jasmine identity chemo suave clerk copartner 853727
 E`31nDL0^$oYu5='
 ```
 
+##### Generate a password of 8 alphanumeric characters only
+
+```
+:~$ passphrase -p 8 --use-lowercase --use-uppercase --use-digits
+Warning: Insecure password length chosen! Should be bigger than or equal to 13
+7wmivbmR
+```
+
 ##### Use an external wordlist to generate a passphrase
 
 ```
@@ -120,57 +128,11 @@ gpg: encrypted with 1 passphrase
 
 ## Is this really secure?
 
-First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on `os.urandom`. The whole program is quite big, but most of it is just the menues and the word list. The generator algorithms are very short and simple (simplified code with type-checking removed):
+First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on `os.urandom`, which always provides an interface to the OS's cryptographically secure random generator. The whole program is quite big, but most of it is just the menues and the word list.  
+The generator algorithms are very short and simple, they are in [passphrase.passphrase](passphrase/passphrase.py): `Passphrase::generate()` and `Passphrase::generate_password()`. The lower level functions are in [passphrase.random](passphrase/random.py), which directly uses `os.urandom`; higher level functions are in [passphrase.secrets](passphrase/secrets.py), that provides a convenient interface to those low level functions, so that implementation errors can be avoided.
 
-```python
-## Random number generation from os.urandom
-# passphrase > secrets.py
-def getrandbits(nbits: int) -> int:
-    """Generates an int with nbits random bits."""
-
-    nbytes = (nbits + 7) // 8                       # bits / 8 and rounded up
-    num = int.from_bytes(_urandom(nbytes), 'big')
-    return num >> (nbytes * 8 - nbits)              # trim excess bits
-
-def randbelow(num: int) -> int:
-    """Return a random int in the range [0,num)."""
-
-    nbits = num.bit_length()      # don't use (n-1) here because n can be 1
-    randnum = getrandbits(nbits)  # 0 <= randnum < 2**nbits
-    while randnum >= num:
-        randnum = getrandbits(nbits)
-    return randnum
-
-
-## Passphrase or password generation using the random number as index of a list
-# passphrase > passphrase.py
-def generate(self) -> list:
-    """Generates a list of words randomly chosen from a wordlist"""
-
-    passphrase = []
-    for _ in range(0, self.amount_w):
-        index = randbelow(len(self.wordlist))
-        passphrase.append(self.wordlist[index])
-
-    for _ in range(0, self.amount_n):
-        num = randbelow(self.randnum_max - self.randnum_min + 1) + self.randnum_min
-        passphrase.append(num)
-
-    return passphrase
-
-def generate_password(self) -> list:
-    """Generates a list of random characters"""
-
-    characters = list(digits + ascii_letters + punctuation)
-    password = []
-    for _ in range(0, self.passwordlen):
-        index = randbelow(len(characters))
-        password.append(characters[index])
-
-    return password
-```
-
-The whole magic is done by [`randbelow()`](passphrase/secrets.py#L24), that returns a random natural number lower than the given value, that is then used as index for the word or character list. `randbelow()` uses [`getrandbits()`](passphrase/secrets.py#L12) which in turn uses `os.urandom` at the back. `os.urandom` always provides an interface to the OS's cryptographically secure random generator. And both `randbelow()` and `getrandbits()` where copyied from Python's Lib/random, but trimmed down so that they don't allow anything fishy. This also makes **Passphrase** independent from unnecessary libraries and potential vulnerabilities.
+The whole magic is done by [`passphrase.secrets.randbelow()`](passphrase/secrets.py), that returns a random natural number lower than the given value, that is then used as index for the word or character list by [`passphrase.secrets.randchoice`](passphrase/secrets.py), function used by the generators.  
+Both `randbelow()` and `randint()` where copyied from Python's Lib/random, but trimmed down so that they don't allow anything fishy. This also makes **Passphrase** independent from unnecessary libraries and potential external vulnerabilities.
 
 The algorithms are very straight forward, easy to understand and verify. *Boring crypto is the best crypto*.
 
