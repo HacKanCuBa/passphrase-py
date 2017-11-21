@@ -7,25 +7,28 @@ account authentication, tokens, and similar.
 from math import ceil
 from .random import randint as random_randint, randbytes as random_randbytes
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 def randchoice(seq: any) -> any:
     """Return a randomly chosen element from the given sequence.
 
-    Raises TypeError if *seq* is not str, list, tuple, dict (indexable
-    types), and an IndexError if it is empty.
+    Raises TypeError if *seq* is not str, list, tuple, dict, set
+    and an IndexError if it is empty.
 
     >>> randchoice((1, 2, 'a', 'b'))  #doctest:+SKIP
     'a'
     """
 
-    if not isinstance(seq, (str, list, tuple, dict)):
-        raise TypeError('seq must be str, list, tuple or dict')
-    if len(seq) == 0:
+    if not isinstance(seq, (str, list, tuple, dict, set)):
+        raise TypeError('seq must be str, list, tuple, dict or set')
+    if len(seq) <= 0:
         raise IndexError('seq must have at least one element')
 
-    if isinstance(seq, dict):
+    if isinstance(seq, set):
+        values = list(seq)
+        return randchoice(values)
+    elif isinstance(seq, dict):
         indexes = list(seq)
         index = randchoice(indexes)
     else:
