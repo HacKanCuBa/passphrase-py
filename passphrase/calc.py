@@ -83,14 +83,19 @@ def entropy_bits_nrange(minimum: float, maximum: float) -> float:
     return ent
 
 
-def password_len_needed(entropybits: float) -> int:
+def password_len_needed(entropybits: float, chars: str) -> int:
     if not isinstance(entropybits, (int, float)):
         raise TypeError('entropybits can only be int or float')
     if entropybits < 0:
         raise ValueError('entropybits should be greater than 0')
+    if not isinstance(chars, str):
+        raise TypeError('chars can only be string')
+    if len(chars) < 1:
+        raise ValueError('chars can\t be null')
 
     # entropy_bits(list(characters)) = 6.554588
-    return ceil(entropybits / 6.554588)
+    entropy_c = entropy_bits(list(chars))
+    return ceil(entropybits / entropy_c)
 
 
 def words_amount_needed(entropybits: float,

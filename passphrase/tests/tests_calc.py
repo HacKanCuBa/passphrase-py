@@ -41,6 +41,9 @@ class TestValidInputs(TestCase):
             self.assertAlmostEqual(bits, i[2], places=2)
 
     def test_password_len_needed(self):
+        from string import digits, ascii_letters, punctuation
+
+        chars = digits + ascii_letters + punctuation
         values = (
             (52, 8),
             (53, 9),
@@ -49,7 +52,7 @@ class TestValidInputs(TestCase):
             (512, 79),
         )
         for v in values:
-            l = passphrase.calc.password_len_needed(v[0])
+            l = passphrase.calc.password_len_needed(v[0], chars)
             self.assertEqual(l, v[1])
 
     def test_words_amount_needed(self):
@@ -104,7 +107,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_password_len_needed(self):
-        wrongtypes = (
+        wrongtypes_e = (
             {1, 2},
             {'a': 1, 'b': 2},
             'aaaa',
@@ -112,16 +115,40 @@ class TestInvalidInputs(TestCase):
             set({1, 2, 3, 4}),
             []
         )
-        for t in wrongtypes:
+        for t in wrongtypes_e:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_len_needed,
+                t,
+                'a'
+            )
+        wrongtypes_c = (
+            {1, 2},
+            {'a': 1, 'b': 2},
+            (1, 2, (3, 4)),
+            set({1, 2, 3, 4}),
+            [],
+            1,
+            1.234
+        )
+        for t in wrongtypes_c:
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.password_len_needed,
+                10,
                 t
             )
         self.assertRaises(
             ValueError,
             passphrase.calc.password_len_needed,
-            -1
+            -1,
+            'a'
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.password_len_needed,
+            10,
+            ''
         )
 
     def test_words_amount_needed(self):

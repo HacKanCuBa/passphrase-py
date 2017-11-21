@@ -5,7 +5,6 @@ secure random number generator. Passwords are built from printable characters.
 """
 
 from os.path import isfile
-from string import digits, ascii_letters, punctuation
 from .secrets import randchoice, randhex, randbetween
 from .calc import entropy_bits as calc_entropy_bits
 from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
@@ -43,6 +42,10 @@ class Passphrase():
     _wordlist_entropy_bits = 0
     _external_wordlist = False
     _separator = ' '
+    _password_use_lowercase = True
+    _password_use_uppercase = True
+    _password_use_digits = True
+    _password_use_punctuation = True
 
     @property
     def entropy_bits_req(self):
@@ -137,6 +140,38 @@ class Passphrase():
         self._wordlist = list(words)
         self._external_wordlist = True
 
+    @property
+    def password_use_lowercase(self):
+        return self._password_use_lowercase
+
+    @password_use_lowercase.setter
+    def password_use_lowercase(self, use_lowercase: bool) -> None:
+        self._password_use_lowercase = bool(use_lowercase)
+
+    @property
+    def password_use_uppercase(self):
+        return self._password_use_uppercase
+
+    @password_use_uppercase.setter
+    def password_use_uppercase(self, use_uppercase: bool) -> None:
+        self._password_use_uppercase = bool(use_uppercase)
+
+    @property
+    def password_use_digits(self):
+        return self._password_use_digits
+
+    @password_use_digits.setter
+    def password_use_digits(self, use_digits: bool) -> None:
+        self._password_use_digits = bool(use_digits)
+
+    @property
+    def password_use_punctuation(self):
+        return self._password_use_punctuation
+
+    @password_use_punctuation.setter
+    def password_use_punctuation(self, use_punctuation: bool) -> None:
+        self._password_use_punctuation = bool(use_punctuation)
+
     def __init__(self,
                  inputfile: str = None,
                  is_diceware: bool = False) -> None:
@@ -205,6 +240,27 @@ class Passphrase():
             word.split()[1] for word in open(inputfile, mode='rt')
         ]
 
+    def _get_password_characters(self) -> str:
+        from string import (
+            digits,
+            ascii_lowercase,
+            ascii_uppercase,
+            punctuation
+        )
+
+        characters = ''
+
+        if self.password_use_lowercase:
+            characters += ascii_lowercase
+        if self.password_use_uppercase:
+            characters += ascii_uppercase
+        if self.password_use_digits:
+            characters += digits
+        if self.password_use_punctuation:
+            characters += punctuation
+
+        return characters
+
     def import_words_from_file(self,
                                inputfile: str,
                                is_diceware: bool) -> None:
@@ -214,7 +270,10 @@ class Passphrase():
             self.wordlist = self._read_words_from_wordfile(inputfile)
 
     def password_len_needed(self) -> int:
-        return calc_password_len_needed(self.entropy_bits_req)
+        return calc_password_len_needed(
+            self.entropy_bits_req,
+            self._get_password_characters()
+        )
 
     def words_amount_needed(self) -> int:
         # Thanks to @julianor for this tip to calculate default amount of
@@ -256,8 +315,11 @@ class Passphrase():
     def generate_password(self) -> list:
         """Generates a list of random characters."""
 
-        characters = list(digits + ascii_letters + punctuation)
         password = []
+        characters = self._get_password_characters()
+        if len(characters) < 1:
+            raise ValueError('characters can\'t be empty')
+
         for _ in range(0, self.passwordlen):
             password.append(randchoice(characters))
 
