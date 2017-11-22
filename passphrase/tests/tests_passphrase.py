@@ -42,7 +42,7 @@ class TestValidInputs(TestCase):
         passp3 = passphrase.passphrase.Passphrase(WORDSD_FILE, True)
         self.assertIsInstance(passp3, passphrase.passphrase.Passphrase)
 
-    def entropy_bits(self):
+    def test_entropy_bits(self):
         self.assertAlmostEqual(
             passphrase.passphrase.Passphrase.entropy_bits(WORDS),
             WORDS_ENTROPY,
@@ -50,7 +50,7 @@ class TestValidInputs(TestCase):
         )
         self.assertAlmostEqual(
             passphrase.passphrase.Passphrase.entropy_bits((10.1, 1005)),
-            9.97,
+            9.96,
             places=2
         )
 
@@ -169,7 +169,7 @@ class TestInvalidInputs(TestCase):
             True
         )
 
-    def entropy_bits(self):
+    def test_entropy_bits(self):
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
