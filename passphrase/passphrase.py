@@ -14,7 +14,7 @@ from .settings import MIN_NUM, MAX_NUM
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.4"
+__version__ = "0.5.0"
 
 
 class Passphrase():
@@ -47,9 +47,9 @@ class Passphrase():
     _randnum_min = MIN_NUM
     _randnum_max = MAX_NUM
     _entropy_bits_req = None
-    _wordlist = []
+    _wordlist = None
     _wordlist_entropy_bits = None
-    _external_wordlist = False
+    _external_wordlist = None
     _separator = ' '
     _password_use_lowercase = True
     _password_use_uppercase = True
@@ -181,23 +181,24 @@ class Passphrase():
     def password_use_punctuation(self, use_punctuation: bool) -> None:
         self._password_use_punctuation = bool(use_punctuation)
 
-    def __init__(self,
-                 inputfile: str = None,
-                 is_diceware: bool = False) -> None:
-        if inputfile is not None:
-            self.import_words_from_file(inputfile, is_diceware)
-        else:
-            # Read default wordlist
-            from json import loads as json_loads
-            from pkg_resources import resource_string
+    def __init__(
+        self,
+        inputfile: str = None,
+        is_diceware: bool = False
+    ) -> None:
+        """Generates cryptographically secure passphrases and passwords.
 
-            wordlist = json_loads(resource_string(
-                'passphrase',
-                'wordlist.json'
-            ).decode('utf-8'))
-            self._wordlist = wordlist['wordlist']
-            self._wordlist_entropy_bits = wordlist['entropy_bits']
-            self._external_wordlist = False
+        Keyword arguments:
+        inputfile -- A string with the path to the wordlist file to load, or
+        the value 'internal' to load the internal one.
+        is_diceware -- True if the wordlist is diceware-like (not needed for
+        internal).
+        """
+
+        if inputfile == 'internal':
+            self.load_internal_wordlist()
+        elif inputfile is not None:
+            self.import_words_from_file(inputfile, is_diceware)
 
     def __str__(self) -> str:
         if not self.last_result:
@@ -211,6 +212,20 @@ class Passphrase():
                 self.last_result
             )
         )[:rm_last_separator:]
+
+    def load_internal_wordlist(self) -> None:
+        """Load internal wordlist."""
+
+        from json import loads as json_loads
+        from pkg_resources import resource_string
+
+        wordlist = json_loads(resource_string(
+            'passphrase',
+            'wordlist.json'
+        ).decode('utf-8'))
+        self.wordlist = wordlist['wordlist']
+        self._wordlist_entropy_bits = wordlist['entropy_bits']
+        self._external_wordlist = False
 
     @staticmethod
     def entropy_bits(lst: list) -> float:
@@ -310,9 +325,11 @@ class Passphrase():
         if (
             self.entropy_bits_req is None
             or self.amount_n is None
+            or not self.wordlist
         ):
             raise ValueError('Cant\' calculate the words amount needed: '
-                             'entropy_bits_req or amount_n isn\'t set')
+                             'wordlist is empty or entropy_bits_req or '
+                             'amount_n isn\'t set')
 
         # Thanks to @julianor for this tip to calculate default amount of
         # entropy: minbitlen/log2(len(wordlist)).
@@ -325,7 +342,7 @@ class Passphrase():
         if self._external_wordlist is False:
             entropy_w = self._wordlist_entropy_bits
         else:
-            entropy_w = self.entropy_bits(self._wordlist)
+            entropy_w = self.entropy_bits(self.wordlist)
 
         return calc_words_amount_needed(
             self.entropy_bits_req,
