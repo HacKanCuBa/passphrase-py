@@ -2,7 +2,7 @@ from unittest import TestCase
 from random import randint
 from uuid import UUID
 
-import passphrase.passphrase
+from passphrase.passphrase import Passphrase
 
 WORDS = [
     'vivacious',
@@ -33,55 +33,65 @@ with open(WORDSD_FILE, mode='wt', encoding='utf-8') as wordfile:
 class TestValidInputs(TestCase):
 
     def test_init(self):
-        passp = passphrase.passphrase.Passphrase()
-        self.assertIsInstance(passp, passphrase.passphrase.Passphrase)
+        passp = Passphrase()
+        self.assertIsInstance(passp, Passphrase)
         self.assertIsNone(passp.wordlist)
 
-        passp = passphrase.passphrase.Passphrase(WORDS_FILE, False)
-        self.assertIsInstance(passp, passphrase.passphrase.Passphrase)
+        passp = Passphrase(WORDS_FILE, False)
+        self.assertIsInstance(passp, Passphrase)
         self.assertEqual(passp.wordlist, WORDS)
 
-        passp = passphrase.passphrase.Passphrase(WORDSD_FILE, True)
-        self.assertIsInstance(passp, passphrase.passphrase.Passphrase)
+        passp = Passphrase(WORDSD_FILE, True)
+        self.assertIsInstance(passp, Passphrase)
         self.assertEqual(passp.wordlist, [word.split()[1] for word in WORDSD])
 
-        passp = passphrase.passphrase.Passphrase('internal')
-        self.assertIsInstance(passp, passphrase.passphrase.Passphrase)
+        passp = Passphrase('internal')
+        self.assertIsInstance(passp, Passphrase)
         self.assertEqual(len(passp.wordlist), 7776)
 
     def test_entropy_bits(self):
         self.assertAlmostEqual(
-            passphrase.passphrase.Passphrase.entropy_bits(WORDS),
+            Passphrase.entropy_bits(WORDS),
             WORDS_ENTROPY,
             places=2
         )
         self.assertAlmostEqual(
-            passphrase.passphrase.Passphrase.entropy_bits((10.1, 1005)),
+            Passphrase.entropy_bits((10.1, 1005)),
             9.96,
             places=2
         )
 
     def test_generate(self):
-        amount_w = randint(0, 10)
-        amount_n = randint(0, 10)
-        passp = passphrase.passphrase.Passphrase()
-        passp.load_internal_wordlist()
-        passp.amount_w = amount_w
-        passp.amount_n = amount_n
-        p = passp.generate()
-        self.assertIsInstance(p, list)
-        self.assertEqual(len(p), amount_w + amount_n)
+        for _ in range(0, 10):
+            amount_w = randint(0, 10)
+            amount_n = randint(0, 10)
+            uppercase = randint(0, 3)
+            passp = Passphrase()
+            passp.load_internal_wordlist()
+            passp.amount_w = amount_w
+            passp.amount_n = amount_n
+            p = passp.generate(uppercase)
+            self.assertIsInstance(p, list)
+            self.assertEqual(len(p), amount_w + amount_n)
+            if amount_w > 0:
+                self.assertEqual(
+                    Passphrase._uppercase_count(p),
+                    uppercase
+                )
+                passp.generate(-1)
+                passp.separator = ''
+                self.assertTrue(str(passp).isupper())
 
     def test_generate_password(self):
         length = randint(0, 10)
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.passwordlen = length
         p = passp.generate_password()
         self.assertIsInstance(p, list)
         self.assertEqual(len(p), length)
 
     def test_generate_uuid4(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         p = passp.generate_uuid4()
         self.assertIsInstance(p, list)
         self.assertEqual(len(p), 5)
@@ -90,7 +100,7 @@ class TestValidInputs(TestCase):
         self.assertEqual(str(passp), uuid4.hex)
 
     def test_import_words_from_file(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
 
         ret = passp.import_words_from_file(WORDS_FILE, False)
         self.assertIsNone(ret)
@@ -101,13 +111,13 @@ class TestValidInputs(TestCase):
         self.assertEqual(passp.wordlist, [word.split()[1] for word in WORDSD])
 
     def test_password_length_needed(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.entropy_bits_req = 128
         p_len = passp.password_length_needed()
         self.assertEqual(p_len, 20)
 
     def test_words_amount_needed(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.load_internal_wordlist()
         passp.entropy_bits_req = 77
         passp.amount_n = 0
@@ -119,42 +129,42 @@ class TestValidInputs(TestCase):
         self.assertEqual(w, 30)
 
     def test_entropy_bits_req(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.entropy_bits_req = 1
         self.assertEqual(passp.entropy_bits_req, 1)
 
     def test_randnum_min(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.randnum_min = 1
         self.assertEqual(passp.randnum_min, 1)
 
     def test_randnum_max(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.randnum_max = 1
         self.assertEqual(passp.randnum_max, 1)
 
     def test_amount_w(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.amount_w = 1
         self.assertEqual(passp.amount_w, 1)
 
     def test_amount_n(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.amount_n = 1
         self.assertEqual(passp.amount_n, 1)
 
     def test_passwordlen(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.passwordlen = 1
         self.assertEqual(passp.passwordlen, 1)
 
     def test_wordlist(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.wordlist = WORDS
         self.assertEqual(passp.wordlist, list(WORDS))
 
     def test_to_string(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         passp.load_internal_wordlist()
         p = str(passp)
         self.assertEqual(len(p), 0)
@@ -166,7 +176,7 @@ class TestValidInputs(TestCase):
         self.assertTrue(len(p) > 0)
 
     def test_load_internal_wordlist(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         self.assertIsNone(passp.wordlist)
         passp.load_internal_wordlist()
         self.assertTrue(passp.wordlist)
@@ -178,12 +188,12 @@ class TestInvalidInputs(TestCase):
     def test_init(self):
         self.assertRaises(
             FileNotFoundError,
-            passphrase.passphrase.Passphrase,
+            Passphrase,
             'nonexistent.file'
         )
         self.assertRaises(
             FileNotFoundError,
-            passphrase.passphrase.Passphrase,
+            Passphrase,
             'nonexistent.file',
             True
         )
@@ -201,17 +211,17 @@ class TestInvalidInputs(TestCase):
         for t in wrongtypes:
             self.assertRaises(
                 TypeError,
-                passphrase.passphrase.Passphrase.entropy_bits,
+                Passphrase.entropy_bits,
                 t
             )
         self.assertRaises(
             ValueError,
-            passphrase.passphrase.Passphrase.entropy_bits,
+            Passphrase.entropy_bits,
             (-1, 0)
         )
 
     def test_import_words_from_file(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         self.assertRaises(
             FileNotFoundError,
             passp.import_words_from_file,
@@ -226,7 +236,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_password_length_needed(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -254,7 +264,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_entropy_bits_req(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -279,7 +289,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_randnum_min(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -305,7 +315,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_randnum_max(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -331,7 +341,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_amount_w(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -357,7 +367,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_amount_n(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -383,7 +393,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_passwordlen(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -409,7 +419,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_wordlist(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         wrongtypes = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -427,7 +437,7 @@ class TestInvalidInputs(TestCase):
             )
 
     def test_generate(self):
-        passp = passphrase.passphrase.Passphrase()
+        passp = Passphrase()
         self.assertRaises(ValueError, passp.generate)
         passp.amount_n = 0
         self.assertRaises(ValueError, passp.generate)
