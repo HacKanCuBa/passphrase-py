@@ -14,7 +14,7 @@ from .settings import MIN_NUM, MAX_NUM
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 
 class Passphrase():

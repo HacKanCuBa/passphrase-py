@@ -4,7 +4,7 @@
 from math import ceil, fabs, log10
 from .settings import TRY_NUMPY
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 try:
     from math import log2   # Python 3.3+

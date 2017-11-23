@@ -12,7 +12,7 @@ from .passphrase import Passphrase
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
