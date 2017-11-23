@@ -12,7 +12,7 @@ from .passphrase import Passphrase
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
@@ -235,12 +235,15 @@ def main():
         # Generate a passphrase
 
         # Read wordlist if indicated
-        if inputfile is not None:
-            try:
+        try:
+            if inputfile is None:
+                passphrase.load_internal_wordlist()
+            else:
                 passphrase.import_words_from_file(inputfile, is_diceware)
-            except FileNotFoundError as err:
-                print_stderr("Error: {}".format(err))
-                sys_exit(1)
+
+        except FileNotFoundError as err:
+            print_stderr("Error: {}".format(err))
+            sys_exit(1)
 
         passphrase.amount_n = amount_n
         amount_w_good = passphrase.words_amount_needed()
