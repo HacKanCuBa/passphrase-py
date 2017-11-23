@@ -39,7 +39,7 @@ def main():
     passphrase = Passphrase()
 
     passphrase.entropy_bits_req = ENTROPY_BITS_MIN
-    PASSWD_LEN_MIN_GOOD = passphrase.password_len_needed()
+    PASSWD_LEN_MIN_GOOD = passphrase.password_length_needed()
     WORDS_AMOUNT_MIN_DEFAULT = 6  # Just for EFF's Large Wordlist
     NUMS_AMOUNT_MIN_DEFAULT = 0
 
@@ -220,7 +220,7 @@ def main():
             passphrase.password_use_digits = p_digits
             passphrase.password_use_punctuation = p_punctuation
 
-        min_len = passphrase.password_len_needed()
+        min_len = passphrase.password_length_needed()
         if passwordlen < 1:
             passwordlen = min_len
         elif passwordlen < min_len:

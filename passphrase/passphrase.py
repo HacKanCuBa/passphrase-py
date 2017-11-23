@@ -8,7 +8,7 @@ from os.path import isfile
 from .secrets import randchoice, randhex, randbetween
 from .calc import entropy_bits as calc_entropy_bits
 from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
-from .calc import password_len_needed as calc_password_len_needed
+from .calc import password_length_needed as calc_password_length_needed
 from .calc import words_amount_needed as calc_words_amount_needed
 from .settings import MIN_NUM, MAX_NUM
 
@@ -285,7 +285,7 @@ class Passphrase():
         else:
             self.wordlist = self._read_words_from_wordfile(inputfile)
 
-    def password_len_needed(self) -> int:
+    def password_length_needed(self) -> int:
         """Calculate the needed password length to satisfy the entropy number
         for the given character set."""
 
@@ -298,7 +298,7 @@ class Passphrase():
                              'entropy_bits_req isn\'t set or the character '
                              'set is empty')
 
-        return calc_password_len_needed(
+        return calc_password_length_needed(
             self.entropy_bits_req,
             characters
         )

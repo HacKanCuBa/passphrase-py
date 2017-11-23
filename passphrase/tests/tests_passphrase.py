@@ -93,10 +93,10 @@ class TestValidInputs(TestCase):
         wordsd_ = [word.split()[1] for word in WORDSD]
         self.assertEqual(passp._wordlist, list(wordsd_))
 
-    def test_password_len_needed(self):
+    def test_password_length_needed(self):
         passp = passphrase.passphrase.Passphrase()
         passp.entropy_bits_req = 128
-        p_len = passp.password_len_needed()
+        p_len = passp.password_length_needed()
         self.assertEqual(p_len, 20)
 
     def test_words_amount_needed(self):
@@ -209,7 +209,7 @@ class TestInvalidInputs(TestCase):
             True
         )
 
-    def test_password_len_needed(self):
+    def test_password_length_needed(self):
         passp = passphrase.passphrase.Passphrase()
         wrongtypes = (
             {1, 2},
@@ -223,7 +223,7 @@ class TestInvalidInputs(TestCase):
         for t in wrongtypes:
             passp._entropy_bits_req = t
             with self.assertRaises(TypeError) as ct:
-                passp.password_len_needed()
+                passp.password_length_needed()
             self.assertIn(
                 'entropybits can only be int or float',
                 str(ct.exception)
@@ -231,7 +231,7 @@ class TestInvalidInputs(TestCase):
 
         passp._entropy_bits_req = -1
         with self.assertRaises(ValueError) as ct:
-            passp.password_len_needed()
+            passp.password_length_needed()
         self.assertIn(
             'entropybits should be greater than 0',
             str(ct.exception)

@@ -40,7 +40,7 @@ class TestValidInputs(TestCase):
             bits = passphrase.calc.entropy_bits_nrange(i[0], i[1])
             self.assertAlmostEqual(bits, i[2], places=2)
 
-    def test_password_len_needed(self):
+    def test_password_length_needed(self):
         from string import digits, ascii_letters, punctuation
 
         chars = digits + ascii_letters + punctuation
@@ -52,7 +52,7 @@ class TestValidInputs(TestCase):
             (512, 79),
         )
         for v in values:
-            l = passphrase.calc.password_len_needed(v[0], chars)
+            l = passphrase.calc.password_length_needed(v[0], chars)
             self.assertEqual(l, v[1])
 
     def test_words_amount_needed(self):
@@ -106,7 +106,7 @@ class TestInvalidInputs(TestCase):
             0
         )
 
-    def test_password_len_needed(self):
+    def test_password_length_needed(self):
         wrongtypes_e = (
             {1, 2},
             {'a': 1, 'b': 2},
@@ -118,7 +118,7 @@ class TestInvalidInputs(TestCase):
         for t in wrongtypes_e:
             self.assertRaises(
                 TypeError,
-                passphrase.calc.password_len_needed,
+                passphrase.calc.password_length_needed,
                 t,
                 'a'
             )
@@ -134,19 +134,19 @@ class TestInvalidInputs(TestCase):
         for t in wrongtypes_c:
             self.assertRaises(
                 TypeError,
-                passphrase.calc.password_len_needed,
+                passphrase.calc.password_length_needed,
                 10,
                 t
             )
         self.assertRaises(
             ValueError,
-            passphrase.calc.password_len_needed,
+            passphrase.calc.password_length_needed,
             -1,
             'a'
         )
         self.assertRaises(
             ValueError,
-            passphrase.calc.password_len_needed,
+            passphrase.calc.password_length_needed,
             10,
             ''
         )

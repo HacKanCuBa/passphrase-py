@@ -83,7 +83,7 @@ def entropy_bits_nrange(minimum: float, maximum: float) -> float:
     return ent
 
 
-def password_len_needed(entropybits: float, chars: str) -> int:
+def password_length_needed(entropybits: float, chars: str) -> int:
     if not isinstance(entropybits, (int, float)):
         raise TypeError('entropybits can only be int or float')
     if entropybits < 0:
