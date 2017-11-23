@@ -7,6 +7,7 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+
 
 from sys import stderr, version_info, exit as sys_exit
 import argparse
+from .settings import ENTROPY_BITS_MIN
 from .passphrase import Passphrase
 
 __author__ = "HacKan"
@@ -37,6 +38,7 @@ def bigger_than_zero(value: int) -> int:
 def main():
     passphrase = Passphrase()
 
+    passphrase.entropy_bits_req = ENTROPY_BITS_MIN
     PASSWD_LEN_MIN_GOOD = passphrase.password_len_needed()
     WORDS_AMOUNT_MIN_DEFAULT = 6  # Just for EFF's Large Wordlist
     NUMS_AMOUNT_MIN_DEFAULT = 0

@@ -101,7 +101,8 @@ class TestValidInputs(TestCase):
 
     def test_words_amount_needed(self):
         passp = passphrase.passphrase.Passphrase()
-
+        passp.entropy_bits_req = 77
+        passp.amount_n = 0
         w = passp.words_amount_needed()
         self.assertEqual(w, 6)
 
@@ -148,6 +149,8 @@ class TestValidInputs(TestCase):
         passp = passphrase.passphrase.Passphrase()
         p = str(passp)
         self.assertEqual(len(p), 0)
+        passp.amount_n = 1
+        passp.amount_w = 1
         passp.generate()
         p = str(passp)
         self.assertIsInstance(p, str)

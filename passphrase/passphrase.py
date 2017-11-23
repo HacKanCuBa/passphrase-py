@@ -10,7 +10,7 @@ from .calc import entropy_bits as calc_entropy_bits
 from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
 from .calc import password_len_needed as calc_password_len_needed
 from .calc import words_amount_needed as calc_words_amount_needed
-from .settings import MIN_NUM, MAX_NUM, ENTROPY_BITS_MIN
+from .settings import MIN_NUM, MAX_NUM
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
@@ -29,17 +29,26 @@ class Passphrase():
         randnum_max: Maximum value for the random number in the passphrase.
         passwordlen: Length of the password.
         last_result: The last generated passphrase or password.
+        entropy_bits_req: The entropy bits required to satisfy (for
+                          calculations).
+        password_use_digits: Set the use of digits for password generation.
+        password_use_lowercase: Set the use of lower case alphabet for password
+                                generation.
+        password_use_uppercase: Set the use of upper case alphabet for password
+                                generation.
+        password_use_punctuation: Set the use of punctuation symbols for
+                                  password generation.
     """
 
-    _passwordlen = 12    # For EFF Large Wordlist
-    _amount_n = 0
-    _amount_w = 6        # For EFF Large Wordlist
-    last_result = []
+    _passwordlen = None
+    _amount_n = None
+    _amount_w = None
+    last_result = None
     _randnum_min = MIN_NUM
     _randnum_max = MAX_NUM
-    _entropy_bits_req = ENTROPY_BITS_MIN
+    _entropy_bits_req = None
     _wordlist = []
-    _wordlist_entropy_bits = 0
+    _wordlist_entropy_bits = None
     _external_wordlist = False
     _separator = ' '
     _password_use_lowercase = True
@@ -191,7 +200,7 @@ class Passphrase():
             self._external_wordlist = False
 
     def __str__(self) -> str:
-        if self.last_result is None:
+        if not self.last_result:
             return ''
 
         separator_len = len(self.separator)
@@ -208,14 +217,21 @@ class Passphrase():
         """Calculate the entropy of a wordlist or a numerical range.
 
         Keyword arguments:
-        lst -- A wordlist or a numerical range as a list: (minimum, maximum)
+        lst -- A wordlist as list or tuple, or a numerical range as a list:
+               (minimum, maximum)
 
         Returns: float
         """
+
+        if not isinstance(lst, (tuple, list)):
+            raise TypeError('lst must be a list or a tuple')
+
         size = len(lst)
-        if (size == 2 and
-                isinstance(lst[0], (int, float)) is True and
-                isinstance(lst[1], (int, float)) is True):
+        if (
+            size == 2
+            and isinstance(lst[0], (int, float)) is True
+            and isinstance(lst[1], (int, float)) is True
+        ):
             return calc_entropy_bits_nrange(lst[0], lst[1])
 
         return calc_entropy_bits(lst)
@@ -270,12 +286,34 @@ class Passphrase():
             self.wordlist = self._read_words_from_wordfile(inputfile)
 
     def password_len_needed(self) -> int:
+        """Calculate the needed password length to satisfy the entropy number
+        for the given character set."""
+
+        characters = self._get_password_characters()
+        if (
+            self.entropy_bits_req is None
+            or not characters
+        ):
+            raise ValueError('Can\'t calculate the password length needed: '
+                             'entropy_bits_req isn\'t set or the character '
+                             'set is empty')
+
         return calc_password_len_needed(
             self.entropy_bits_req,
-            self._get_password_characters()
+            characters
         )
 
     def words_amount_needed(self) -> int:
+        """Calculate the needed amount of words to satisfy the entropy number
+        for the given wordlist."""
+
+        if (
+            self.entropy_bits_req is None
+            or self.amount_n is None
+        ):
+            raise ValueError('Cant\' calculate the words amount needed: '
+                             'entropy_bits_req or amount_n isn\'t set')
+
         # Thanks to @julianor for this tip to calculate default amount of
         # entropy: minbitlen/log2(len(wordlist)).
         # I set the minimum entropy bits and calculate the amount of words
@@ -299,8 +337,14 @@ class Passphrase():
     def generate(self) -> list:
         """Generates a list of words randomly chosen from a wordlist."""
 
-        if len(self.wordlist) < 1:
-            raise ValueError('wordlist can\'t be empty')
+        if (
+            self.amount_n is None
+            or self.amount_w is None
+            or not self.wordlist
+        ):
+            raise ValueError('Can\'t generate passphrase: '
+                             'wordlist is empty or amount_n or '
+                             'amount_w isn\'t set')
 
         passphrase = []
         for _ in range(0, self.amount_w):
@@ -317,8 +361,12 @@ class Passphrase():
 
         password = []
         characters = self._get_password_characters()
-        if len(characters) < 1:
-            raise ValueError('characters can\'t be empty')
+        if (
+            self.passwordlen is None
+            or not characters
+        ):
+            raise ValueError('Can\'t generate password: character set is '
+                             'empty or passwordlen isn\'t set')
 
         for _ in range(0, self.passwordlen):
             password.append(randchoice(characters))
