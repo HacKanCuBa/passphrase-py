@@ -36,9 +36,10 @@ script), by calculating the list's entropy.
 Requirements
 ------------
 
--  **Python 3.2+**
--  NumPy 1.13+ [optional] for faster entropy computation
--  Flake8 [optional] for linting
+-  **Python 3.2+**.
+-  NumPy 1.13+ [optional] for faster entropy computation.
+-  Flake8 [optional] for linting.
+-  Nosetest [optional] for collecting and running tests.
 
 | Passphrase gets plenty of benefits from NumPy if you use an external
   wordlist, because it computes the entropy of it, but it works fine
@@ -64,6 +65,8 @@ Once downloaded and verified, use ``setup.py`` to install (I let you
 decide whether to use virtualenv or not): ``./setup.py install``. You
 can also do ``make package-install`` with the same outcome. Run it with
 ``sudo`` or elevated privileges to install it system-wide.
+
+Please let me know if you use this in your app, I would love that :)
 
 Examples of use
 ^^^^^^^^^^^^^^^
@@ -115,8 +118,8 @@ A good example is how `I implemented it <passphrase/__main__.py>`__.
 
     def generate_passphrase() -> str:
         from passphrase.passphrase import Passphrase
-        # Use default wordlist (if it doesn't exists, an exception raises)
-        passphrase = Passphrase()
+        # Use internal wordlist (if it doesn't exists, an exception raises)
+        passphrase = Passphrase('internal')
         passphrase.entropy_bits_req = 77    # EFF's minimum recommended
         passphrase.amount_n = 1
         passphrase.amount_w = passphrase.words_amount_needed()
