@@ -4,7 +4,7 @@
 
 Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number. It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
-A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters ([NIST's latest recommendation](https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/)), and prefer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_letters`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
+A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters ([NIST's latest recommendation](https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/)), and prefer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_lowercase`, `ascii_uppercase`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
 Those settings mentioned are specifically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low (when used as a script), by calculating the list's entropy.
 
@@ -32,27 +32,70 @@ Once downloaded and verified, use `setup.py` to install (I let you decide whethe
 A good example is how [I implemented it](passphrase/__main__.py).
 
 ```python
-from passphrase.passphrase import Passphrase
+>>> from passphrase.passphrase import Passphrase
+>>> passphrase = Passphrase('/tmp/mi_own_wordlist.txt')
+>>> 
+>>> # WARNING: entropy and good default values ARE NOT automatically calculated!
+>>> # If amounts are not specified, an exception occurs.
+>>> passphrase.generate()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/hackan/Workspace/passphrase/passphrase/passphrase/passphrase.py", line 345, in generate
+    raise ValueError('Can\'t generate passphrase: '
+ValueError: Can't generate passphrase: wordlist is empty or amount_n or amount_w isn't set
+>>> passphrase.amount_w = 6
+>>> passphrase.amount_n = 0
+>>> passphrase.generate()
+['shop', 'jolt', 'spoof', 'cupid', 'pouch', 'dose']
+>>> 
+>>> # You must set the desired entropy prior executing any calculation, or else...
+>>> passphrase.words_amount_needed()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/hackan/Workspace/passphrase/passphrase/passphrase/passphrase.py", line 314, in words_amount_needed
+    raise ValueError('Cant\' calculate the words amount needed: '
+ValueError: Cant' calculate the words amount needed: entropy_bits_req or amount_n isn't set
+>>> passphrase.entropy_bits_req = 77
+>>> passphrase.words_amount_needed()
+8
+>>> 
+>>> passphrase.amount_w = passphrase.words_amount_needed()
+>>> passphrase.generate()
+['grub', 'mummy', 'woozy', 'whole', 'ritzy', 'sift', 'train', 'radar']
+>>> 
+>>> # Change the wordlist (note than no other parameter is changed!)
+>>> passphrase.import_words_from_file('/tmp/some_other_wordlist.txt', False)
+>>> passphrase.generate()
+['vexingly', 'skedaddle', 'gilled', 'desolate', 'cartoon', 'frail', 'brute', 'filled']
+```
 
-passphrase = Passphrase('/tmp/mi_own_wordlist.txt')
+```python
+# In a system backend, propose the user a good random passphrase for him to
+# use, or a safe password.
 
-# WARNING: entropy and good default values ARE NOT automatically calculated!
-# Generic 6 words default is being used here, which could be bad if the
-# wordlist is too short!
-passphrase.generate()
-# >>> ['shop', 'jolt', 'spoof', 'cupid', 'pouch', 'dose']
+def generate_passphrase() -> str:
+    from passphrase.passphrase import Passphrase
+    # Use default wordlist (if it doesn't exists, an exception raises)
+    passphrase = Passphrase()
+    passphrase.entropy_bits_req = 77    # EFF's minimum recommended
+    passphrase.amount_n = 1
+    passphrase.amount_w = passphrase.words_amount_needed()
+    passphrase.generate()   # This returns a list
+    passphrase.separator = '-'  # By default, separator is a blank space!
+    # Convert the last result to a string separated by dashes
+    proposedPassphrase = str(passphrase)
+    return proposedPassphrase
 
-passphrase.words_amount_needed()
-# >>> 8
-
-passphrase.amount_w = passphrase.words_amount_needed()
-passphrase.generate()
-# >>> ['grub', 'mummy', 'woozy', 'whole', 'ritzy', 'sift', 'train', 'radar']
-
-# Change the wordlist (note than no other parameter is changed!)
-passphrase.import_words_from_file('/tmp/some_other_wordlist.txt', False)
-passphrase.generate()
-# >>> ['vexingly', 'skedaddle', 'gilled', 'desolate', 'cartoon', 'frail', 'brute', 'filled']
+def generate_password() -> str:
+    from passphrase.passphrase import Passphrase
+    passphrase = Passphrase()
+    passphrase.entropy_bits_req = 77    # EFF's minimum recommended
+    passphrase.passwordlen = passphrase.password_length_needed()
+    passphrase.generate_password()   # This returns a list
+    passphrase.separator = ''   # By default, separator is a blank space!
+    # Convert the last result to a string
+    proposedPassword = str(passphrase)
+    return proposedPassword
 ```
 
 ### As a script
@@ -129,7 +172,7 @@ gpg: encrypted with 1 passphrase
 ## Is this really secure?
 
 First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on `os.urandom`, which always provides an interface to the OS's cryptographically secure random generator. The whole program is quite big, but most of it is just the menues and the word list.  
-The generator algorithms are very short and simple, they are in [passphrase.passphrase](passphrase/passphrase.py): `Passphrase::generate()` and `Passphrase::generate_password()`. The lower level functions are in [passphrase.random](passphrase/random.py), which directly uses `os.urandom`; higher level functions are in [passphrase.secrets](passphrase/secrets.py), that provides a convenient interface to those low level functions, so that implementation errors can be avoided.
+The generator algorithms are very short and simple, they are in [passphrase.passphrase](passphrase/passphrase.py): `Passphrase::generate()` and `Passphrase::generate_password()`. The lower level functions are in [passphrase.random](passphrase/random.py), which directly uses `os.urandom`; higher level functions are in [passphrase.secrets](passphrase/secrets.py), that provides a convenient interface to those low level functions, so that implementation errors are avoided.
 
 The whole magic is done by [`passphrase.secrets.randbelow()`](passphrase/secrets.py), that returns a random natural number lower than the given value, that is then used as index for the word or character list by [`passphrase.secrets.randchoice`](passphrase/secrets.py), function used by the generators.  
 Both `randbelow()` and `randint()` where copyied from Python's Lib/random, but trimmed down so that they don't allow anything fishy. This also makes **Passphrase** independent from unnecessary libraries and potential external vulnerabilities.

@@ -20,8 +20,8 @@ make it bigger than 8 characters (`NIST's latest
 recommendation <https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/>`__),
 and prefer more than 12 (I recommend 16 or more). Passwords are
 comprised of digits, upper and lower case letters and punctuation
-symbols - more specifically: ``ascii_letters``, ``digits`` and
-``punctuation`` from
+symbols - more specifically: ``ascii_lowercase``, ``ascii_uppercase``,
+``digits`` and ``punctuation`` from
 `Lib/string <https://docs.python.org/3.6/library/string.html#string-constants>`__
 -.
 
@@ -72,27 +72,70 @@ A good example is how `I implemented it <passphrase/__main__.py>`__.
 
 .. code:: python
 
-    from passphrase.passphrase import Passphrase
+    >>> from passphrase.passphrase import Passphrase
+    >>> passphrase = Passphrase('/tmp/mi_own_wordlist.txt')
+    >>> 
+    >>> # WARNING: entropy and good default values ARE NOT automatically calculated!
+    >>> # If amounts are not specified, an exception occurs.
+    >>> passphrase.generate()
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/home/hackan/Workspace/passphrase/passphrase/passphrase/passphrase.py", line 345, in generate
+        raise ValueError('Can\'t generate passphrase: '
+    ValueError: Can't generate passphrase: wordlist is empty or amount_n or amount_w isn't set
+    >>> passphrase.amount_w = 6
+    >>> passphrase.amount_n = 0
+    >>> passphrase.generate()
+    ['shop', 'jolt', 'spoof', 'cupid', 'pouch', 'dose']
+    >>> 
+    >>> # You must set the desired entropy prior executing any calculation, or else...
+    >>> passphrase.words_amount_needed()
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/home/hackan/Workspace/passphrase/passphrase/passphrase/passphrase.py", line 314, in words_amount_needed
+        raise ValueError('Cant\' calculate the words amount needed: '
+    ValueError: Cant' calculate the words amount needed: entropy_bits_req or amount_n isn't set
+    >>> passphrase.entropy_bits_req = 77
+    >>> passphrase.words_amount_needed()
+    8
+    >>> 
+    >>> passphrase.amount_w = passphrase.words_amount_needed()
+    >>> passphrase.generate()
+    ['grub', 'mummy', 'woozy', 'whole', 'ritzy', 'sift', 'train', 'radar']
+    >>> 
+    >>> # Change the wordlist (note than no other parameter is changed!)
+    >>> passphrase.import_words_from_file('/tmp/some_other_wordlist.txt', False)
+    >>> passphrase.generate()
+    ['vexingly', 'skedaddle', 'gilled', 'desolate', 'cartoon', 'frail', 'brute', 'filled']
 
-    passphrase = Passphrase('/tmp/mi_own_wordlist.txt')
+.. code:: python
 
-    # WARNING: entropy and good default values ARE NOT automatically calculated!
-    # Generic 6 words default is being used here, which could be bad if the
-    # wordlist is too short!
-    passphrase.generate()
-    # >>> ['shop', 'jolt', 'spoof', 'cupid', 'pouch', 'dose']
+    # In a system backend, propose the user a good random passphrase for him to
+    # use, or a safe password.
 
-    passphrase.words_amount_needed()
-    # >>> 8
+    def generate_passphrase() -> str:
+        from passphrase.passphrase import Passphrase
+        # Use default wordlist (if it doesn't exists, an exception raises)
+        passphrase = Passphrase()
+        passphrase.entropy_bits_req = 77    # EFF's minimum recommended
+        passphrase.amount_n = 1
+        passphrase.amount_w = passphrase.words_amount_needed()
+        passphrase.generate()   # This returns a list
+        passphrase.separator = '-'  # By default, separator is a blank space!
+        # Convert the last result to a string separated by dashes
+        proposedPassphrase = str(passphrase)
+        return proposedPassphrase
 
-    passphrase.amount_w = passphrase.words_amount_needed()
-    passphrase.generate()
-    # >>> ['grub', 'mummy', 'woozy', 'whole', 'ritzy', 'sift', 'train', 'radar']
-
-    # Change the wordlist (note than no other parameter is changed!)
-    passphrase.import_words_from_file('/tmp/some_other_wordlist.txt', False)
-    passphrase.generate()
-    # >>> ['vexingly', 'skedaddle', 'gilled', 'desolate', 'cartoon', 'frail', 'brute', 'filled']
+    def generate_password() -> str:
+        from passphrase.passphrase import Passphrase
+        passphrase = Passphrase()
+        passphrase.entropy_bits_req = 77    # EFF's minimum recommended
+        passphrase.passwordlen = passphrase.password_length_needed()
+        passphrase.generate_password()   # This returns a list
+        passphrase.separator = ''   # By default, separator is a blank space!
+        # Convert the last result to a string
+        proposedPassword = str(passphrase)
+        return proposedPassword
 
 As a script
 ~~~~~~~~~~~
@@ -196,7 +239,7 @@ Is this really secure?
   ``os.urandom``; higher level functions are in
   `passphrase.secrets <passphrase/secrets.py>`__, that provides a
   convenient interface to those low level functions, so that
-  implementation errors can be avoided.
+  implementation errors are avoided.
 
 | The whole magic is done by
   ```passphrase.secrets.randbelow()`` <passphrase/secrets.py>`__, that
