@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from setuptools import setup
+from passphrase.__main__ import __version__ as passphrase_version
 
 
 def readme():
@@ -8,7 +9,7 @@ def readme():
 
 
 setup(name='passphrase',
-      version='0.4.1',
+      version=passphrase_version,
       description='Generates cryptographically secure passphrases and '
                   'passwords',
       long_description=readme(),
