@@ -12,7 +12,7 @@ from .passphrase import Passphrase
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
@@ -123,9 +123,13 @@ def main():
     )
     parser.add_argument(
         "--use-uppercase",
-        action="store_true",
-        default=False,
-        help="use uppercase characters for password generation"
+        type=int,
+        const=0,
+        nargs='?',
+        help="use uppercase characters for password generation or give the "
+             "amount of uppercase characters in the passphrase: positive for "
+             "that many uppercase characters, negative for all uppercase "
+             "except that many, and zero or no input for all uppercase"
     )
     parser.add_argument(
         "--use-lowercase",
@@ -214,6 +218,7 @@ def main():
         passphrase.separator = '-'
     elif passwordlen is not None:
         # Generate a password
+        p_uppercase = True if p_uppercase is not None else False
         if p_uppercase or p_lowercase or p_digits or p_punctuation:
             passphrase.password_use_uppercase = p_uppercase
             passphrase.password_use_lowercase = p_lowercase
@@ -256,7 +261,7 @@ def main():
             )
 
         passphrase.amount_w = amount_w
-        passphrase.generate()
+        passphrase.generate(p_uppercase)
         passphrase.separator = separator
 
     if quiet is False:

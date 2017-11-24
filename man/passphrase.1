@@ -65,8 +65,12 @@ generate an UUID v4 string
 generate a password of the specified length from all
 printable or selected characters
 .TP
-\fB\-\-use\-uppercase\fR
-use uppercase characters for password generation
+\fB\-\-use\-uppercase\fR [USE_UPPERCASE]
+use uppercase characters for password generation or
+give the amount of uppercase characters in the
+passphrase: positive for that many uppercase
+characters, negative for all uppercase except that
+many, and zero or no input for all uppercase
 .TP
 \fB\-\-use\-lowercase\fR
 use lowercase characters for password generation

@@ -5,7 +5,7 @@ secure random number generator. Passwords are built from printable characters.
 """
 
 from os.path import isfile
-from .secrets import randchoice, randhex, randbetween
+from .secrets import randchoice, randhex, randbetween, randbelow
 from .calc import entropy_bits as calc_entropy_bits
 from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
 from .calc import password_length_needed as calc_password_length_needed
@@ -14,7 +14,7 @@ from .settings import MIN_NUM, MAX_NUM
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 class Passphrase():
@@ -32,9 +32,9 @@ class Passphrase():
         entropy_bits_req: The entropy bits required to satisfy (for
                           calculations).
         password_use_digits: Set the use of digits for password generation.
-        password_use_lowercase: Set the use of lower case alphabet for password
+        password_use_lowercase: Set the use of lowercase alphabet for password
                                 generation.
-        password_use_uppercase: Set the use of upper case alphabet for password
+        password_use_uppercase: Set the use of uppercase alphabet for password
                                 generation.
         password_use_punctuation: Set the use of punctuation symbols for
                                   password generation.
@@ -252,6 +252,24 @@ class Passphrase():
         return calc_entropy_bits(lst)
 
     @staticmethod
+    def _lowercase_chars(string: str) -> str:
+        return ''.join([c if c.islower() else '' for c in string])
+
+    @staticmethod
+    def _uppercase_chars(string: str) -> str:
+        return ''.join([c if c.isupper() else '' for c in string])
+
+    @staticmethod
+    def _lowercase_count(s: any) -> int:
+        string = ''.join([str(e) for e in s])
+        return len(Passphrase._lowercase_chars(string))
+
+    @staticmethod
+    def _uppercase_count(s: any) -> int:
+        string = ''.join([str(e) for e in s])
+        return len(Passphrase._uppercase_chars(string))
+
+    @staticmethod
     def _read_words_from_wordfile(inputfile: str) -> list:
         if isfile(inputfile) is False:
             raise FileNotFoundError('Input file does not exists: '
@@ -351,8 +369,85 @@ class Passphrase():
             self.amount_n
         )
 
-    def generate(self) -> list:
-        """Generates a list of words randomly chosen from a wordlist."""
+    @staticmethod
+    def make_chars_uppercase(lst: any, uppercase: int) -> any:
+        """Make uppercase some randomly selected characters in a string, that
+        can be in a list, tuple or set.
+
+        Keyword arguments:
+        lst -- A string, list, tuple or set.
+        uppercase -- Number of characters to be set as uppercase.
+        """
+
+        if not isinstance(lst, (list, tuple, str, set)):
+            raise TypeError('lst must be a list, a tuple, a set or a string')
+        if not isinstance(uppercase, int):
+            raise TypeError('uppercase must be an integer')
+        if uppercase < 0:
+            raise ValueError('uppercase must be bigger than zero')
+
+        if uppercase == 0 or Passphrase._lowercase_count(lst) == 0:
+            return lst
+
+        arr = lst
+
+        if isinstance(arr, str):
+            if arr.isupper():
+                return arr
+            elif uppercase >= Passphrase._lowercase_count(arr):
+                return arr.upper()
+
+            count = 0
+            while count < uppercase:
+                cindex = randbelow(len(arr))
+                if arr[cindex].islower():
+                    aux = list(arr)
+                    aux[cindex] = aux[cindex].upper()
+                    arr = ''.join(aux)
+                    count += 1
+
+        else:
+            if isinstance(arr, set):
+                # Make it indexable
+                arr = list(arr)
+
+            # Check if at least an element is supported
+            supported = False
+            for element in arr:
+                if isinstance(element, (list, tuple, str, set)):
+                    supported = True
+                    break
+
+            if supported:
+                # Pick a word at random, then make a character uppercase
+                count = 0
+                while count < uppercase:
+                    windex = randbelow(len(arr))
+                    element = arr[windex]
+                    # Skip unsupported types or empty ones
+                    if (
+                        isinstance(element, (list, tuple, str, set))
+                        and element
+                    ):
+                        aux = Passphrase.make_chars_uppercase(element, 1)
+                        if aux != element:
+                            arr[windex] = aux
+                            count += 1
+
+        if isinstance(lst, set):
+            return set(arr)
+
+        return arr
+
+    def generate(self, uppercase: int=None) -> list:
+        """Generates a list of words randomly chosen from a wordlist.
+
+        Keyword arguments:
+        uppercase -- An integer number indicating how many uppercase
+        characters are wanted: bigger than zero means that many characters and
+        lower than zero means all uppercase except that many. Use 0 to make
+        them all uppercase, and None for no one.
+        """
 
         if (
             self.amount_n is None
@@ -363,10 +458,31 @@ class Passphrase():
                              'wordlist is empty or amount_n or '
                              'amount_w isn\'t set')
 
+        if uppercase is not None and not isinstance(uppercase, int):
+            raise TypeError('uppercase must be an integer number')
+
         passphrase = []
         for _ in range(0, self.amount_w):
-            passphrase.append(randchoice(self.wordlist))
+            passphrase.append(randchoice(self.wordlist).lower())
 
+        # Handle uppercase
+        if passphrase and uppercase is not None:
+            if uppercase < 0:
+                uppercase = sum(len(i) for i in passphrase) + uppercase
+
+            # If it's still negative, then means no uppercase
+            if uppercase >= 0:
+                arelower = self._lowercase_count(passphrase)
+                if uppercase == 0 or uppercase >= arelower:
+                    # Make it all uppercase
+                    passphrase = [word.upper() for word in passphrase]
+                else:
+                    passphrase = Passphrase.make_chars_uppercase(
+                        passphrase,
+                        uppercase
+                    )
+
+        # Handle numbers
         for _ in range(0, self.amount_n):
             passphrase.append(randbetween(MIN_NUM, MAX_NUM))
 

@@ -65,7 +65,7 @@ class TestValidInputs(TestCase):
         for _ in range(0, 10):
             amount_w = randint(0, 10)
             amount_n = randint(0, 10)
-            uppercase = randint(0, 3)
+            uppercase = randint(1, 4)
             passp = Passphrase()
             passp.load_internal_wordlist()
             passp.amount_w = amount_w
@@ -78,9 +78,16 @@ class TestValidInputs(TestCase):
                     Passphrase._uppercase_count(p),
                     uppercase
                 )
-                passp.generate(-1)
+                passp.generate(0)
                 passp.separator = ''
                 self.assertTrue(str(passp).isupper())
+
+                lowercase = randint(-4, -1)
+                passp.generate(lowercase)
+                self.assertEqual(
+                    Passphrase._lowercase_count(str(passp)),
+                    lowercase * -1
+                )
 
     def test_generate_password(self):
         length = randint(0, 10)
@@ -182,6 +189,30 @@ class TestValidInputs(TestCase):
         self.assertTrue(passp.wordlist)
         self.assertEqual(len(passp.wordlist), 7776)
 
+    def test_make_chars_uppercase(self):
+        string = 'The quick brown fox jumps over the lazy dog 123456'
+        upperstart = Passphrase._uppercase_count(string)
+        uppercase = randint(0, 10)
+        strupper = Passphrase.make_chars_uppercase(string, uppercase)
+        self.assertIsInstance(strupper, str)
+        self.assertEqual(
+            Passphrase._uppercase_count(strupper),
+            uppercase + upperstart
+        )
+
+        lst = list(string)
+        lstupper = Passphrase.make_chars_uppercase(lst, uppercase)
+        self.assertIsInstance(lstupper, list)
+        self.assertEqual(
+            Passphrase._uppercase_count(lstupper),
+            uppercase + upperstart
+        )
+
+        uppercase = len(string) * 2
+        strupper = Passphrase.make_chars_uppercase(string, uppercase)
+        self.assertIsInstance(strupper, str)
+        self.assertTrue(strupper.isupper())
+
 
 class TestInvalidInputs(TestCase):
 
@@ -204,7 +235,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             1,
             1.1
         )
@@ -242,7 +273,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             ()
         )
@@ -270,7 +301,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             ()
         )
@@ -295,7 +326,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             (),
             1.1
@@ -321,7 +352,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             (),
             1.1
@@ -347,7 +378,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             (),
             1.1
@@ -373,7 +404,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             (),
             1.1
@@ -399,7 +430,7 @@ class TestInvalidInputs(TestCase):
             {'a': 1, 'b': 2},
             'aaaa',
             (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             [],
             (),
             1.1
@@ -424,7 +455,7 @@ class TestInvalidInputs(TestCase):
             {1, 2},
             {'a': 1, 'b': 2},
             'aaaa',
-            set({1, 2, 3, 4}),
+            {1, 2, 3, 4},
             1.1,
             1
         )
@@ -445,3 +476,41 @@ class TestInvalidInputs(TestCase):
         self.assertRaises(ValueError, passp.generate)
         passp.load_internal_wordlist()
         self.assertEqual(passp.generate(), [])
+
+        wrongtypes = (
+            {1, 2},
+            {'a': 1, 'b': 2},
+            'aaaa',
+            {1, 2, 3, 4},
+            (1, 2),
+            [1, 2],
+            1.2
+        )
+        for t in wrongtypes:
+            self.assertRaises(TypeError, passp.generate, t)
+
+    def test_make_chars_uppercase(self):
+        wrongtypes = (
+            {'a': 1, 'b': 2},
+            1.2,
+            1
+        )
+        for t in wrongtypes:
+            self.assertRaises(TypeError, Passphrase.make_chars_uppercase, t, 0)
+
+        wrongtypes = (
+            {1, 2},
+            {'a': 1, 'b': 2},
+            'aaaa',
+            {1, 2, 3, 4},
+            (1, 2),
+            [1, 2],
+            1.2
+        )
+        for t in wrongtypes:
+            self.assertRaises(
+                TypeError, Passphrase.make_chars_uppercase,
+                [],
+                t
+            )
+        self.assertRaises(ValueError, Passphrase.make_chars_uppercase, [], -1)

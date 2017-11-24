@@ -72,9 +72,8 @@ generate an UUID v4 string
 
 generate a password of the specified length from all printable or selected characters
 
-**--use-uppercase**
-
-use uppercase characters for password generation
+**--use-uppercase** \[USE_UPPERCASE\]
+use uppercase characters for password generation or give the amount of uppercase characters in the passphrase: positive for that many uppercase characters, negative for all uppercase except that many, and zero or no input for all uppercase
 
 **--use-lowercase**
 
