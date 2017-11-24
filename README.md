@@ -4,7 +4,7 @@
 
 Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number. It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
-A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters ([NIST's latest recommendation](https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/)), and prefer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lower case letters and punctuation symbols - more specifically: `ascii_lowercase`, `ascii_uppercase`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
+A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters ([NIST's latest recommendation](https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/)), and prefer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lowercase letters and punctuation symbols - more specifically: `ascii_lowercase`, `ascii_uppercase`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
 Those settings mentioned are specifically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low (when used as a script), by calculating the list's entropy.
 
@@ -121,6 +121,13 @@ trophy affiliate clobber vivacious aspect thickness
 ```
 :~$ passphrase -w 6 -n 1
 jasmine identity chemo suave clerk copartner 853727
+```
+
+##### Generate a passphrase of 6 with 5 characters uppercase
+
+```
+:~$ passphrase -w 6 --use-uppercase 5
+LiTmus cocoa littEr equation uNwrapped sibliNg
 ```
 
 ##### Generate a password of 16 characters (minimum recommended)

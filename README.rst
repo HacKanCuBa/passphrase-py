@@ -19,8 +19,8 @@ maybe you can add a random number to the list. If you need a password,
 make it bigger than 8 characters (`NIST's latest
 recommendation <https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/>`__),
 and prefer more than 12 (I recommend 16 or more). Passwords are
-comprised of digits, upper and lower case letters and punctuation
-symbols - more specifically: ``ascii_lowercase``, ``ascii_uppercase``,
+comprised of digits, upper and lowercase letters and punctuation symbols
+- more specifically: ``ascii_lowercase``, ``ascii_uppercase``,
 ``digits`` and ``punctuation`` from
 `Lib/string <https://docs.python.org/3.6/library/string.html#string-constants>`__
 -.
@@ -169,6 +169,14 @@ Generate a passphrase of 6 words and a number (minimum recommended)
 
     :~$ passphrase -w 6 -n 1
     jasmine identity chemo suave clerk copartner 853727
+
+Generate a passphrase of 6 with 5 characters uppercase
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+::
+
+    :~$ passphrase -w 6 --use-uppercase 5
+    LiTmus cocoa littEr equation uNwrapped sibliNg
 
 Generate a password of 16 characters (minimum recommended)
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
