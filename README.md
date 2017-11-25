@@ -8,6 +8,14 @@ A secure passphrase must be of at least 6 words, but 7 is better, and maybe you 
 
 Those settings mentioned are specifically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low (when used as a script), by calculating the list's entropy.
 
+
+**Important note**: the quality and security of generated passphrases rely on:
+
+* the [OS-specific randomness source](https://docs.python.org/3/library/os.html#os.urandom), and
+* the quality of the wordlist.
+
+If you are not sure which wordlist to use, just use the one provided by **Passphrase** (it is used by default when running as a script) or one of the EFF's wordlists (check at about the middle of [this blog post](https://www.eff.org/es/dice)).
+
 ## Requirements
 
 * **Python 3.2+**.
@@ -201,13 +209,34 @@ An attacker that is *root* can do whatever it wants, so it's out of the scope of
 
 #### Attacker can modify source code or wordlist
 
-If it can modify the source code somehow, or the default [wordlist](passphrase/wordlist.json), it's also game over since a software that succesfully checks itself doesn't exist yet. However, it could be mitigated by placing the files under the ownership of some privileged user (*root*).
+If it can modify the source code somehow, or the default [wordlist](passphrase/wordlist.py), it's also game over since a software that succesfully checks itself doesn't exist yet. However, it could be mitigated by placing the files under the ownership of some privileged user (*root*).
 
 #### Attacker can modify external libraries
 
 **Passphrase** doesn't require any external library, but if NumPy exists, it will use it. Let's assume the attacker has full control over this library, which is used to improve entropy calculations.  
 The attacker could alter it so that the resulting entropy calculation is bigger than it should, so that Passphrase will recommend (or use) shorter passphrases or passwords. This attack would only be possible if Passphrase is being use as a script with default parameters or as a module in a script with entropy-based calculated parameters. In that scenario, the attack succeeds in reducing the difficulty in bruteforcing the passphrase/password by making Passphrase generate very short passphrases/passwords. However, using Passphrase like that is not the best practice: the user should realize that passphrases/passwords are too short, and should avoid using default parameters (as a general rule of thumb, always set what you want and expect).  
 Either way, this can be mitigated by setting `TRY_NUMPY = False` in [settings.py](passphrase/settings.py).
+
+## Timings
+
+I realize at some point that the library was taking waaay longer to work than before (I solved it in [2c0eb8b](https://github.com/HacKanCuBa/passphrase-py/commit/2c0eb8bb8057f1c9437dba85a2df198a6f04c5ac)), so I decided to measure each version runtime from now on. So here's the runtime table for each tag:
+
+Version (tag) | Runtime (ms) | Relative Runtime | Runtime Change Between Versions
+------------- | ------------ | ---------------- | -------------------------------
+v0.2.3        | 43.1         | 1.00             | +0%
+v0.2.3-1      | 41.2         | 0.96             | -4%
+v0.3.0        | 39.1         | 0.91             | -5%
+v0.4.1        | 107          | 2.48             | +174%
+v0.4.2        | 105          | 2.43             | -2%
+v0.4.4        | 105          | 2.43             | +0%
+v0.4.5        | 30.7         | 0.71             | -71%
+
+You can try it yourself: download each release, unpack it and time it.  
+The command to run, depending on the release version, is:
+
+ * newer than v0.4.5, run: `make timeit`.
+ * older than v0.4.5, run `python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 -m passphrase -w6 -q")'`.
+ * older than v0.4, run: `python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 src/passphrase.py -w6 -q")'`.
 
 ## License
 
