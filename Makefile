@@ -10,7 +10,7 @@ TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX")
 all:
 	@echo "Passphrase by HacKan (https://hackan.net)"
 	@echo "Commands for this makefile:"
-	@echo "	install altinstall uninstall altuninstall package-install lint test clean"
+	@echo "	install altinstall uninstall altuninstall package-install lint test timeit clean"
 
 clean:
 	@rm -vrf \
@@ -75,4 +75,7 @@ lint:
 test:
 	nosetests -v
 
-.PHONY: install altinstall uninstall altuninstall lint test clean
+timeit:
+	python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 -m passphrase -w6 -q")'
+
+.PHONY: install altinstall uninstall altuninstall lint test timeit clean
