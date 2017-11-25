@@ -68,15 +68,24 @@ printable or selected characters
 \fB\-\-use\-uppercase\fR [USE_UPPERCASE]
 use uppercase characters for password generation or
 give the amount of uppercase characters in the
-passphrase: positive for that many uppercase
-characters, negative for all uppercase except that
-many, and zero or no input for all uppercase
+passphrase: zero or no input for all uppercase or any
+number of uppercase characters wanted (the rest are
+lowercase)
 .TP
-\fB\-\-use\-lowercase\fR
-use lowercase characters for password generation
+\fB\-\-use\-lowercase\fR [USE_LOWERCASE]
+use lowercase characters for password generation or
+give the amount of lowercase characters in the
+passphrase: zero or no input for all lowercase
+(default) or any number of lowercase characters wanted
+(the rest are uppercase)
 .TP
 \fB\-\-use\-digits\fR
 use digits for password generation
+.TP
+\fB\-\-use\-alphanumeric\fR
+use lowercase and uppercase characters, and digits for
+password generation (equivalent to --use-lowercase
+--use-uppercase --use-digits)
 .TP
 \fB\-\-use\-punctuation\fR
 use punctuation characters for password generation

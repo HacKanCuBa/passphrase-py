@@ -131,11 +131,18 @@ trophy affiliate clobber vivacious aspect thickness
 jasmine identity chemo suave clerk copartner 853727
 ```
 
-##### Generate a passphrase of 6 with 5 characters uppercase
+##### Generate a passphrase of 6 words with 5 characters uppercase
 
 ```
 :~$ passphrase -w 6 --use-uppercase 5
 LiTmus cocoa littEr equation uNwrapped sibliNg
+```
+
+##### Generate a passphrase of 6 words with 5 characters lowercase
+
+```
+:~$ passphrase -w 6 --use-lowercase 5
+MOrTUARY SIesTa MAKEOVER CURABLE JET MARSHy
 ```
 
 ##### Generate a password of 16 characters (minimum recommended)
@@ -151,6 +158,9 @@ E`31nDL0^$oYu5='
 :~$ passphrase -p 8 --use-lowercase --use-uppercase --use-digits
 Warning: Insecure password length chosen! Should be bigger than or equal to 13
 7wmivbmR
+:~$ passphrase -p 8 --use-alphanumeric
+Warning: Insecure password length chosen! Should be bigger than or equal to 13
+ipLdqmGU
 ```
 
 ##### Use an external wordlist to generate a passphrase

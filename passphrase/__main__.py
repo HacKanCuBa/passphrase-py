@@ -13,7 +13,7 @@ import argparse
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.5"
+__version__ = "0.4.6"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
@@ -120,25 +120,37 @@ def main():
     )
     parser.add_argument(
         "--use-uppercase",
-        type=int,
+        type=bigger_than_zero,
         const=0,
         nargs='?',
         help="use uppercase characters for password generation or give the "
-             "amount of uppercase characters in the passphrase: positive for "
-             "that many uppercase characters, negative for all uppercase "
-             "except that many, and zero or no input for all uppercase"
+             "amount of uppercase characters in the passphrase: zero or no "
+             "input for all uppercase or any number of uppercase "
+             "characters wanted (the rest are lowercase)"
     )
     parser.add_argument(
         "--use-lowercase",
-        action="store_true",
-        default=False,
-        help="use lowercase characters for password generation"
+        type=bigger_than_zero,
+        const=0,
+        nargs='?',
+        help="use lowercase characters for password generation or give the "
+             "amount of lowercase characters in the passphrase: zero or no "
+             "input for all lowercase (default) or any number of lowercase "
+             "characters wanted (the rest are uppercase)"
     )
     parser.add_argument(
         "--use-digits",
         action="store_true",
         default=False,
         help="use digits for password generation"
+    )
+    parser.add_argument(
+        "--use-alphanumeric",
+        action="store_true",
+        default=False,
+        help="use lowercase and uppercase characters, and digits for password "
+             "generation (equivalent to --use-lowercase --use-uppercase "
+             "--use-digits)"
     )
     parser.add_argument(
         "--use-punctuation",
@@ -204,6 +216,7 @@ def main():
     p_lowercase = args.use_lowercase
     p_digits = args.use_digits
     p_punctuation = args.use_punctuation
+    p_alphanumeric = args.use_alphanumeric
 
     if show_version is True:
         print_version()
@@ -216,10 +229,17 @@ def main():
     elif passwordlen is not None:
         # Generate a password
         p_uppercase = True if p_uppercase is not None else False
-        if p_uppercase or p_lowercase or p_digits or p_punctuation:
-            passphrase.password_use_uppercase = p_uppercase
-            passphrase.password_use_lowercase = p_lowercase
-            passphrase.password_use_digits = p_digits
+        p_lowercase = True if p_lowercase is not None else False
+        if (
+            p_uppercase
+            or p_lowercase
+            or p_digits
+            or p_punctuation
+            or p_alphanumeric
+        ):
+            passphrase.password_use_uppercase = (p_uppercase or p_alphanumeric)
+            passphrase.password_use_lowercase = (p_lowercase or p_alphanumeric)
+            passphrase.password_use_digits = (p_digits or p_alphanumeric)
             passphrase.password_use_punctuation = p_punctuation
 
         min_len = passphrase.password_length_needed()
@@ -258,7 +278,8 @@ def main():
             )
 
         passphrase.amount_w = amount_w
-        passphrase.generate(p_uppercase)
+        case = (-1 * p_lowercase) if p_lowercase else p_uppercase
+        passphrase.generate(case)
         passphrase.separator = separator
 
     if quiet is False:
