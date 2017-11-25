@@ -216,15 +216,9 @@ class Passphrase():
     def load_internal_wordlist(self) -> None:
         """Load internal wordlist."""
 
-        from json import loads as json_loads
-        from pkg_resources import resource_string
-
-        wordlist = json_loads(resource_string(
-            'passphrase',
-            'wordlist.json'
-        ).decode('utf-8'))
-        self.wordlist = wordlist['wordlist']
-        self._wordlist_entropy_bits = wordlist['entropy_bits']
+        from .wordlist import EFF_LONG_WORDLIST, EFF_LONG_WORDLIST_ENTROPY
+        self.wordlist = EFF_LONG_WORDLIST
+        self._wordlist_entropy_bits = EFF_LONG_WORDLIST_ENTROPY
         self._external_wordlist = False
 
     @staticmethod
