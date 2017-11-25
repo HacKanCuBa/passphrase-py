@@ -5,20 +5,17 @@ secure random number generator. Passwords are built from printable characters.
 by HacKan (https://hackan.net) under GNU GPL v3.0+
 """
 
-from sys import stderr, version_info, exit as sys_exit
-import argparse
+from sys import version_info, exit as sys_exit
 from .settings import ENTROPY_BITS_MIN
 from .passphrase import Passphrase
+from .aux import Aux
+import argparse
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
 __version__ = "0.4.5"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
-
-
-def print_stderr(string: str) -> None:
-    print("{}".format(string), file=stderr)
 
 
 def print_version() -> None:
@@ -229,7 +226,7 @@ def main():
         if passwordlen < 1:
             passwordlen = min_len
         elif passwordlen < min_len:
-            print_stderr(
+            Aux.print_stderr(
                 "Warning: Insecure password length chosen! Should be bigger "
                 "than or equal to {}".format(min_len)
             )
@@ -247,7 +244,7 @@ def main():
                 passphrase.import_words_from_file(inputfile, is_diceware)
 
         except FileNotFoundError as err:
-            print_stderr("Error: {}".format(err))
+            Aux.print_stderr("Error: {}".format(err))
             sys_exit(1)
 
         passphrase.amount_n = amount_n
@@ -255,7 +252,7 @@ def main():
         if amount_w is None:
             amount_w = amount_w_good
         elif amount_w < amount_w_good:
-            print_stderr(
+            Aux.print_stderr(
                 "Warning: Insecure amount of words chosen! Should be "
                 "bigger than or equal to {}".format(amount_w_good)
             )

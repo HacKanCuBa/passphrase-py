@@ -3,6 +3,7 @@ from random import randint
 from uuid import UUID
 
 from passphrase.passphrase import Passphrase
+from passphrase.aux import Aux
 
 WORDS = [
     'vivacious',
@@ -62,10 +63,10 @@ class TestValidInputs(TestCase):
         )
 
     def test_generate(self):
-        for _ in range(0, 10):
+        for _ in range(0, 1000):
             amount_w = randint(0, 10)
             amount_n = randint(0, 10)
-            uppercase = randint(1, 4)
+            uppercase = randint(1, 5)
             passp = Passphrase()
             passp.load_internal_wordlist()
             passp.amount_w = amount_w
@@ -74,20 +75,37 @@ class TestValidInputs(TestCase):
             self.assertIsInstance(p, list)
             self.assertEqual(len(p), amount_w + amount_n)
             if amount_w > 0:
-                self.assertEqual(
-                    Passphrase._uppercase_count(p),
-                    uppercase
+                # Perhaps it was requested just 1 word, and many uppercase
+                # chars, but the word happens to be just 3 chars long...
+                chars = sum(
+                    len(w) if (
+                        isinstance(w, str) and w.isalpha()
+                    ) else 0 for w in p
                 )
+                if chars < uppercase:
+                    self.assertTrue(str(p).isupper())
+                else:
+                    self.assertEqual(
+                        Aux.uppercase_count(p),
+                        uppercase
+                    )
                 passp.generate(0)
-                passp.separator = ''
                 self.assertTrue(str(passp).isupper())
 
-                lowercase = randint(-4, -1)
-                passp.generate(lowercase)
-                self.assertEqual(
-                    Passphrase._lowercase_count(str(passp)),
-                    lowercase * -1
+                lowercase = randint(-5, -1)
+                p = passp.generate(lowercase)
+                chars = sum(
+                    len(w) if (
+                        isinstance(w, str) and w.isalpha()
+                    ) else 0 for w in p
                 )
+                if chars < (lowercase * -1):
+                    self.assertTrue(str(p).islower())
+                else:
+                    self.assertEqual(
+                        Aux.lowercase_count(p),
+                        lowercase * -1
+                    )
 
     def test_generate_password(self):
         length = randint(0, 10)
@@ -191,20 +209,21 @@ class TestValidInputs(TestCase):
 
     def test_make_chars_uppercase(self):
         string = 'The quick brown fox jumps over the lazy dog 123456'
-        upperstart = Passphrase._uppercase_count(string)
+        upperstart = Aux.uppercase_count(string)
         uppercase = randint(0, 10)
-        strupper = Passphrase.make_chars_uppercase(string, uppercase)
-        self.assertIsInstance(strupper, str)
-        self.assertEqual(
-            Passphrase._uppercase_count(strupper),
-            uppercase + upperstart
-        )
+        for _ in range(0, 1000):
+            strupper = Passphrase.make_chars_uppercase(string, uppercase)
+            self.assertIsInstance(strupper, str)
+            self.assertEqual(
+                Aux.uppercase_count(strupper),
+                uppercase + upperstart
+            )
 
         lst = list(string)
         lstupper = Passphrase.make_chars_uppercase(lst, uppercase)
         self.assertIsInstance(lstupper, list)
         self.assertEqual(
-            Passphrase._uppercase_count(lstupper),
+            Aux.uppercase_count(lstupper),
             uppercase + upperstart
         )
 
@@ -212,6 +231,22 @@ class TestValidInputs(TestCase):
         strupper = Passphrase.make_chars_uppercase(string, uppercase)
         self.assertIsInstance(strupper, str)
         self.assertTrue(strupper.isupper())
+
+        uppercase = randint(0, 2)
+        lst = (
+            [
+                [[], ['b']],
+                ['a'],
+                {12, 'bsh', 0},
+                ('f', 1, 2, 3, ((3, 4, ['v', 'bjk']), (['a', 4, 'p'])))
+            ]
+        )
+        lstupper = Passphrase.make_chars_uppercase(lst, uppercase)
+        self.assertIsInstance(lstupper, type(lst))
+        self.assertEqual(
+            Aux.uppercase_count(lstupper),
+            uppercase
+        )
 
 
 class TestInvalidInputs(TestCase):
