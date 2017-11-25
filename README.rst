@@ -174,6 +174,14 @@ Generate a passphrase of 6 words (default settings)
     :~$ passphrase
     trophy affiliate clobber vivacious aspect thickness
 
+Generate a passphrase of 128 bits of entropy
+''''''''''''''''''''''''''''''''''''''''''''
+
+::
+
+    :~$ passphrase -e 128
+    shorty collie prison reopen barge morally flavoring shifter scarcity perfume
+
 Generate a passphrase of 6 words and a number (minimum recommended)
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 

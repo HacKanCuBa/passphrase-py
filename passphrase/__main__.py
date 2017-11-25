@@ -13,7 +13,7 @@ import argparse
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.6"
+__version__ = "0.4.7"
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
 
@@ -102,6 +102,14 @@ def main():
         default=False,
         help="quiet mode, it won't print anything but error messages "
              "(usefull with -o | --output)"
+    )
+    parser.add_argument(
+        "-e",
+        "--entropybits",
+        type=bigger_than_zero,
+        default=ENTROPY_BITS_MIN,
+        help="specify the number of bits to use for entropy calculations "
+             "(defaults to {})".format(ENTROPY_BITS_MIN)
     )
     parser.add_argument(
         "--uuid4",
@@ -217,10 +225,18 @@ def main():
     p_digits = args.use_digits
     p_punctuation = args.use_punctuation
     p_alphanumeric = args.use_alphanumeric
+    entropy_bits = args.entropybits
 
     if show_version is True:
         print_version()
         sys_exit()
+
+    if entropy_bits < ENTROPY_BITS_MIN:
+        Aux.print_stderr(
+            "Warning: insecure number of bits for entropy calculations "
+            "chosen! Should be bigger than {}".format(ENTROPY_BITS_MIN)
+        )
+    passphrase.entropy_bits_req = entropy_bits
 
     if uuid4 is True:
         # Generate uuid4

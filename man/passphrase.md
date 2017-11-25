@@ -64,6 +64,10 @@ print newline at the end of the passphrase/password
 
 quiet mode, it won’t print anything but error messages (usefull with **-o** | **--output**)
 
+**-e** ENTROPYBITS, **--entropybits** ENTROPYBITS
+
+specify the number of bits to use for entropy calculations (defaults to 77)
+
 **--uuid4**
 
 generate an UUID v4 string
