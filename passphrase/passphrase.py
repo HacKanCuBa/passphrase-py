@@ -460,21 +460,23 @@ class Passphrase():
             passphrase.append(randchoice(self.wordlist).lower())
 
         # Handle uppercase
+        lowercase = Aux.lowercase_count(passphrase)
         if passphrase and uppercase is not None:
-            if uppercase < 0:
-                uppercase = sum(len(i) for i in passphrase) + uppercase
+            if (
+                uppercase < 0
+                and lowercase > (uppercase * -1)
+            ):
+                uppercase = lowercase + uppercase
 
             # If it's still negative, then means no uppercase
-            if uppercase >= 0:
-                arelower = self._lowercase_count(passphrase)
-                if uppercase == 0 or uppercase >= arelower:
-                    # Make it all uppercase
-                    passphrase = [word.upper() for word in passphrase]
-                else:
-                    passphrase = Passphrase.make_chars_uppercase(
-                        passphrase,
-                        uppercase
-                    )
+            if uppercase == 0:
+                # Make it all uppercase
+                passphrase = Aux.make_all_uppercase(passphrase)
+            elif uppercase > 0:
+                passphrase = Passphrase.make_chars_uppercase(
+                    passphrase,
+                    uppercase
+                )
 
         # Handle numbers
         for _ in range(0, self.amount_n):
