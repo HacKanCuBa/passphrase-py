@@ -51,9 +51,9 @@ class TestValidInputs(TestCase):
             (100, 16),
             (512, 79),
         )
-        for v in values:
-            l = passphrase.calc.password_length_needed(v[0], chars)
-            self.assertEqual(l, v[1])
+        for val in values:
+            lst = passphrase.calc.password_length_needed(val[0], chars)
+            self.assertEqual(lst, val[1])
 
     def test_words_amount_needed(self):
         values = (

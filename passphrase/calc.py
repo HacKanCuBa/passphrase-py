@@ -2,9 +2,8 @@
 """
 
 from math import ceil, fabs, log10
-from .settings import TRY_NUMPY
 
-__version__ = "0.4.2"
+__version__ = "0.4.4"
 
 try:
     from math import log2   # Python 3.3+
@@ -15,16 +14,6 @@ except ImportError:
         return log(num, 2)
 
 
-if TRY_NUMPY is True:
-    try:
-        from numpy import count_nonzero as np_count_nonzero
-        from numpy import unique as np_unique
-
-        NUMPY = True
-    except ImportError:
-        NUMPY = False
-
-
 def entropy_bits(lst: list) -> float:
     # Based on https://stackoverflow.com/a/45091961
     if not isinstance(lst, (list, tuple)):
@@ -33,30 +22,25 @@ def entropy_bits(lst: list) -> float:
     for n in lst:
         if not isinstance(n, (int, str, float, complex)):
             raise TypeError('lst can only be comprised of int, str, float, '
-                            'long, complex')
+                            'complex')
 
     n_lst = len(lst)
 
     if n_lst <= 1:
         return 0.0
 
-    if TRY_NUMPY is True and NUMPY is True:
-        value, counts = np_unique(lst, return_counts=True)
-        probs = counts / n_lst
-        n_classes = np_count_nonzero(probs)
-    else:
-        # Some NumPy replacements
-        counts = [lst.count(x) for x in set(lst)]
-        probs = [c / n_lst for c in counts]
-        n_classes = len([x for x in probs if x != 0])
+    # Some NumPy replacements
+    counts = [lst.count(x) for x in lst]
+    probs = [c / n_lst for c in counts]
+    n_classes = len([x for x in probs if x != 0])
 
     if n_classes <= 1:
         return 0.0
 
     # Compute entropy
     ent = 0.0
-    for i in probs:
-        ent -= i * log2(i)
+    for p in probs:
+        ent -= p * log2(p)
 
     return ent
 
