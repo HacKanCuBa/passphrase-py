@@ -19,12 +19,6 @@ If you are not sure which wordlist to use, just use the one provided by **Passph
 ## Requirements
 
 * **Python 3.2+**.
-* NumPy 1.13+ [optional] for faster entropy computation.
-* Flake8 [optional] for linting.
-* Nosetest [optional] for collecting and running tests.
-
-Passphrase gets plenty of benefits from NumPy if you use an external wordlist, because it computes the entropy of it, but it works fine without it.  
-For the sake of security, you might want to avoid using any external library. It's possible to entirely disable the use of NumPy by setting `TRY_NUMPY = False` in [settings.py](passphrase/settings.py).
 
 ## How to use it
 
@@ -34,80 +28,7 @@ In any case, just download the files, preferrably fom the [latest release](https
 
 ### As a package
 
-Once downloaded and verified, use `setup.py` to install (I let you decide whether to use virtualenv or not): `./setup.py install`. You can also do `make package-install` with the same outcome. Run it with `sudo` or elevated privileges to install it system-wide.
-
-Please let me know if you use this in your app, I would love that :)
-
-#### Examples of use
-
-A good example is how [I implemented it](passphrase/__main__.py).
-
-```python
->>> from passphrase.passphrase import Passphrase
->>> passphrase = Passphrase('/tmp/mi_own_wordlist.txt')
->>> 
->>> # WARNING: entropy and good default values ARE NOT automatically calculated!
->>> # If amounts are not specified, an exception occurs.
->>> passphrase.generate()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/home/hackan/Workspace/passphrase/passphrase/passphrase/passphrase.py", line 345, in generate
-    raise ValueError('Can\'t generate passphrase: '
-ValueError: Can't generate passphrase: wordlist is empty or amount_n or amount_w isn't set
->>> passphrase.amount_w = 6
->>> passphrase.amount_n = 0
->>> passphrase.generate()
-['shop', 'jolt', 'spoof', 'cupid', 'pouch', 'dose']
->>> 
->>> # You must set the desired entropy prior executing any calculation, or else...
->>> passphrase.words_amount_needed()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/home/hackan/Workspace/passphrase/passphrase/passphrase/passphrase.py", line 314, in words_amount_needed
-    raise ValueError('Cant\' calculate the words amount needed: '
-ValueError: Cant' calculate the words amount needed: entropy_bits_req or amount_n isn't set
->>> passphrase.entropy_bits_req = 77
->>> passphrase.words_amount_needed()
-8
->>> 
->>> passphrase.amount_w = passphrase.words_amount_needed()
->>> passphrase.generate()
-['grub', 'mummy', 'woozy', 'whole', 'ritzy', 'sift', 'train', 'radar']
->>> 
->>> # Change the wordlist (note than no other parameter is changed!)
->>> passphrase.import_words_from_file('/tmp/some_other_wordlist.txt', False)
->>> passphrase.generate()
-['vexingly', 'skedaddle', 'gilled', 'desolate', 'cartoon', 'frail', 'brute', 'filled']
-```
-
-```python
-# In a system backend, propose the user a good random passphrase for him to
-# use, or a safe password.
-
-def generate_passphrase() -> str:
-    from passphrase.passphrase import Passphrase
-    # Use internal wordlist (if it doesn't exists, an exception raises)
-    passphrase = Passphrase('internal')
-    passphrase.entropy_bits_req = 77    # EFF's minimum recommended
-    passphrase.amount_n = 1
-    passphrase.amount_w = passphrase.words_amount_needed()
-    passphrase.generate()   # This returns a list
-    passphrase.separator = '-'  # By default, separator is a blank space!
-    # Convert the last result to a string separated by dashes
-    proposedPassphrase = str(passphrase)
-    return proposedPassphrase
-
-def generate_password() -> str:
-    from passphrase.passphrase import Passphrase
-    passphrase = Passphrase()
-    passphrase.entropy_bits_req = 77    # EFF's minimum recommended
-    passphrase.passwordlen = passphrase.password_length_needed()
-    passphrase.generate_password()   # This returns a list
-    passphrase.separator = ''   # By default, separator is a blank space!
-    # Convert the last result to a string
-    proposedPassword = str(passphrase)
-    return proposedPassword
-```
+Check the [developers guide](DEVELOPERS.md).
 
 ### As a script
 
@@ -230,9 +151,7 @@ If it can modify the source code somehow, or the default [wordlist](passphrase/w
 
 #### Attacker can modify external libraries
 
-**Passphrase** doesn't require any external library, but if NumPy exists, it will use it. Let's assume the attacker has full control over this library, which is used to improve entropy calculations.  
-The attacker could alter it so that the resulting entropy calculation is bigger than it should, so that Passphrase will recommend (or use) shorter passphrases or passwords. This attack would only be possible if Passphrase is being use as a script with default parameters or as a module in a script with entropy-based calculated parameters. In that scenario, the attack succeeds in reducing the difficulty in bruteforcing the passphrase/password by making Passphrase generate very short passphrases/passwords. However, using Passphrase like that is not the best practice: the user should realize that passphrases/passwords are too short, and should avoid using default parameters (as a general rule of thumb, always set what you want and expect).  
-Either way, this can be mitigated by setting `TRY_NUMPY = False` in [settings.py](passphrase/settings.py).
+**Passphrase** doesn't require any external library, just Python 3 core.
 
 ## Timings
 
@@ -247,6 +166,7 @@ v0.4.1        | 107          | 2.48             | +174%
 v0.4.2        | 105          | 2.43             | -2%
 v0.4.4        | 105          | 2.43             | +0%
 v0.4.5        | 30.7         | 0.71             | -71%
+v0.4.7        | 30.6         | 0.71             | -0%
 
 You can try it yourself: download each release, unpack it and time it.  
 The command to run, depending on the release version, is:
