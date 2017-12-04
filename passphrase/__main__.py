@@ -26,21 +26,20 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+
 """
 
 from sys import version_info, exit as sys_exit
-from .settings import ENTROPY_BITS_MIN
+from .settings import ENTROPY_BITS_MIN, SYSTEM_ENTROPY_BITS_MIN
 from .passphrase import Passphrase
 from .aux import Aux
 import argparse
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.7"
+__version__ = "0.4.8"
+__version_string__ = (
+    "Passphrase v{}\nby HacKan (https://hackan.net) FOSS "
+    "under GNU GPL v3.0 or newer".format(__version__)
+)
 
 assert (version_info >= (3, 2)), "This script requires Python 3.2+"
-
-
-def print_version() -> None:
-    print("Passphrase v{}\nby HacKan (https://hackan.net) FOSS under GNU "
-          "GPL v3.0 or newer".format(__version__))
 
 
 def bigger_than_zero(value: int) -> int:
@@ -55,10 +54,14 @@ def bigger_than_zero(value: int) -> int:
 def main():
     passphrase = Passphrase()
 
+    # Set defaults
     passphrase.entropy_bits_req = ENTROPY_BITS_MIN
-    PASSWD_LEN_MIN_GOOD = passphrase.password_length_needed()
-    WORDS_AMOUNT_MIN_DEFAULT = 6  # Just for EFF's Large Wordlist
-    NUMS_AMOUNT_MIN_DEFAULT = 0
+    passwordlen_default = passphrase.password_length_needed()
+    amount_n_default = 0
+    passphrase.amount_n = amount_n_default
+    # To avoid loading the wordlist unnecessarily, I'm hardcoding this value
+    # It's ok, it's only used to show help information
+    amount_w_default = 6
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -96,10 +99,10 @@ def main():
         '\tPassword, 20 chars:\tsF#s@B+iR#ZIL-yUWKPR'.format(
             minnum=passphrase.randnum_min,
             maxnum=passphrase.randnum_max,
-            wordsamountmin=WORDS_AMOUNT_MIN_DEFAULT,
-            numsamountmin=NUMS_AMOUNT_MIN_DEFAULT,
-            passwdmin=PASSWD_LEN_MIN_GOOD,
-            passwdpref=PASSWD_LEN_MIN_GOOD + 4,
+            wordsamountmin=amount_w_default,
+            numsamountmin=amount_n_default,
+            passwdmin=passwordlen_default,
+            passwdpref=passwordlen_default + 4,
             version=__version__
         )
     )
@@ -110,18 +113,32 @@ def main():
         help="print program version and licensing information and exit"
     )
     parser.add_argument(
+        "--insecure",
+        action="store_true",
+        default=False,
+        help="force password/passphrase generation even if the system's "
+             "entropy is too low"
+    )
+    parser.add_argument(
         "--newline",
         action="store_true",
         default=False,
         help="print newline at the end of the passphrase/password"
     )
     parser.add_argument(
-        "-q",
-        "--quiet",
+        "-m",
+        "--mute",
         action="store_true",
         default=False,
-        help="quiet mode, it won't print anything but error messages "
-             "(usefull with -o | --output)"
+        help="muted mode: it won't print output, only informational, warning "
+             "or error messages (usefull with -o | --output)"
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="print additional information (can coexist with -m | --mute)"
     )
     parser.add_argument(
         "-e",
@@ -196,7 +213,7 @@ def main():
         "-n",
         "--numbers",
         type=bigger_than_zero,
-        default=NUMS_AMOUNT_MIN_DEFAULT,
+        default=amount_n_default,
         help="specify the amount of numbers (0 or more)"
     )
     parser.add_argument(
@@ -237,33 +254,73 @@ def main():
     amount_w = args.words
     amount_n = args.numbers
     show_version = args.version
-    quiet = args.quiet
+    mute = args.mute
+    verbose = args.verbose
     newline = args.newline
-    uuid4 = args.uuid4
+    gen_uuid4 = args.uuid4
     p_uppercase = args.use_uppercase
     p_lowercase = args.use_lowercase
     p_digits = args.use_digits
     p_punctuation = args.use_punctuation
     p_alphanumeric = args.use_alphanumeric
     entropy_bits = args.entropybits
+    gen_insecure = args.insecure
 
-    if show_version is True:
-        print_version()
+    if show_version:
+        print(__version_string__)
         sys_exit()
 
-    if entropy_bits < ENTROPY_BITS_MIN:
+    if verbose:
+        Aux.print_stderr(__version_string__)
+
+    # Check system entropy
+    system_entropy = Aux.system_entropy()
+    if system_entropy < SYSTEM_ENTROPY_BITS_MIN:
         Aux.print_stderr(
-            "Warning: insecure number of bits for entropy calculations "
-            "chosen! Should be bigger than {}".format(ENTROPY_BITS_MIN)
+            'Warning: the system has too little entropy: {} bits; randomness '
+            'quality could be poor'.format(system_entropy)
+        )
+        if not gen_insecure:
+            Aux.print_stderr(
+                'Error: system entropy too low: {system_entropy} '
+                '< {system_entropy_min}'.format(
+                    system_entropy=system_entropy,
+                    system_entropy_min=SYSTEM_ENTROPY_BITS_MIN
+                )
+            )
+            sys_exit(1)
+
+    if verbose:
+        Aux.print_stderr(
+            'Using {} bits of entropy for calculations (if any). The minimum '
+            'recommended is {}'.format(entropy_bits, ENTROPY_BITS_MIN)
+        )
+
+    # Check selected entropy
+    check_chosen_entropy = False if gen_uuid4 else not (
+        amount_n and amount_w and passwordlen is None
+    )
+    if check_chosen_entropy and entropy_bits < ENTROPY_BITS_MIN:
+        Aux.print_stderr(
+            'Warning: insecure number of bits for entropy calculations '
+            'chosen! Should be bigger than {}'.format(ENTROPY_BITS_MIN)
         )
     passphrase.entropy_bits_req = entropy_bits
 
-    if uuid4 is True:
+    # Generate whatever is requested
+    if gen_uuid4:
         # Generate uuid4
+        gen_what = 'UUID v4'
+        gen_ent = 133.78
+
+        if verbose:
+            Aux.print_stderr('Generating UUID v4')
         passphrase.generate_uuid4()
         passphrase.separator = '-'
     elif passwordlen is not None:
         # Generate a password
+        gen_what = 'password'
+
         p_uppercase = True if p_uppercase is not None else False
         p_lowercase = True if p_lowercase is not None else False
         if (
@@ -283,14 +340,49 @@ def main():
             passwordlen = min_len
         elif passwordlen < min_len:
             Aux.print_stderr(
-                "Warning: Insecure password length chosen! Should be bigger "
-                "than or equal to {}".format(min_len)
+                'Warning: insecure password length chosen! Should be bigger '
+                'than or equal to {}'.format(min_len)
             )
+
         passphrase.passwordlen = passwordlen
+        gen_ent = passphrase.generated_password_entropy()
+
+        if verbose:
+            verbose_string = (
+                'Generating password of {} characters long '
+                'using '.format(passwordlen)
+            )
+            verbose_string += (
+                'uppercase characters, ' if (
+                    passphrase.password_use_uppercase or p_alphanumeric
+                ) else ''
+            )
+            verbose_string += (
+                'lowercase characters, ' if (
+                    passphrase.password_use_lowercase or p_alphanumeric
+                ) else ''
+            )
+            verbose_string += (
+                'digits, ' if (
+                    passphrase.password_use_digits or p_alphanumeric
+                ) else ''
+            )
+            verbose_string += (
+                'punctuation characters, ' if (
+                    passphrase.password_use_punctuation
+                ) else ''
+            )
+            Aux.print_stderr(
+                verbose_string[:-2] if (
+                    verbose_string[-2:] == ', '
+                ) else verbose_string
+            )
+
         passphrase.generate_password()
         passphrase.separator = ''
     else:
         # Generate a passphrase
+        gen_what = 'passphrase'
 
         # Read wordlist if indicated
         try:
@@ -300,7 +392,7 @@ def main():
                 passphrase.import_words_from_file(inputfile, is_diceware)
 
         except FileNotFoundError as err:
-            Aux.print_stderr("Error: {}".format(err))
+            Aux.print_stderr('Error: {}'.format(err))
             sys_exit(1)
 
         passphrase.amount_n = amount_n
@@ -309,17 +401,44 @@ def main():
             amount_w = amount_w_good
         elif amount_w < amount_w_good:
             Aux.print_stderr(
-                "Warning: Insecure amount of words chosen! Should be "
-                "bigger than or equal to {}".format(amount_w_good)
+                'Warning: insecure amount of words chosen! Should be '
+                'bigger than or equal to {}'.format(amount_w_good)
             )
 
         passphrase.amount_w = amount_w
+        gen_ent = passphrase.generated_passphrase_entropy()
+
+        if verbose:
+            Aux.print_stderr(
+                'Generating a passphrase of {} words and {} '
+                'numbers using {}'.format(
+                    amount_w,
+                    amount_n,
+                    'internal wordlist' if inputfile is None else (
+                        'external wordlist: ' + inputfile + (
+                            ' (diceware-like)' if is_diceware else ''
+                        )
+                    )
+                )
+            )
+
         case = (-1 * p_lowercase) if p_lowercase else p_uppercase
         passphrase.generate(case)
         passphrase.separator = separator
 
-    if quiet is False:
-        if newline is True:
+    if verbose:
+        Aux.print_stderr(
+            'The entropy of this {what} is {ent:.2f} bits'.format(
+                what=gen_what,
+                ent=gen_ent
+            )
+        )
+
+    if gen_ent < ENTROPY_BITS_MIN:
+        Aux.print_stderr('Warning: the {} is too short!'.format(gen_what))
+
+    if not mute:
+        if newline:
             print(passphrase)
         else:
             print(passphrase, end='')
@@ -330,5 +449,5 @@ def main():
             outfile.write(str(passphrase) + lf)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

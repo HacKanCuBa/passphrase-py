@@ -56,13 +56,20 @@ show this help message and exit
 
 print program version and licensing information and exit
 
+**--insecure**
+
+force password/passphrase generation even if the system's entropy is too low
+
 **--newline**
 
 print newline at the end of the passphrase/password
 
-**-q**, **--quiet**
+**-m**, **--mute**
 
-quiet mode, it won’t print anything but error messages (usefull with **-o** | **--output**)
+muted mode: it won't print output, only informational, warning or error messages (usefull with **-o** | **--output**)
+
+**-v**, **--verbose**
+print additional information (can coexist with **-m** | **--mute**)
 
 **-e** ENTROPYBITS, **--entropybits** ENTROPYBITS
 

@@ -60,10 +60,13 @@ class TestValidInputs(TestCase):
             lower = upper
 
     def test_randhex(self):
+        from string import hexdigits
+
         for i in (1, 10, 100):
             rand = passphrase.secrets.randhex(i)
             self.assertIsInstance(rand, str)
             self.assertEqual(len(rand), i)
+            self.assertTrue(all(c in set(hexdigits) for c in rand))
 
 
 class TestInvalidInputs(TestCase):

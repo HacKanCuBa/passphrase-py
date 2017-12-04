@@ -145,3 +145,21 @@ class TestInvalidInputs(TestCase):
         )
         for t in wrongtypes:
             self.assertRaises(TypeError, Aux.make_all_uppercase, t)
+
+    def test_lowercase_chars(self):
+        pass
+
+    def test_uppercase_chars(self):
+        pass
+
+    def test_chars(self):
+        pass
+
+    def test_lowercase_count(self):
+        pass
+
+    def test_uppercase_count(self):
+        pass
+
+    def test_chars_count(self):
+        pass

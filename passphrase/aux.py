@@ -21,7 +21,7 @@
 """Aux: auxiliar functions"""
 
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 class Aux():
@@ -87,3 +87,14 @@ class Aux():
         from sys import stderr
 
         print("{}".format(string), file=stderr)
+
+    @staticmethod
+    def system_entropy():
+        """Return the system's entropy bit count, or -1 if unknown"""
+
+        from subprocess import Popen, PIPE, DEVNULL
+
+        arg = ['cat', '/proc/sys/kernel/random/entropy_avail']
+        ps = Popen(arg, stdout=PIPE, stderr=DEVNULL)
+        response = ps.communicate()[0]
+        return int(response) if response else -1

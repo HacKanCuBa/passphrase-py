@@ -24,10 +24,9 @@ Numbers generated with this module are suitable for managing secrets such as
 account authentication, tokens, and similar.
 """
 
-from math import ceil
 from .random import randint as random_randint, randbytes as random_randbytes
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 
 def randchoice(seq: any) -> any:
@@ -111,13 +110,16 @@ def randhex(ndigits: int) -> str:
     if ndigits <= 0:
         raise ValueError('number of digits must be greater than zero')
 
+    from math import ceil
+
     nbytes = ceil(ndigits/2)
+    bytes = random_randbytes(nbytes)
     try:
         # Python 3.5+
-        hexstr = random_randbytes(nbytes).hex()[:ndigits]
+        hexstr = bytes.hex()[:ndigits]
     except AttributeError:
         from binascii import hexlify
 
-        hexstr = hexlify(random_randbytes(nbytes)).decode('utf8')[:ndigits]
+        hexstr = hexlify(bytes).decode('utf8')[:ndigits]
 
     return hexstr

@@ -51,12 +51,19 @@ show this help message and exit
 print program version and licensing information and
 exit
 .TP
+\fB\-\-insecure\fR
+force password/passphrase generation even if the
+system's entropy is too low
+.TP
 \fB\-\-newline\fR
 print newline at the end of the passphrase/password
 .TP
-\fB\-q\fR, \fB\-\-quiet\fR
-quiet mode, it won't print anything but error messages
-(usefull with \fB\-o\fR | \fB\-\-output\fR)
+\fB\-m\fR, \fB\-\-mute\fR
+muted mode: it won't print output, only informational,
+warning or error messages (usefull with \fB\-o\fR | \fB\-\-output\fR)
+.TP
+\fB\-v\fR, \fB\-\-verbose
+print additional information (can coexist with \fB\-m\fR | \fB\-\-mute\fR)
 .TP
 \fB\-e\fR ENTROPYBITS, \fB\-\-entropybits\fR ENTROPYBITS
 specify the number of bits to use for entropy

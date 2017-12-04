@@ -23,7 +23,7 @@
 
 from math import ceil, fabs, log10
 
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 
 try:
     from math import log2   # Python 3.3+
@@ -94,7 +94,7 @@ def password_length_needed(entropybits: float, chars: str) -> int:
         raise ValueError('entropybits should be greater than 0')
     if not isinstance(chars, str):
         raise TypeError('chars can only be string')
-    if len(chars) < 1:
+    if not chars:
         raise ValueError('chars can\t be null')
 
     # entropy_bits(list(characters)) = 6.554588
@@ -135,3 +135,45 @@ def words_amount_needed(entropybits: float,
         return ceil(fabs(amount_w))
 
     return 0
+
+
+def password_entropy(length: int, chars: str) -> float:
+    if not isinstance(length, int):
+        raise TypeError('length can only be int')
+    if length < 0:
+        raise ValueError('length should be greater than 0')
+    if not isinstance(chars, str):
+        raise TypeError('chars can only be string')
+    if not chars:
+        raise ValueError('chars can\t be null')
+
+    if length == 0:
+        return 0.0
+
+    entropy_c = entropy_bits(list(chars))
+    return float(length * entropy_c)
+
+
+def passphrase_entropy(amount_w: int,
+                       entropy_w: float,
+                       entropy_n: float,
+                       amount_n: int) -> float:
+
+    if not isinstance(amount_w, int):
+        raise TypeError('amount_w can only be int')
+    if not isinstance(entropy_w, (int, float)):
+        raise TypeError('entropy_w can only be int or float')
+    if not isinstance(entropy_n, (int, float)):
+        raise TypeError('entropy_n can only be int or float')
+    if not isinstance(amount_n, int):
+        raise TypeError('amount_n can only be int')
+    if amount_w < 0:
+        raise ValueError('amount_w should be greater than 0')
+    if entropy_w < 0:
+        raise ValueError('entropy_w should be greater than 0')
+    if entropy_n < 0:
+        raise ValueError('entropy_n should be greater than 0')
+    if amount_n < 0:
+        raise ValueError('amount_n should be greater than 0')
+
+    return float(amount_w * entropy_w + amount_n * entropy_n)

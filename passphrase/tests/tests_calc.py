@@ -87,6 +87,43 @@ class TestValidInputs(TestCase):
             a = passphrase.calc.words_amount_needed(v[0], v[1], v[2], v[3])
             self.assertEqual(a, v[4])
 
+    def test_password_entropy(self):
+        from string import (
+            digits,
+            ascii_lowercase,
+            ascii_uppercase,
+            punctuation
+        )
+
+        values = (
+            (0, digits, 0.0),
+            (10, ascii_lowercase + ascii_uppercase, 57.00),
+            (1, digits, 3.32),
+            (1, punctuation, 5.0),
+            (3, 'asdfghjklOP', 10.38)
+        )
+        for v in values:
+            self.assertAlmostEqual(
+                passphrase.calc.password_entropy(v[0], v[1]),
+                v[2],
+                places=2
+            )
+
+    def test_passphrase_entropy(self):
+        values = (
+            (0, 1.0, 1.0, 0, 0.0),
+            (1, 1.0, 1.0, 0, 1.0),
+            (10, 10.0, 10.0, 10, 200.0),
+            (6, 12.92481, 1.0, 0, 77.55),
+            (0, 1.0, 3.32192, 10, 33.22),
+        )
+        for v in values:
+            self.assertAlmostEqual(
+                passphrase.calc.passphrase_entropy(v[0], v[1], v[2], v[3]),
+                v[4],
+                places=2
+            )
+
 
 class TestInvalidInputs(TestCase):
 
@@ -193,7 +230,126 @@ class TestInvalidInputs(TestCase):
             ValueError,
             passphrase.calc.words_amount_needed,
             -1,
+            1,
+            1,
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.words_amount_needed,
+            1,
             -1,
+            1,
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.words_amount_needed,
+            1,
+            1,
             -1,
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.words_amount_needed,
+            1,
+            1,
+            1,
+            -1
+        )
+
+    def test_password_entropy(self):
+        wrongtypes = (
+            {1, 2},
+            {'a': 1, 'b': 2},
+            'aaaa',
+            (1, 2, (3, 4)),
+            [],
+            1.0
+        )
+        for t in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.password_entropy,
+                t,
+                'a'
+            )
+        wrongtypes = (
+            {1, 2},
+            {'a': 1, 'b': 2},
+            (1, 2, (3, 4)),
+            [],
+            1.0,
+            1
+        )
+        for t in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.password_entropy,
+                1,
+                t
+            )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.password_entropy,
+            -1,
+            'a'
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.password_entropy,
+            1,
+            ''
+        )
+
+    def test_passphrase_entropy(self):
+        wrongtypes = (
+            {1, 2},
+            {'a': 1, 'b': 2},
+            'aaaa',
+            (1, 2, (3, 4)),
+            [],
+            1.0
+        )
+        for t in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.passphrase_entropy,
+                t,
+                t,
+                t,
+                t
+            )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.passphrase_entropy,
+            -1,
+            1,
+            1,
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.passphrase_entropy,
+            1,
+            -1,
+            1,
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.passphrase_entropy,
+            1,
+            1,
+            -1,
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.passphrase_entropy,
+            1,
+            1,
+            1,
             -1
         )

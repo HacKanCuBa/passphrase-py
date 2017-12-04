@@ -31,7 +31,7 @@ from .aux import Aux
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 
 class Passphrase():
@@ -287,7 +287,7 @@ class Passphrase():
 
         Keyword arguments:
         lst -- A wordlist as list or tuple, or a numerical range as a list:
-               (minimum, maximum)
+               (minimum, maximum)entropy_bits(
 
         Returns: float
         """
@@ -440,6 +440,56 @@ class Passphrase():
 
         return calc_words_amount_needed(
             self.entropy_bits_req,
+            entropy_w,
+            entropy_n,
+            self.amount_n
+        )
+
+    def generated_password_entropy(self) -> float:
+        """Calculate the entropy of a password that would be generated"""
+
+        characters = self._get_password_characters()
+        if (
+            self.passwordlen is None
+            or not characters
+        ):
+            raise ValueError('Can\'t calculate the password entropy: character'
+                             ' set is empty or passwordlen isn\'t set')
+
+        if self.passwordlen == 0:
+            return 0.0
+
+        from .calc import password_entropy as calc_password_entropy
+
+        return calc_password_entropy(self.passwordlen, characters)
+
+    def generated_passphrase_entropy(self) -> float:
+        """Calculate the entropy of a passphrase that would be generated"""
+
+        if (
+            self.amount_w is None
+            or self.amount_n is None
+            or not self.wordlist
+        ):
+            raise ValueError('Can\'t calculate the passphrase entropy: '
+                             'wordlist is empty or amount_n or '
+                             'amount_w isn\'t set')
+
+        if self.amount_n == 0 and self.amount_w == 0:
+            return 0.0
+
+        entropy_n = self.entropy_bits((self.randnum_min, self.randnum_max))
+
+        # The entropy for EFF Large Wordlist is ~12.9, no need to calculate
+        if self._external_wordlist:
+            entropy_w = self.entropy_bits(self.wordlist)
+        else:
+            entropy_w = self._wordlist_entropy_bits
+
+        from .calc import passphrase_entropy as calc_passphrase_entropy
+
+        return calc_passphrase_entropy(
+            self.amount_w,
             entropy_w,
             entropy_n,
             self.amount_n

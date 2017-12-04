@@ -268,6 +268,25 @@ class TestValidInputs(TestCase):
             uppercase
         )
 
+    def test_generated_password_entropy(self):
+        passp = Passphrase()
+        passp.passwordlen = 1
+        self.assertAlmostEqual(
+            passp.generated_password_entropy(),
+            6.55,
+            places=2
+        )
+
+    def test_generated_passphrase_entropy(self):
+        passp = Passphrase('internal')
+        passp.amount_n = 1
+        passp.amount_w = 1
+        self.assertAlmostEqual(
+            passp.generated_passphrase_entropy(),
+            32.70,
+            places=2
+        )
+
 
 class TestInvalidInputs(TestCase):
 
@@ -569,3 +588,9 @@ class TestInvalidInputs(TestCase):
                 t
             )
         self.assertRaises(ValueError, Passphrase.make_chars_uppercase, [], -1)
+
+    def test_generated_password_entropy(self):
+        pass
+
+    def test_generated_passphrase_entropy(self):
+        pass
