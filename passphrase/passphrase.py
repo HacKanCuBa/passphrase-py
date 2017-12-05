@@ -287,7 +287,7 @@ class Passphrase():
 
         Keyword arguments:
         lst -- A wordlist as list or tuple, or a numerical range as a list:
-               (minimum, maximum)entropy_bits(
+               (minimum, maximum)
 
         Returns: float
         """

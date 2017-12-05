@@ -60,9 +60,9 @@ print program version and licensing information and exit
 
 force password/passphrase generation even if the system's entropy is too low
 
-**--newline**
+**--no-newline**
 
-print newline at the end of the passphrase/password
+don't print newline at the end of the passphrase/password
 
 **-m**, **--mute**
 

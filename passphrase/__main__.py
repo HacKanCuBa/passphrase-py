@@ -33,7 +33,7 @@ import argparse
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.4.8"
+__version__ = "0.5.0"
 __version_string__ = (
     "Passphrase v{}\nby HacKan (https://hackan.net) FOSS "
     "under GNU GPL v3.0 or newer".format(__version__)
@@ -120,10 +120,10 @@ def main():
              "entropy is too low"
     )
     parser.add_argument(
-        "--newline",
+        "--no-newline",
         action="store_true",
         default=False,
-        help="print newline at the end of the passphrase/password"
+        help="don't print newline at the end of the passphrase/password"
     )
     parser.add_argument(
         "-m",
@@ -256,7 +256,7 @@ def main():
     show_version = args.version
     mute = args.mute
     verbose = args.verbose
-    newline = args.newline
+    no_newline = args.no_newline
     gen_uuid4 = args.uuid4
     p_uppercase = args.use_uppercase
     p_lowercase = args.use_lowercase
@@ -438,14 +438,14 @@ def main():
         Aux.print_stderr('Warning: the {} is too short!'.format(gen_what))
 
     if not mute:
-        if newline:
-            print(passphrase)
-        else:
+        if no_newline:
             print(passphrase, end='')
+        else:
+            print(passphrase)
 
     if outputfile is not None:
         with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-            lf = '\n' if newline is True else ''
+            lf = '' if no_newline else '\n'
             outfile.write(str(passphrase) + lf)
 
 

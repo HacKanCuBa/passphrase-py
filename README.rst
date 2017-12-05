@@ -162,9 +162,9 @@ Generate a passphrase and use it with GPG
 
 ::
 
-    :~$ passphrase -o pass.txt | gpg --symmetric --batch --passphrase-fd 0 somefile.txt
     :~$ sha256sum somefile.txt
     589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2  somefile.txt
+    :~$ passphrase --no-newline -o pass.txt | gpg --symmetric --batch --passphrase-fd 0 somefile.txt
     :~$ cat pass.txt | gpg --decrypt --batch --passphrase-fd 0 somefile.txt.gpg | sha256sum -
     gpg: AES256 encrypted data
     gpg: encrypted with 1 passphrase
@@ -239,6 +239,19 @@ Attacker can modify external libraries
 
 **Passphrase** doesn't require any external library, just Python 3 core.
 
+Attacker can perform a timing attack
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Words for passphrases and characters for passwords are randomly
+  fetched from indexed lists. The process is: generate a random number,
+  use it as index for the list, get the word or character. Timing -
+  somehow - access time to this list would retrieve no difference from
+  some number against another, so I think this scenario does not affect
+  **Passphrase**, nor permits passphrase/password guessing.
+| However, it is possible to somehow force the list into certain memory
+  pages and time cache-miss, and try to guess the word gotten from the
+  list. It could be an over complicated attack, yet it does exist.
+
 Timings
 -------
 
@@ -266,6 +279,8 @@ runtime table for each tag:
 | v0.4.5          | 30.7           | 0.71               | -71%                              |
 +-----------------+----------------+--------------------+-----------------------------------+
 | v0.4.7          | 30.6           | 0.71               | -0%                               |
++-----------------+----------------+--------------------+-----------------------------------+
+| v0.4.8          | 35.6           | 0.83               | +16%                              |
 +-----------------+----------------+--------------------+-----------------------------------+
 
 | You can try it yourself: download each release, unpack it and time it.
