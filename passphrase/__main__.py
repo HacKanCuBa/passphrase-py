@@ -26,6 +26,7 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+
 """
 
 from sys import version_info, exit as sys_exit
+from os import strerror as os_strerror
 from .settings import ENTROPY_BITS_MIN, SYSTEM_ENTROPY_BITS_MIN
 from .passphrase import Passphrase
 from .aux import Aux
@@ -33,7 +34,7 @@ import argparse
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __version_string__ = (
     "Passphrase v{}\nby HacKan (https://hackan.net) FOSS "
     "under GNU GPL v3.0 or newer".format(__version__)
@@ -65,8 +66,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Passphrase v{version} - Copyright HacKan '
-        '(https://hackan.net) GNU GPL v3.0+.\n\n'
+        description='{version_string}\n\n'
         'Generates a cryptographically secure passphrase, based on '
         'a wordlist, or a\npassword, and prints it to standard output.\n'
         'By default, it uses an embedded EFF Large Wordlist for passphrases.\n'
@@ -97,6 +97,7 @@ def main():
         '\tDefault parameters:\tchalice sheath postcard modular cider size\n'
         '\tWords=3, Numbers=2:\tdepraved widow office 184022 320264\n'
         '\tPassword, 20 chars:\tsF#s@B+iR#ZIL-yUWKPR'.format(
+            version_string=__version_string__,
             minnum=passphrase.randnum_min,
             maxnum=passphrase.randnum_max,
             wordsamountmin=amount_w_default,
@@ -389,7 +390,18 @@ def main():
             if inputfile is None:
                 passphrase.load_internal_wordlist()
             else:
-                passphrase.import_words_from_file(inputfile, is_diceware)
+                try:
+                    passphrase.import_words_from_file(inputfile, is_diceware)
+
+                except IOError as ioerr:
+                    Aux.print_stderr(
+                        'Error: file {} can\'t be opened or read, reason: '
+                        '{}'.format(
+                            inputfile,
+                            os_strerror(ioerr.errno)
+                        )
+                    )
+                    sys_exit(1)
 
         except FileNotFoundError as err:
             Aux.print_stderr('Error: {}'.format(err))
@@ -444,9 +456,26 @@ def main():
             print(passphrase)
 
     if outputfile is not None:
-        with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-            lf = '' if no_newline else '\n'
-            outfile.write(str(passphrase) + lf)
+        # ensure path to file exists or create
+        from os.path import dirname as os_path_dirname
+        from os import makedirs as os_makedirs
+
+        os_makedirs(os_path_dirname(outputfile), exist_ok=True)
+
+        try:
+            with open(outputfile, mode='wt', encoding='utf-8') as outfile:
+                lf = '' if no_newline else '\n'
+                outfile.write(str(passphrase) + lf)
+
+        except IOError as ioerr:
+            Aux.print_stderr(
+                'Error: file {} can\'t be opened or written, reason: '
+                '{}'.format(
+                    outputfile,
+                    os_strerror(ioerr.errno)
+                )
+            )
+            sys_exit(1)
 
 
 if __name__ == '__main__':
