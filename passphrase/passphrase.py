@@ -31,7 +31,7 @@ from .aux import Aux
 
 __author__ = "HacKan"
 __license__ = "GNU GPL 3.0+"
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 
 
 class Passphrase():
@@ -381,9 +381,9 @@ class Passphrase():
                                inputfile: str,
                                is_diceware: bool) -> None:
 
-        if not Aux.isfile(inputfile):
-            raise FileNotFoundError('Input file does not exists: '
-                                    '{}'.format(inputfile))
+        if not Aux.isfile_notempty(inputfile):
+            raise FileNotFoundError('Input file does not exists, is not valid '
+                                    'or is empty: {}'.format(inputfile))
 
         if is_diceware:
             self.wordlist = self._read_words_from_diceware(inputfile)

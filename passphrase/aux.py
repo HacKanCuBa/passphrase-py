@@ -21,7 +21,7 @@
 """Aux: auxiliar functions"""
 
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 
 class Aux():
@@ -74,11 +74,11 @@ class Aux():
         return arr
 
     @staticmethod
-    def isfile(inputfile: str) -> bool:
-        from os.path import isfile
+    def isfile_notempty(inputfile: str) -> bool:
+        from os.path import isfile, getsize
 
         try:
-            return isfile(inputfile)
+            return isfile(inputfile) and getsize(inputfile) > 0
         except TypeError:
             raise TypeError('inputfile is not a valid type')
 
