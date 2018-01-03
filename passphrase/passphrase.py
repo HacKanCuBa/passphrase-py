@@ -29,9 +29,9 @@ from .settings import MIN_NUM, MAX_NUM
 from .aux import Aux
 
 
-__author__ = "HacKan"
-__license__ = "GNU GPL 3.0+"
-__version__ = "0.5.4"
+__author__ = 'HacKan'
+__license__ = 'GNU GPL 3.0+'
+__version__ = '0.5.4'
 
 
 class Passphrase():
@@ -274,7 +274,7 @@ class Passphrase():
 
         separator_len = len(self.separator)
         rm_last_separator = -separator_len if separator_len > 0 else None
-        return "".join(
+        return ''.join(
             '{}{}'.format(w, self.separator) for w in map(
                 str,
                 self.last_result
@@ -399,9 +399,9 @@ class Passphrase():
             self.entropy_bits_req is None
             or not characters
         ):
-            raise ValueError('Can\'t calculate the password length needed: '
-                             'entropy_bits_req isn\'t set or the character '
-                             'set is empty')
+            raise ValueError("Can't calculate the password length needed: "
+                             "entropy_bits_req isn't set or the character "
+                             "set is empty")
 
         from .calc import password_length_needed as calc_password_length_needed
 
@@ -419,9 +419,9 @@ class Passphrase():
             or self.amount_n is None
             or not self.wordlist
         ):
-            raise ValueError('Cant\' calculate the words amount needed: '
-                             'wordlist is empty or entropy_bits_req or '
-                             'amount_n isn\'t set')
+            raise ValueError("Can't calculate the words amount needed: "
+                             "wordlist is empty or entropy_bits_req or "
+                             "amount_n isn't set")
 
         from .calc import words_amount_needed as calc_words_amount_needed
 
@@ -453,8 +453,8 @@ class Passphrase():
             self.passwordlen is None
             or not characters
         ):
-            raise ValueError('Can\'t calculate the password entropy: character'
-                             ' set is empty or passwordlen isn\'t set')
+            raise ValueError("Can't calculate the password entropy: character"
+                             " set is empty or passwordlen isn't set")
 
         if self.passwordlen == 0:
             return 0.0
@@ -471,9 +471,9 @@ class Passphrase():
             or self.amount_n is None
             or not self.wordlist
         ):
-            raise ValueError('Can\'t calculate the passphrase entropy: '
-                             'wordlist is empty or amount_n or '
-                             'amount_w isn\'t set')
+            raise ValueError("Can't calculate the passphrase entropy: "
+                             "wordlist is empty or amount_n or "
+                             "amount_w isn't set")
 
         if self.amount_n == 0 and self.amount_w == 0:
             return 0.0
@@ -510,9 +510,9 @@ class Passphrase():
             or self.amount_w is None
             or not self.wordlist
         ):
-            raise ValueError('Can\'t generate passphrase: '
-                             'wordlist is empty or amount_n or '
-                             'amount_w isn\'t set')
+            raise ValueError("Can't generate passphrase: "
+                             "wordlist is empty or amount_n or "
+                             "amount_w isn't set")
 
         if uppercase is not None and not isinstance(uppercase, int):
             raise TypeError('uppercase must be an integer number')
@@ -556,8 +556,8 @@ class Passphrase():
             self.passwordlen is None
             or not characters
         ):
-            raise ValueError('Can\'t generate password: character set is '
-                             'empty or passwordlen isn\'t set')
+            raise ValueError("Can't generate password: character set is "
+                             "empty or passwordlen isn't set")
 
         for _ in range(0, self.passwordlen):
             password.append(randchoice(characters))

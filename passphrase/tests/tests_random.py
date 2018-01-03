@@ -29,7 +29,7 @@ import passphrase.random
 class TestValidInputs(TestCase):
 
     def test_randint(self):
-        errmsg = "randint(%d) returned %d"
+        errmsg = 'randint(%d) returned %d'
         for _ in range(5):
             nbits = randrange(1, 30)
             rand = passphrase.random.randint(nbits)

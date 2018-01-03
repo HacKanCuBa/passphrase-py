@@ -28,7 +28,7 @@ Check Secrets library for higher level functions.
 
 from os import urandom as _urandom
 
-__version__ = "0.1.0"
+__version__ = '0.1.0'
 
 
 def randbytes(nbytes: int) -> bytes:

@@ -47,7 +47,7 @@ class TestValidInputs(TestCase):
                 repeat += 1
             self.assertTrue(
                 repeat < 2,
-                "randbelow(%d) returned the same number twice in a row!" % (i)
+                'randbelow(%d) returned the same number twice in a row!' % (i)
             )
             prev = rand
 

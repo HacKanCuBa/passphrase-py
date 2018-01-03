@@ -26,7 +26,7 @@ account authentication, tokens, and similar.
 
 from .random import randint as random_randint, randbytes as random_randbytes
 
-__version__ = "0.5.2"
+__version__ = '0.5.2'
 
 
 def randchoice(seq: any) -> any:
