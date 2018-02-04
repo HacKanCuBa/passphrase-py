@@ -87,8 +87,8 @@ class TestInvalidInputs(TestCase):
             [],
             ()
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.random.randint, t)
+        for wrongtype in wrongtypes:
+            self.assertRaises(TypeError, passphrase.random.randint, wrongtype)
         self.assertRaises(ValueError, passphrase.random.randint, 0)
         self.assertRaises(ValueError, passphrase.random.randint, -1)
 
@@ -103,7 +103,10 @@ class TestInvalidInputs(TestCase):
             [],
             ()
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.random.randbytes, t)
+        for wrongtype in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.random.randbytes,
+                wrongtype)
         self.assertRaises(ValueError, passphrase.random.randbytes, 0)
         self.assertRaises(ValueError, passphrase.random.randbytes, -1)

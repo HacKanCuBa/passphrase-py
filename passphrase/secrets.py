@@ -112,14 +112,14 @@ def randhex(ndigits: int) -> str:
 
     from math import ceil
 
-    nbytes = ceil(ndigits/2)
-    bytes = random_randbytes(nbytes)
+    nbytes = ceil(ndigits / 2)
+    rbytes = random_randbytes(nbytes)
     try:
         # Python 3.5+
-        hexstr = bytes.hex()[:ndigits]
+        hexstr = rbytes.hex()[:ndigits]
     except AttributeError:
         from binascii import hexlify
 
-        hexstr = hexlify(bytes).decode('utf8')[:ndigits]
+        hexstr = hexlify(rbytes).decode('utf8')[:ndigits]
 
     return hexstr

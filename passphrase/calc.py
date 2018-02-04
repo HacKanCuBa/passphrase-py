@@ -39,8 +39,8 @@ def entropy_bits(lst: list) -> float:
     if not isinstance(lst, (list, tuple)):
         raise TypeError('lst must be a list or a tuple')
 
-    for n in lst:
-        if not isinstance(n, (int, str, float, complex)):
+    for num in lst:
+        if not isinstance(num, (int, str, float, complex)):
             raise TypeError('lst can only be comprised of int, str, float, '
                             'complex')
 
@@ -58,11 +58,11 @@ def entropy_bits(lst: list) -> float:
         return 0.0
 
     # Compute entropy
-    ent = 0.0
-    for p in probs:
-        ent -= p * log2(p)
+    entropy = 0.0
+    for prob in probs:
+        entropy -= prob * log2(prob)
 
-    return ent
+    return entropy
 
 
 def entropy_bits_nrange(minimum: float, maximum: float) -> float:

@@ -43,9 +43,9 @@ class TestValidInputs(TestCase):
             ((), 0.0),
             ([], 0.0),
         )
-        for i in values:
-            bits = passphrase.calc.entropy_bits(i[0])
-            self.assertAlmostEqual(bits, i[1], places=2)
+        for val in values:
+            bits = passphrase.calc.entropy_bits(val[0])
+            self.assertAlmostEqual(bits, val[1], places=2)
 
     def test_entropy_bits_nrange(self):
         values = (
@@ -56,9 +56,9 @@ class TestValidInputs(TestCase):
             (1, 9999999999, 33.22),
             (100000.0, 999999.0, 19.78)
         )
-        for i in values:
-            bits = passphrase.calc.entropy_bits_nrange(i[0], i[1])
-            self.assertAlmostEqual(bits, i[2], places=2)
+        for val in values:
+            bits = passphrase.calc.entropy_bits_nrange(val[0], val[1])
+            self.assertAlmostEqual(bits, val[2], places=2)
 
     def test_password_length_needed(self):
         from string import digits, ascii_letters, punctuation
@@ -83,9 +83,14 @@ class TestValidInputs(TestCase):
             (77, 12.92, 3.32, 5, 5),
             (128, 12.92, 19.93, 0, 10)
         )
-        for v in values:
-            a = passphrase.calc.words_amount_needed(v[0], v[1], v[2], v[3])
-            self.assertEqual(a, v[4])
+        for val in values:
+            result = passphrase.calc.words_amount_needed(
+                val[0],
+                val[1],
+                val[2],
+                val[3]
+            )
+            self.assertEqual(result, val[4])
 
     def test_password_entropy(self):
         from string import (
@@ -102,10 +107,10 @@ class TestValidInputs(TestCase):
             (1, punctuation, 5.0),
             (3, 'asdfghjklOP', 10.38)
         )
-        for v in values:
+        for val in values:
             self.assertAlmostEqual(
-                passphrase.calc.password_entropy(v[0], v[1]),
-                v[2],
+                passphrase.calc.password_entropy(val[0], val[1]),
+                val[2],
                 places=2
             )
 
@@ -117,10 +122,15 @@ class TestValidInputs(TestCase):
             (6, 12.92481, 1.0, 0, 77.55),
             (0, 1.0, 3.32192, 10, 33.22),
         )
-        for v in values:
+        for val in values:
             self.assertAlmostEqual(
-                passphrase.calc.passphrase_entropy(v[0], v[1], v[2], v[3]),
-                v[4],
+                passphrase.calc.passphrase_entropy(
+                    val[0],
+                    val[1],
+                    val[2],
+                    val[3]
+                ),
+                val[4],
                 places=2
             )
 
@@ -137,8 +147,12 @@ class TestInvalidInputs(TestCase):
             (1, 2, (3, 4)),
             set({1, 2, 3, 4})
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.calc.entropy_bits, t)
+        for wrongtype in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.entropy_bits,
+                wrongtype
+            )
 
     def test_entropy_bits_nrange(self):
         wrongtypes = (
@@ -149,12 +163,12 @@ class TestInvalidInputs(TestCase):
             set({1, 2, 3, 4}),
             []
         )
-        for t in wrongtypes:
+        for wrongtype in wrongtypes:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.entropy_bits_nrange,
-                t,
-                t
+                wrongtype,
+                wrongtype
             )
         self.assertRaises(
             ValueError,
@@ -172,11 +186,11 @@ class TestInvalidInputs(TestCase):
             set({1, 2, 3, 4}),
             []
         )
-        for t in wrongtypes_e:
+        for wrongtype in wrongtypes_e:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_length_needed,
-                t,
+                wrongtype,
                 'a'
             )
         wrongtypes_c = (
@@ -188,12 +202,12 @@ class TestInvalidInputs(TestCase):
             1,
             1.234
         )
-        for t in wrongtypes_c:
+        for wrongtype in wrongtypes_c:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_length_needed,
                 10,
-                t
+                wrongtype
             )
         self.assertRaises(
             ValueError,
@@ -217,14 +231,14 @@ class TestInvalidInputs(TestCase):
             set({1, 2, 3, 4}),
             []
         )
-        for t in wrongtypes:
+        for wrongtype in wrongtypes:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.words_amount_needed,
-                t,
-                t,
-                t,
-                t
+                wrongtype,
+                wrongtype,
+                wrongtype,
+                wrongtype
             )
         self.assertRaises(
             ValueError,
@@ -268,11 +282,11 @@ class TestInvalidInputs(TestCase):
             [],
             1.0
         )
-        for t in wrongtypes:
+        for wrongtype in wrongtypes:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_entropy,
-                t,
+                wrongtype,
                 'a'
             )
         wrongtypes = (
@@ -283,12 +297,12 @@ class TestInvalidInputs(TestCase):
             1.0,
             1
         )
-        for t in wrongtypes:
+        for wrongtype in wrongtypes:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_entropy,
                 1,
-                t
+                wrongtype
             )
         self.assertRaises(
             ValueError,
@@ -312,14 +326,14 @@ class TestInvalidInputs(TestCase):
             [],
             1.0
         )
-        for t in wrongtypes:
+        for wrongtype in wrongtypes:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.passphrase_entropy,
-                t,
-                t,
-                t,
-                t
+                wrongtype,
+                wrongtype,
+                wrongtype,
+                wrongtype
             )
         self.assertRaises(
             ValueError,
