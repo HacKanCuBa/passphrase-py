@@ -36,9 +36,6 @@ setup(name='passphrase',
       license='GNU GPL 3.0+',
       packages=['passphrase'],
       python_requires='~=3.2',
-      package_data={
-        '': ['wordlist.json'],
-      },
       install_requires=[
       ],
       test_suite='nose.collector',
