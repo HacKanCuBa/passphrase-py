@@ -8,11 +8,13 @@ passwords
 ## DESCRIPTION
 
 ```
-usage: passphrase [-h] [--version] [--newline] [-q] [--uuid4] [-p [PASSWORD]]
-                  [--use-uppercase] [--use-lowercase] [--use-digits]
-                  [--use-punctuation] [-w WORDS] [-n NUMBERS] [-s SEPARATOR]
-                  [-o OUTPUT] [-i INPUT] [-d]
+usage: passphrase [-h] [--version] [--insecure] [--no-newline] [-m] [-v]
+                  [-e ENTROPYBITS] [--uuid4] [-p [PASSWORD]] [--use-uppercase [USE_UPPERCASE]]
+                  [--use-lowercase  [USE_LOWERCASE]] [--use-digits] [--use-alphanumeric] 
+                  [--use-punctuation] [-w WORDS] [-n NUMBERS] [-s SEPARATOR] [-o OUTPUT] [-i INPUT] [-d]
 ```
+
+Passphrase v0.5.1 by HacKan (https://hackan.net) FOSS under GNU GPL v3.0 or newer
 
 Generates a cryptographically secure passphrase, based on a wordlist, or a
 password, and prints it to standard output.
@@ -129,13 +131,13 @@ one word per line)
 specify input file as a diceware list (format: two colums)
 
 ## AUTHOR
-**Passphrase** was written by HacKan ⟨hackan@gmail.com⟩.  Check the [Passphrase repository](https://github.com/hackancuba/passphrase-py/) for more information.
+**Passphrase** was written by HacKan ⟨hackan@gmail.com⟩.  
+Check the [Passphrase repository](https://github.com/hackancuba/passphrase-py/) for more information.
 
 ## COPYING
-This  program  is  free  software:  you  can  redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  Gen‐
-eral Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
