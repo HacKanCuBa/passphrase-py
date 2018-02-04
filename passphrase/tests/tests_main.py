@@ -18,20 +18,37 @@
 #
 #  ***************************************************************************
 
-import subprocess
+from os.path import join as os_path_join
+from os import mkdir
+from tempfile import gettempdir
 from unittest import TestCase
+from shutil import rmtree
+import subprocess
 
 import passphrase.__main__
 
 
 class TestValidInputs(TestCase):
 
+    def setUp(self):
+        self.tmpdir = os_path_join(
+            gettempdir(),
+            'passphrase_tests'
+        )
+        try:
+            mkdir(self.tmpdir, 0o755)
+        except FileExistsError:
+            pass
+
+    def tearDown(self):
+        rmtree(self.tmpdir)
+
     def test_main_defaults(self):
         cmd = ['python3', '-m', 'passphrase']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # ends with newline
         self.assertEqual(result[-1:], '\n')
         # remove newline
@@ -46,9 +63,9 @@ class TestValidInputs(TestCase):
     def test_main_option_version(self):
         cmd = ['python3', '-m', 'passphrase', '--version']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         self.assertEqual(result, passphrase.__main__.__version_string__ + '\n')
 
     def test_main_option_help(self):
@@ -58,9 +75,9 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                    ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             self.assertIn(
                 passphrase.__main__.__version_string__,
                 result
@@ -74,9 +91,9 @@ class TestValidInputs(TestCase):
     def test_main_option_no_newline(self):
         cmd = ['python3', '-m', 'passphrase', '--no-newline']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         self.assertNotEqual(result[-1:], '\n')
 
     def test_main_option_mute(self):
@@ -86,9 +103,9 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             self.assertEqual(result, '')
 
     def test_main_option_verbose(self):
@@ -98,10 +115,10 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE
-                                   )
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
             self.assertIn(
                 passphrase.__main__.__version_string__,
                 result.stderr.decode('utf-8')
@@ -126,9 +143,9 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             # remove newline
             result = result[:-1]
             self.assertEqual(len(result.split()), 80)
@@ -136,15 +153,15 @@ class TestValidInputs(TestCase):
     def test_main_option_uuid4(self):
         cmd = ['python3', '-m', 'passphrase', '--uuid4']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # remove newline
         result = result[:-1]
         self.assertRegex(
             result,
-            '[0-9a-f]{8}\-[0-9a-f]{4}\-4[0-9a-f]{3}\-[89ab][0-9a-f]{3}\-'
-            '[‌​0-9a-f]{12}'
+            r'[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-'
+            r'[0-9a-f]{12}'
         )
 
     def test_main_option_password(self):
@@ -154,84 +171,84 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             # remove newline
             result = result[:-1]
             self.assertEqual(len(result), 20)
             self.assertRegex(
                 result,
-                '[a-zA-Z\d\!\"\#\$\%\&\\\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]'
-                '\^\_\`\{\|\}\~]+'
+                r'[a-zA-Z\d\!\"\#\$\%\&\\\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]'
+                r'\^\_\`\{\|\}\~]+'
             )
 
     def test_main_option_password_use_uppercase(self):
         cmd = ['python3', '-m', 'passphrase', '--password', '--use-uppercase']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # remove newline
         result = result[:-1]
         self.assertRegex(
             result,
-            '[A-Z\-]+'
+            r'[A-Z\-]+'
         )
 
     def test_main_option_password_use_lowercase(self):
         cmd = ['python3', '-m', 'passphrase', '--password', '--use-lowercase']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # remove newline
         result = result[:-1]
         self.assertRegex(
             result,
-            '[a-z\-]+'
+            r'[a-z\-]+'
         )
 
     def test_main_option_password_use_digits(self):
         cmd = ['python3', '-m', 'passphrase', '--password', '--use-digits']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # remove newline
         result = result[:-1]
         self.assertRegex(
             result,
-            '[\d]+'
+            r'[\d]+'
         )
 
     def test_main_option_password_use_alphanumeric(self):
         cmd = ['python3', '-m', 'passphrase', '--password',
                '--use-alphanumeric']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # remove newline
         result = result[:-1]
         self.assertRegex(
             result,
-            '[a-zA-Z\d\-]+'
+            r'[a-zA-Z\d\-]+'
         )
 
     def test_main_option_password_use_punctuation(self):
         cmd = ['python3', '-m', 'passphrase', '--password',
                '--use-punctuation']
         result = subprocess.run(
-                                cmd,
-                                stdout=subprocess.PIPE
-                               ).stdout.decode('utf-8')
+            cmd,
+            stdout=subprocess.PIPE
+        ).stdout.decode('utf-8')
         # remove newline
         result = result[:-1]
         self.assertRegex(
             result,
-            '[\!\"\#\$\%\&\\\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]\^\_'
-            '\`\{\|\}\~]+'
+            r'[\!\"\#\$\%\&\\\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]\^\_'
+            r'\`\{\|\}\~]+'
         )
 
     def test_main_option_passphrase_words(self):
@@ -241,15 +258,15 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             # remove newline
             result = result[:-1]
             self.assertEqual(len(result.split()), 20)
             self.assertRegex(
                 result,
-                '^([a-z\-]+[ ])+[a-z\-]+$'
+                r'^([a-z\-]+[ ])+[a-z\-]+$'
             )
 
     def test_main_option_passphrase_numbers(self):
@@ -259,15 +276,15 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             # remove newline
             result = result[:-1]
             self.assertEqual(len(result.split()), 20)
             self.assertRegex(
                 result,
-                '^([0-9]{6}[ ]){19}[0-9]{6}$'
+                r'^([0-9]{6}[ ]){19}[0-9]{6}$'
             )
 
     def test_main_option_passphrase_separator(self):
@@ -277,25 +294,23 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             # remove newline
             result = result[:-1]
             # some words have dashes in it
             self.assertRegex(
                 result,
-                '^([a-z\-]+[\|])+[a-z\-]+$'
+                r'^([a-z\-]+[\|])+[a-z\-]+$'
             )
 
     def test_main_option_output(self):
         from random import randint
-        from tempfile import gettempdir
-        from os.path import join as os_path_join, isfile as os_path_isfile
+        from os.path import isfile as os_path_isfile
 
         tmpfile = os_path_join(
-            gettempdir(),
-            'passphrase_tests',
+            self.tmpdir,
             'test_main_option_output.' + str(randint(100000, 999999))
         )
         cmds = (
@@ -304,17 +319,15 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
             self.assertTrue(os_path_isfile(tmpfile))
-            with open(tmpfile, mode='rt', encoding='utf-8') as f:
-                self.assertEqual(result, f.read())
+            with open(tmpfile, mode='rt', encoding='utf-8') as tfile:
+                self.assertEqual(result, tfile.read())
 
     def test_main_option_input(self):
         from random import randint
-        from tempfile import gettempdir
-        from os.path import join as os_path_join
 
         words = [
             'vivacious',
@@ -325,8 +338,7 @@ class TestValidInputs(TestCase):
             'brunt'
         ]
         tmpfile = os_path_join(
-            gettempdir(),
-            'passphrase_tests',
+            self.tmpdir,
             'test_main_option_input.' + str(randint(100000, 999999))
         )
         with open(tmpfile, mode='wt+', encoding='utf-8') as wordfile:
@@ -338,17 +350,15 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE,
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE,
+            ).stdout.decode('utf-8')
             self.assertTrue(result)
             for word in result.split():
                 self.assertIn(word, words)
 
     def test_main_option_input_diceware(self):
         from random import randint
-        from tempfile import gettempdir
-        from os.path import join as os_path_join
 
         wordsd = [
             '123456\tvivacious',
@@ -360,8 +370,7 @@ class TestValidInputs(TestCase):
         ]
         words = [word.split()[1] for word in wordsd]
         tmpfile = os_path_join(
-            gettempdir(),
-            'passphrase_tests',
+            self.tmpdir,
             'test_main_option_input.' + str(randint(100000, 999999))
         )
         with open(tmpfile, mode='wt+', encoding='utf-8') as wordfile:
@@ -374,9 +383,9 @@ class TestValidInputs(TestCase):
         )
         for cmd in cmds:
             result = subprocess.run(
-                                    cmd,
-                                    stdout=subprocess.PIPE,
-                                   ).stdout.decode('utf-8')
+                cmd,
+                stdout=subprocess.PIPE,
+            ).stdout.decode('utf-8')
             self.assertTrue(result)
             for word in result.split():
                 self.assertIn(word, words)

@@ -27,10 +27,10 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+
 
 from sys import version_info, exit as sys_exit
 from os import strerror as os_strerror
+import argparse
 from .settings import ENTROPY_BITS_MIN, SYSTEM_ENTROPY_BITS_MIN
 from .passphrase import Passphrase
 from .aux import Aux
-import argparse
 
 __author__ = 'HacKan'
 __license__ = 'GNU GPL 3.0+'
@@ -103,8 +103,7 @@ def main():
             wordsamountmin=amount_w_default,
             numsamountmin=amount_n_default,
             passwdmin=passwordlen_default,
-            passwdpref=passwordlen_default + 4,
-            version=__version__
+            passwdpref=passwordlen_default + 4
         )
     )
 
@@ -325,11 +324,11 @@ def main():
         p_uppercase = True if p_uppercase is not None else False
         p_lowercase = True if p_lowercase is not None else False
         if (
-            p_uppercase
-            or p_lowercase
-            or p_digits
-            or p_punctuation
-            or p_alphanumeric
+                p_uppercase
+                or p_lowercase
+                or p_digits
+                or p_punctuation
+                or p_alphanumeric
         ):
             passphrase.password_use_uppercase = (p_uppercase or p_alphanumeric)
             passphrase.password_use_lowercase = (p_lowercase or p_alphanumeric)
@@ -464,8 +463,8 @@ def main():
 
         try:
             with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-                lf = '' if no_newline else '\n'
-                outfile.write(str(passphrase) + lf)
+                linefeed = '' if no_newline else '\n'
+                outfile.write(str(passphrase) + linefeed)
 
         except IOError as ioerr:
             Aux.print_stderr(
