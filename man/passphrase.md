@@ -14,7 +14,7 @@ usage: passphrase [-h] [--version] [--insecure] [--no-newline] [-m] [-v]
                   [--use-punctuation] [-w WORDS] [-n NUMBERS] [-s SEPARATOR] [-o OUTPUT] [-i INPUT] [-d]
 ```
 
-Passphrase v0.5.1 by HacKan (https://hackan.net) FOSS under GNU GPL v3.0 or newer
+Passphrase v1.0.0 by HacKan (https://hackan.net) FOSS under GNU GPL v3.0 or newer
 
 Generates a cryptographically secure passphrase, based on a wordlist, or a
 password, and prints it to standard output.
@@ -85,11 +85,11 @@ generate an UUID v4 string
 
 generate a password of the specified length from all printable or selected characters
 
-**--use-uppercase** \[USE_UPPERCASE\]
+**--use-uppercase** \[USE\_UPPERCASE\]
 
 use uppercase characters for password generation or give the amount of uppercase characters in the passphrase: zero or no input for all uppercase or any number of uppercase characters wanted (the rest are lowercase)
 
-**--use-lowercase** \[USE_LOWERCASE\]
+**--use-lowercase** \[USE\_LOWERCASE\]
 
 use lowercase characters for password generation or give the amount of lowercase characters in the passphrase: zero or no input for all lowercase (default) or any number of lowercase characters wanted (the rest are uppercase)
 

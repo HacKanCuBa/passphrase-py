@@ -8,7 +8,6 @@ A secure passphrase must be of at least 6 words, but 7 is better, and maybe you 
 
 Those settings mentioned are specifically for the EFF's Large Wordlist. If you specify a different wordlist, the minimum amount of words for a passphrase to be secure changes: for shorter lists, the amount increases. The minimum secure amount of words (for a passphrase) or characters (for a password) are calculated by **Passphrase** and a warning is shown if the chosen number is too low (when used as a script), by calculating the list's entropy.
 
-
 **Important note**: the quality and security of generated passphrases rely on:
 
 * the [OS-specific randomness source](https://docs.python.org/3/library/os.html#os.urandom), and
@@ -22,9 +21,8 @@ If you are not sure which wordlist to use, just use the one provided by **Passph
 
 ## How to use it
 
-**Passphrase** can be used as a *package* in other apps, or as a *stand-alone script*.
-
-In any case, just download the files, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed -.
+**Passphrase** can be used as a *package* in other apps, or as a *stand-alone script*.  
+Start by downloading the files, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed -.
 
 ### As a package
 
@@ -32,11 +30,15 @@ Check the [developers guide](DEVELOPERS.md).
 
 ### As a script
 
-Once downloaded and verified, you can install it with `setup.py install` but I recommend you do `make install` for system-wide installation or `make altinstall` for user-wide installation, as it will create a single executable zip file plus install the man page.
+Once downloaded and verified, you can install it with `setup.py install` or `make package-install` but I recommend you do `make install` for system-wide installation or `make altinstall` for user-wide installation, as it will create a single executable zip file plus install the man page.
+
+To uninstall, run respectively `make package-uninstall`, `make uninstall` or `make altuninstall`.
 
 #### Examples of use
 
 Check the [man page](man/passphrase.md) for more information.
+
+Generally, you should rely on **Passphrase**'s entropy calculation instead of fixing a desired amount, unless you specifically need some length/word amount. The default entropy is 77 bits, and using over 128 bits is a wiser choice on the long term.
 
 ##### Generate a passphrase of 6 words (default settings)
 
@@ -89,6 +91,15 @@ Warning: Insecure password length chosen! Should be bigger than or equal to 13
 :~$ passphrase -p 8 --use-alphanumeric
 Warning: Insecure password length chosen! Should be bigger than or equal to 13
 ipLdqmGU
+```
+
+##### Generate a secure password of lowercase characters only
+
+```
+:~$ passphrase -p --use-lowercase
+yafwodlcbfumtfsbb
+:~$ passphrase -p --use-lowercase -e 128
+fbwzekpmmridyapdouvejmlzlrjn
 ```
 
 ##### Use an external wordlist to generate a passphrase
@@ -175,13 +186,14 @@ v0.4.7        | 30.6         | 0.71             | -0%
 v0.4.8        | 35.6         | 0.83             | +16%
 v0.5.0        | 35.6         | 0.83             | +0%
 v0.5.1        | 37.5         | 0.87             | +5%
+v1.0.0rc0     | 37.3         | 0.87             | -0%
 
 You can try it yourself: download each release, unpack it and time it.  
 The command to run, depending on the release version, is:
 
- * newer than v0.4.5, run: `make timeit`.
- * older than v0.4.5, run `python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 -m passphrase -w6 -q")'`.
- * older than v0.4, run: `python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 src/passphrase.py -w6 -q")'`.
+* newer than v0.4.5, run: `make timeit`.
+* older than v0.4.5, run `python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 -m passphrase -w6 -q")'`.
+* older than v0.4, run: `python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 src/passphrase.py -w6 -q")'`.
 
 ## License
 

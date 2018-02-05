@@ -10,7 +10,7 @@ TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX")
 all:
 	@echo "Passphrase by HacKan (https://hackan.net)"
 	@echo "Commands for this makefile:"
-	@echo "	install altinstall uninstall altuninstall package-install lint test coverage timeit clean"
+	@echo -e "\tinstall\n\taltinstall\n\tuninstall\n\taltuninstall\n\tpackage-install\n\tpackage-uninstall\n\tlint\n\ttest\n\tcoverage\n\ttimeit\n\tclean"
 
 clean:
 	@rm -vrf \
@@ -18,18 +18,22 @@ clean:
 		dist/ \
 		passphrase.egg-info/ \
 		passphrase/__pycache__/ \
+		cover/ \
 		passphrase/passphrase.egg-info/
 
 package-install:
 	python3 setup.py install
 
+package-uninstall:
+	pip uninstall passphrase
+
 install-common:
 	mkdir $(TMPDIR)/src/
 	cp -f passphrase/*.py $(TMPDIR)/src/
-	cp -f passphrase/*.json $(TMPDIR)/src/
-	@sed -i 's/from .passphrase/from passphrase/g' "$(TMPDIR)/src/__main__.py"
-	@sed -i 's/from .settings/from settings/g' "$(TMPDIR)/src/calc.py"
-	@sed -i "s/from .secrets/from secrets/g; s/from .calc/from calc/g; s/from .settings/from settings/g" "$(TMPDIR)/src/passphrase.py"
+	@sed -i "s/from .passphrase/from passphrase/g; s/from .settings/from settings/g; s/from .aux/from aux/g" "$(TMPDIR)/src/__main__.py"
+	@sed -i "s/from .secrets/from secrets/g; s/from .calc/from calc/g; s/from .settings/from settings/g; s/from .aux/from aux/g; s/from .wordlist/from wordlist/g" "$(TMPDIR)/src/passphrase.py"
+	@sed -i "s/from .secrets/from secrets/g" "$(TMPDIR)/src/aux.py"
+	@sed -i "s/from .random/from random/g" "$(TMPDIR)/src/secrets.py"
 	@if command -v zip 2> /dev/null; then \
 		zip -j -r $(TMPDIR)/passphrase.zip $(TMPDIR)/src/*; \
 	elif python3 -c 'from sys import version_info; assert (version_info >= (3, 5)), "Python 3.5+ required"' 2> /dev/null; then \
@@ -76,7 +80,7 @@ test:
 	nosetests -v
 
 coverage:
-	nosetests --with-coverage --cover-erase --cover-package=passphrase
+	nosetests --with-coverage --cover-erase --cover-package=passphrase --cover-html
 
 timeit:
 	python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 -m passphrase -w6 -m")'

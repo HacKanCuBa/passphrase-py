@@ -53,12 +53,11 @@ Requirements
 How to use it
 -------------
 
-**Passphrase** can be used as a *package* in other apps, or as a
-*stand-alone script*.
-
-In any case, just download the files, preferrably fom the `latest
-release <https://github.com/HacKanCuBa/passphrase-py/releases/latest>`__
-- releases are always signed -.
+| **Passphrase** can be used as a *package* in other apps, or as a
+  *stand-alone script*.
+| Start by downloading the files, preferrably fom the `latest
+  release <https://github.com/HacKanCuBa/passphrase-py/releases/latest>`__
+  - releases are always signed -.
 
 As a package
 ~~~~~~~~~~~~
@@ -69,15 +68,23 @@ As a script
 ~~~~~~~~~~~
 
 Once downloaded and verified, you can install it with
-``setup.py install`` but I recommend you do ``make install`` for
-system-wide installation or ``make altinstall`` for user-wide
-installation, as it will create a single executable zip file plus
-install the man page.
+``setup.py install`` or ``make package-install`` but I recommend you do
+``make install`` for system-wide installation or ``make altinstall`` for
+user-wide installation, as it will create a single executable zip file
+plus install the man page.
+
+To uninstall, run respectively ``make package-uninstall``,
+``make uninstall`` or ``make altuninstall``.
 
 Examples of use
 ^^^^^^^^^^^^^^^
 
 Check the `man page <man/passphrase.md>`__ for more information.
+
+Generally, you should rely on **Passphrase**'s entropy calculation
+instead of fixing a desired amount, unless you specifically need some
+length/word amount. The default entropy is 77 bits, and using over 128
+bits is a wiser choice on the long term.
 
 Generate a passphrase of 6 words (default settings)
 '''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -138,6 +145,16 @@ Generate a password of 8 alphanumeric characters only
     :~$ passphrase -p 8 --use-alphanumeric
     Warning: Insecure password length chosen! Should be bigger than or equal to 13
     ipLdqmGU
+
+Generate a secure password of lowercase characters only
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+::
+
+    :~$ passphrase -p --use-lowercase
+    yafwodlcbfumtfsbb
+    :~$ passphrase -p --use-lowercase -e 128
+    fbwzekpmmridyapdouvejmlzlrjn
 
 Use an external wordlist to generate a passphrase
 '''''''''''''''''''''''''''''''''''''''''''''''''
@@ -285,6 +302,8 @@ runtime table for each tag:
 | v0.5.0          | 35.6           | 0.83               | +0%                               |
 +-----------------+----------------+--------------------+-----------------------------------+
 | v0.5.1          | 37.5           | 0.87               | +5%                               |
++-----------------+----------------+--------------------+-----------------------------------+
+| v1.0.0rc0       | 37.3           | 0.87               | -0%                               |
 +-----------------+----------------+--------------------+-----------------------------------+
 
 | You can try it yourself: download each release, unpack it and time it.
