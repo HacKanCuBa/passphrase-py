@@ -42,7 +42,7 @@ class TestValidInputs(TestCase):
             pass
 
     def tearDown(self):
-        rmtree(self.tmpdir)
+        rmtree(self.tmpdir, ignore_errors=True)
 
     def test_main_defaults(self):
         cmd = ['python3', '-m', 'passphrase']

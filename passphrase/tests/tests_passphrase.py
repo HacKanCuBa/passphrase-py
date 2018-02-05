@@ -51,7 +51,7 @@ class TestValidInputs(TestCase):
             wordfile.write('\n'.join(constants.WORDS))
 
     def tearDown(self):
-        rmtree(self.tmpdir)
+        rmtree(self.tmpdir, ignore_errors=True)
 
     def test_init(self):
         passp = Passphrase()
