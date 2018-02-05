@@ -173,6 +173,8 @@ v0.4.4        | 105          | 2.43             | +0%
 v0.4.5        | 30.7         | 0.71             | -71%
 v0.4.7        | 30.6         | 0.71             | -0%
 v0.4.8        | 35.6         | 0.83             | +16%
+v0.5.0        | 35.6         | 0.83             | +0%
+v0.5.1        | 37.5         | 0.87             | +5%
 
 You can try it yourself: download each release, unpack it and time it.  
 The command to run, depending on the release version, is:
