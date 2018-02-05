@@ -29,9 +29,10 @@ Of course, you can't just pause the whole server, or let the user hanging there 
 
 ## Requirements
 
-* **Python 3.2+**.
+* **Python 3.5+**.
 * [Flake8](http://flake8.pycqa.org/en/latest/) [optional] for linting.
 * [Nose](https://nose.readthedocs.io/en/latest/) [optional] for collecting and running tests.
+* [Coverage](https://bitbucket.org/ned/coveragepy) [optional] for coverage check with Nose.
 
 ## Linting
 
@@ -39,12 +40,13 @@ Run `make lint` or `flake8 .`.
 
 ## Testing
 
-Run `make test` or `nosetests -v`. Remove the `-v` if you don't want a verbose output. Before running tests, it's recommended to check for syntax errors and similar by linting first.
+Run `make test` or `nosetests -v`. Remove the `-v` if you don't want a verbose output. Before running tests, it's recommended to check for syntax errors and similar by linting first. Also, `make coverage` is available to check for tests coverage.
 
 ## How to use it as a package
 
 Download the files, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed -. Once downloaded and verified, use `setup.py` to install (I let you decide whether to use virtualenv or not): `./setup.py install`. You can also do `make package-install` with the same outcome. Run it with `sudo` or elevated privileges to install it system-wide.  
-Using *pip* is not recommended given that it's very insecure.
+Using *pip* for installation is not recommended given that it's very insecure.  
+To uninstall, run `make package-uninstall` or `pip uninstall passphrase`.  
 
 Please let me know if you use this in your app, I would love that :)
 
