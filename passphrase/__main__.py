@@ -26,27 +26,28 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+
 """
 
 from sys import version_info, exit as sys_exit
+from os import strerror as os_strerror
+import argparse
 from .settings import ENTROPY_BITS_MIN, SYSTEM_ENTROPY_BITS_MIN
 from .passphrase import Passphrase
 from .aux import Aux
-import argparse
 
-__author__ = "HacKan"
-__license__ = "GNU GPL 3.0+"
-__version__ = "0.5.0"
+__author__ = 'HacKan'
+__license__ = 'GNU GPL 3.0+'
+__version__ = '0.5.1'
 __version_string__ = (
-    "Passphrase v{}\nby HacKan (https://hackan.net) FOSS "
-    "under GNU GPL v3.0 or newer".format(__version__)
+    'Passphrase v{}\nby HacKan (https://hackan.net) FOSS '
+    'under GNU GPL v3.0 or newer'.format(__version__)
 )
 
-assert (version_info >= (3, 2)), "This script requires Python 3.2+"
+assert (version_info >= (3, 2)), 'This script requires Python 3.2+'
 
 
 def bigger_than_zero(value: int) -> int:
     ivalue = int(value)
     if ivalue < 0:
         raise argparse.ArgumentTypeError(
-            "{} should be bigger than 0".format(ivalue)
+            '{} should be bigger than 0'.format(ivalue)
         )
     return ivalue
 
@@ -65,8 +66,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Passphrase v{version} - Copyright HacKan '
-        '(https://hackan.net) GNU GPL v3.0+.\n\n'
+        description='{version_string}\n\n'
         'Generates a cryptographically secure passphrase, based on '
         'a wordlist, or a\npassword, and prints it to standard output.\n'
         'By default, it uses an embedded EFF Large Wordlist for passphrases.\n'
@@ -97,151 +97,151 @@ def main():
         '\tDefault parameters:\tchalice sheath postcard modular cider size\n'
         '\tWords=3, Numbers=2:\tdepraved widow office 184022 320264\n'
         '\tPassword, 20 chars:\tsF#s@B+iR#ZIL-yUWKPR'.format(
+            version_string=__version_string__,
             minnum=passphrase.randnum_min,
             maxnum=passphrase.randnum_max,
             wordsamountmin=amount_w_default,
             numsamountmin=amount_n_default,
             passwdmin=passwordlen_default,
-            passwdpref=passwordlen_default + 4,
-            version=__version__
+            passwdpref=passwordlen_default + 4
         )
     )
 
     parser.add_argument(
-        "--version",
-        action="store_true",
-        help="print program version and licensing information and exit"
+        '--version',
+        action='store_true',
+        help='print program version and licensing information and exit'
     )
     parser.add_argument(
-        "--insecure",
-        action="store_true",
+        '--insecure',
+        action='store_true',
         default=False,
         help="force password/passphrase generation even if the system's "
              "entropy is too low"
     )
     parser.add_argument(
-        "--no-newline",
-        action="store_true",
+        '--no-newline',
+        action='store_true',
         default=False,
         help="don't print newline at the end of the passphrase/password"
     )
     parser.add_argument(
-        "-m",
-        "--mute",
-        action="store_true",
+        '-m',
+        '--mute',
+        action='store_true',
         default=False,
         help="muted mode: it won't print output, only informational, warning "
              "or error messages (usefull with -o | --output)"
     )
     parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
+        '-v',
+        '--verbose',
+        action='store_true',
         default=False,
-        help="print additional information (can coexist with -m | --mute)"
+        help='print additional information (can coexist with -m | --mute)'
     )
     parser.add_argument(
-        "-e",
-        "--entropybits",
+        '-e',
+        '--entropybits',
         type=bigger_than_zero,
         default=ENTROPY_BITS_MIN,
-        help="specify the number of bits to use for entropy calculations "
-             "(defaults to {})".format(ENTROPY_BITS_MIN)
+        help='specify the number of bits to use for entropy calculations '
+             '(defaults to {})'.format(ENTROPY_BITS_MIN)
     )
     parser.add_argument(
-        "--uuid4",
-        action="store_true",
+        '--uuid4',
+        action='store_true',
         default=False,
-        help="generate an UUID v4 string"
+        help='generate an UUID v4 string'
     )
     parser.add_argument(
-        "-p",
-        "--password",
+        '-p',
+        '--password',
         type=bigger_than_zero,
         const=-1,
         nargs='?',
-        help="generate a password of the specified length from all printable "
-             "or selected characters"
+        help='generate a password of the specified length from all printable '
+             'or selected characters'
     )
     parser.add_argument(
-        "--use-uppercase",
+        '--use-uppercase',
         type=bigger_than_zero,
         const=0,
         nargs='?',
-        help="use uppercase characters for password generation or give the "
-             "amount of uppercase characters in the passphrase: zero or no "
-             "input for all uppercase or any number of uppercase "
-             "characters wanted (the rest are lowercase)"
+        help='use uppercase characters for password generation or give the '
+             'amount of uppercase characters in the passphrase: zero or no '
+             'input for all uppercase or any number of uppercase '
+             'characters wanted (the rest are lowercase)'
     )
     parser.add_argument(
-        "--use-lowercase",
+        '--use-lowercase',
         type=bigger_than_zero,
         const=0,
         nargs='?',
-        help="use lowercase characters for password generation or give the "
-             "amount of lowercase characters in the passphrase: zero or no "
-             "input for all lowercase (default) or any number of lowercase "
-             "characters wanted (the rest are uppercase)"
+        help='use lowercase characters for password generation or give the '
+             'amount of lowercase characters in the passphrase: zero or no '
+             'input for all lowercase (default) or any number of lowercase '
+             'characters wanted (the rest are uppercase)'
     )
     parser.add_argument(
-        "--use-digits",
-        action="store_true",
+        '--use-digits',
+        action='store_true',
         default=False,
-        help="use digits for password generation"
+        help='use digits for password generation'
     )
     parser.add_argument(
-        "--use-alphanumeric",
-        action="store_true",
+        '--use-alphanumeric',
+        action='store_true',
         default=False,
-        help="use lowercase and uppercase characters, and digits for password "
-             "generation (equivalent to --use-lowercase --use-uppercase "
-             "--use-digits)"
+        help='use lowercase and uppercase characters, and digits for password '
+             'generation (equivalent to --use-lowercase --use-uppercase '
+             '--use-digits)'
     )
     parser.add_argument(
-        "--use-punctuation",
-        action="store_true",
+        '--use-punctuation',
+        action='store_true',
         default=False,
-        help="use punctuation characters for password generation"
+        help='use punctuation characters for password generation'
     )
     parser.add_argument(
-        "-w",
-        "--words",
+        '-w',
+        '--words',
         type=bigger_than_zero,
-        help="specify the amount of words (0 or more)"
+        help='specify the amount of words (0 or more)'
     )
     parser.add_argument(
-        "-n",
-        "--numbers",
+        '-n',
+        '--numbers',
         type=bigger_than_zero,
         default=amount_n_default,
-        help="specify the amount of numbers (0 or more)"
+        help='specify the amount of numbers (0 or more)'
     )
     parser.add_argument(
-        "-s",
-        "--separator",
+        '-s',
+        '--separator',
         type=str,
         default=' ',
-        help="specify a separator character (space by default)"
+        help='specify a separator character (space by default)'
     )
     parser.add_argument(
-        "-o",
-        "--output",
+        '-o',
+        '--output',
         type=str,
-        help="specify an output file (existing file is overwritten)"
+        help='specify an output file (existing file is overwritten)'
     )
     parser.add_argument(
-        "-i",
-        "--input",
+        '-i',
+        '--input',
         type=str,
-        help="specify an input file (it must have the following format: "
-             "single column, one word per line)"
+        help='specify an input file (it must have the following format: '
+             'single column, one word per line)'
     )
     parser.add_argument(
-        "-d",
-        "--diceware",
-        action="store_true",
+        '-d',
+        '--diceware',
+        action='store_true',
         default=False,
-        help="specify input file as a diceware list (format: two colums)"
+        help='specify input file as a diceware list (format: two colums)'
     )
 
     args = parser.parse_args()
@@ -324,11 +324,11 @@ def main():
         p_uppercase = True if p_uppercase is not None else False
         p_lowercase = True if p_lowercase is not None else False
         if (
-            p_uppercase
-            or p_lowercase
-            or p_digits
-            or p_punctuation
-            or p_alphanumeric
+                p_uppercase
+                or p_lowercase
+                or p_digits
+                or p_punctuation
+                or p_alphanumeric
         ):
             passphrase.password_use_uppercase = (p_uppercase or p_alphanumeric)
             passphrase.password_use_lowercase = (p_lowercase or p_alphanumeric)
@@ -389,7 +389,18 @@ def main():
             if inputfile is None:
                 passphrase.load_internal_wordlist()
             else:
-                passphrase.import_words_from_file(inputfile, is_diceware)
+                try:
+                    passphrase.import_words_from_file(inputfile, is_diceware)
+
+                except IOError as ioerr:
+                    Aux.print_stderr(
+                        "Error: file {} can't be opened or read, reason: "
+                        "{}".format(
+                            inputfile,
+                            os_strerror(ioerr.errno)
+                        )
+                    )
+                    sys_exit(1)
 
         except FileNotFoundError as err:
             Aux.print_stderr('Error: {}'.format(err))
@@ -444,9 +455,26 @@ def main():
             print(passphrase)
 
     if outputfile is not None:
-        with open(outputfile, mode='wt', encoding='utf-8') as outfile:
-            lf = '' if no_newline else '\n'
-            outfile.write(str(passphrase) + lf)
+        # ensure path to file exists or create
+        from os.path import dirname as os_path_dirname
+        from os import makedirs as os_makedirs
+
+        os_makedirs(os_path_dirname(outputfile), exist_ok=True)
+
+        try:
+            with open(outputfile, mode='wt', encoding='utf-8') as outfile:
+                linefeed = '' if no_newline else '\n'
+                outfile.write(str(passphrase) + linefeed)
+
+        except IOError as ioerr:
+            Aux.print_stderr(
+                "Error: file {} can't be opened or written, reason: "
+                "{}".format(
+                    outputfile,
+                    os_strerror(ioerr.errno)
+                )
+            )
+            sys_exit(1)
 
 
 if __name__ == '__main__':

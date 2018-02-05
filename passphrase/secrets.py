@@ -26,7 +26,7 @@ account authentication, tokens, and similar.
 
 from .random import randint as random_randint, randbytes as random_randbytes
 
-__version__ = "0.5.2"
+__version__ = '0.5.2'
 
 
 def randchoice(seq: any) -> any:
@@ -112,14 +112,14 @@ def randhex(ndigits: int) -> str:
 
     from math import ceil
 
-    nbytes = ceil(ndigits/2)
-    bytes = random_randbytes(nbytes)
+    nbytes = ceil(ndigits / 2)
+    rbytes = random_randbytes(nbytes)
     try:
         # Python 3.5+
-        hexstr = bytes.hex()[:ndigits]
+        hexstr = rbytes.hex()[:ndigits]
     except AttributeError:
         from binascii import hexlify
 
-        hexstr = hexlify(bytes).decode('utf8')[:ndigits]
+        hexstr = hexlify(rbytes).decode('utf8')[:ndigits]
 
     return hexstr

@@ -20,38 +20,44 @@
 
 """Aux: auxiliar functions"""
 
+from .secrets import randbelow
 
-__version__ = "0.1.1"
+
+__version__ = '0.2.1'
 
 
 class Aux():
 
     @staticmethod
-    def lowercase_chars(s: any) -> str:
-        return ''.join([c if c.islower() else '' for c in str(s)])
+    def lowercase_chars(string: any) -> str:
+        return ''.join([c if c.islower() else '' for c in str(string)])
 
     @staticmethod
-    def uppercase_chars(s: any) -> str:
-        return ''.join([c if c.isupper() else '' for c in str(s)])
+    def uppercase_chars(string: any) -> str:
+        return ''.join([c if c.isupper() else '' for c in str(string)])
 
     @staticmethod
-    def chars(s: any) -> str:
-        return ''.join([c if c.isalpha() else '' for c in str(s)])
+    def chars(string: any) -> str:
+        return ''.join([c if c.isalpha() else '' for c in str(string)])
 
     @staticmethod
-    def lowercase_count(s: any) -> int:
-        return len(Aux.lowercase_chars(s))
+    def lowercase_count(string: any) -> int:
+        return len(Aux.lowercase_chars(string))
 
     @staticmethod
-    def uppercase_count(s: any) -> int:
-        return len(Aux.uppercase_chars(s))
+    def uppercase_count(string: any) -> int:
+        return len(Aux.uppercase_chars(string))
 
     @staticmethod
-    def chars_count(s: any) -> int:
-        return len(Aux.chars(s))
+    def chars_count(string: any) -> int:
+        return len(Aux.chars(string))
 
     @staticmethod
     def make_all_uppercase(lst: any) -> any:
+        """Make all characters uppercase.
+
+        It supports characters in a (mix of) list, tuple, set or string.
+        """
 
         if not isinstance(lst, (list, tuple, str, set)):
             raise TypeError('lst must be a list, a tuple, a set or a string')
@@ -62,9 +68,14 @@ class Aux():
         arr = list(lst)
 
         # enumerate is 70% slower than range
-        for i in range(len(lst)):
-            if isinstance(arr[i], (list, tuple, str, set)):
-                arr[i] = Aux.make_all_uppercase(arr[i])
+        # for i in range(len(lst)):
+        #     if isinstance(arr[i], (list, tuple, str, set)):
+        #         arr[i] = Aux.make_all_uppercase(arr[i])
+        arr[:] = [
+            Aux.make_all_uppercase(element) if (
+                isinstance(element, (list, tuple, str, set))
+            ) else element for element in arr
+        ]
 
         if isinstance(lst, set):
             return set(arr)
@@ -74,11 +85,91 @@ class Aux():
         return arr
 
     @staticmethod
-    def isfile(inputfile: str) -> bool:
-        from os.path import isfile
+    def _make_one_char_uppercase(string: str) -> str:
+        """Make a single char from the string uppercase."""
+
+        if not isinstance(string, str):
+            raise TypeError('string must be a string')
+
+        if Aux.lowercase_count(string) > 0:
+            while True:
+                cindex = randbelow(len(string))
+                if string[cindex].islower():
+                    aux = list(string)
+                    aux[cindex] = aux[cindex].upper()
+                    string = ''.join(aux)
+                    break
+
+        return string
+
+    @staticmethod
+    def make_chars_uppercase(lst: any, uppercase: int) -> any:
+        """Make uppercase some randomly selected characters.
+
+        The characters can be in a (mix of) string, list, tuple or set.
+
+        Keyword arguments:
+        lst -- A string, list, tuple or set.
+        uppercase -- Number of characters to be set as uppercase.
+        """
+
+        if not isinstance(lst, (list, tuple, str, set)):
+            raise TypeError('lst must be a list, a tuple, a set or a string')
+        if not isinstance(uppercase, int):
+            raise TypeError('uppercase must be an integer')
+        if uppercase < 0:
+            raise ValueError('uppercase must be bigger than zero')
+
+        lowercase = Aux.lowercase_count(lst)
+        if uppercase == 0 or lowercase == 0:
+            return lst
+        elif uppercase >= lowercase:
+            # Make it all uppercase
+            return Aux.make_all_uppercase(lst)
+
+        arr = list(lst)
+
+        # Check if at least an element is supported
+        # This is required to avoid an infinite loop below
+        supported = False
+        for element in arr:
+            if isinstance(element, (list, tuple, str, set)):
+                supported = True
+                break
+
+        if supported:
+            # Pick a word at random, then make a character uppercase
+            count = 0
+            while count < uppercase:
+                windex = randbelow(len(arr))
+                element = arr[windex]
+                # Skip unsupported types or empty ones
+                if element:
+                    aux = element
+                    if isinstance(element, str):
+                        aux = Aux._make_one_char_uppercase(element)
+                    elif isinstance(element, (list, tuple, set)):
+                        aux = Aux.make_chars_uppercase(element, 1)
+
+                    if aux != element:
+                        arr[windex] = aux
+                        count += 1
+
+        if isinstance(lst, set):
+            return set(arr)
+        elif isinstance(lst, str):
+            return ''.join(arr)
+        elif isinstance(lst, tuple):
+            return tuple(arr)
+
+        return arr
+
+    @staticmethod
+    def isfile_notempty(inputfile: str) -> bool:
+        from os.path import isfile, getsize
 
         try:
-            return isfile(inputfile)
+            return isfile(inputfile) and getsize(inputfile) > 0
         except TypeError:
             raise TypeError('inputfile is not a valid type')
 
@@ -95,6 +186,6 @@ class Aux():
         from subprocess import Popen, PIPE, DEVNULL
 
         arg = ['cat', '/proc/sys/kernel/random/entropy_avail']
-        ps = Popen(arg, stdout=PIPE, stderr=DEVNULL)
-        response = ps.communicate()[0]
+        proc = Popen(arg, stdout=PIPE, stderr=DEVNULL)
+        response = proc.communicate()[0]
         return int(response) if response else -1

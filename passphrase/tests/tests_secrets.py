@@ -47,7 +47,7 @@ class TestValidInputs(TestCase):
                 repeat += 1
             self.assertTrue(
                 repeat < 2,
-                "randbelow(%d) returned the same number twice in a row!" % (i)
+                'randbelow(%d) returned the same number twice in a row!' % (i)
             )
             prev = rand
 
@@ -76,9 +76,17 @@ class TestInvalidInputs(TestCase):
             1.234,
             1
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.secrets.randchoice, t)
-        self.assertRaises(IndexError, passphrase.secrets.randchoice, {})
+        for wrongtype in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.secrets.randchoice,
+                wrongtype
+            )
+        self.assertRaises(
+            IndexError,
+            passphrase.secrets.randchoice,
+            {}
+        )
 
     def test_randbelow(self):
         wrongtypes = (
@@ -91,8 +99,12 @@ class TestInvalidInputs(TestCase):
             [],
             ()
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.secrets.randbelow, t)
+        for wrongtype in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.secrets.randbelow,
+                wrongtype
+            )
         self.assertRaises(ValueError, passphrase.secrets.randbelow, 0)
         self.assertRaises(ValueError, passphrase.secrets.randbelow, -1)
 
@@ -107,8 +119,13 @@ class TestInvalidInputs(TestCase):
             [],
             ()
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.secrets.randbetween, t, t)
+        for wrongtype in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.secrets.randbetween,
+                wrongtype,
+                wrongtype
+            )
         self.assertRaises(ValueError, passphrase.secrets.randbetween, 0, 0)
         self.assertRaises(ValueError, passphrase.secrets.randbetween, -1, -1)
 
@@ -123,7 +140,10 @@ class TestInvalidInputs(TestCase):
             [],
             ()
         )
-        for t in wrongtypes:
-            self.assertRaises(TypeError, passphrase.secrets.randhex, t)
+        for wrongtype in wrongtypes:
+            self.assertRaises(
+                TypeError,
+                passphrase.secrets.randhex,
+                wrongtype)
         self.assertRaises(ValueError, passphrase.secrets.randhex, 0)
         self.assertRaises(ValueError, passphrase.secrets.randhex, -1)

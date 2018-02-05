@@ -24,14 +24,14 @@ Passphrases are built by picking from a word list using cryptographically
 secure random number generator. Passwords are built from printable characters.
 """
 
-from .secrets import randchoice, randhex, randbetween, randbelow
+from .secrets import randchoice, randhex, randbetween
 from .settings import MIN_NUM, MAX_NUM
 from .aux import Aux
 
 
-__author__ = "HacKan"
-__license__ = "GNU GPL 3.0+"
-__version__ = "0.5.3"
+__author__ = 'HacKan'
+__license__ = 'GNU GPL 3.0+'
+__version__ = '0.5.4'
 
 
 class Passphrase():
@@ -210,24 +210,6 @@ class Passphrase():
             word.split()[1] for word in open(inputfile, mode='rt')
         ]
 
-    @staticmethod
-    def _make_one_char_uppercase(string: str) -> str:
-        """Make a single char from the string uppercase"""
-
-        if not isinstance(string, str):
-            raise TypeError('string must be a string')
-
-        if Aux.lowercase_count(string) > 0:
-            while True:
-                cindex = randbelow(len(string))
-                if string[cindex].islower():
-                    aux = list(string)
-                    aux[cindex] = aux[cindex].upper()
-                    string = ''.join(aux)
-                    break
-
-        return string
-
     def _get_password_characters(self) -> str:
         from string import (
             digits,
@@ -250,9 +232,9 @@ class Passphrase():
         return characters
 
     def __init__(
-        self,
-        inputfile: str = None,
-        is_diceware: bool = False
+            self,
+            inputfile: str = None,
+            is_diceware: bool = False
     ) -> None:
         """Generates cryptographically secure passphrases and passwords.
 
@@ -274,7 +256,7 @@ class Passphrase():
 
         separator_len = len(self.separator)
         rm_last_separator = -separator_len if separator_len > 0 else None
-        return "".join(
+        return ''.join(
             '{}{}'.format(w, self.separator) for w in map(
                 str,
                 self.last_result
@@ -300,74 +282,13 @@ class Passphrase():
 
         size = len(lst)
         if (
-            size == 2
-            and isinstance(lst[0], (int, float))
-            and isinstance(lst[1], (int, float))
+                size == 2
+                and isinstance(lst[0], (int, float))
+                and isinstance(lst[1], (int, float))
         ):
             return calc_entropy_bits_nrange(lst[0], lst[1])
 
         return calc_entropy_bits(lst)
-
-    @staticmethod
-    def make_chars_uppercase(lst: any, uppercase: int) -> any:
-        """Make uppercase some randomly selected characters in a string, that
-        can be in a list, tuple or set.
-
-        Keyword arguments:
-        lst -- A string, list, tuple or set.
-        uppercase -- Number of characters to be set as uppercase.
-        """
-
-        if not isinstance(lst, (list, tuple, str, set)):
-            raise TypeError('lst must be a list, a tuple, a set or a string')
-        if not isinstance(uppercase, int):
-            raise TypeError('uppercase must be an integer')
-        if uppercase < 0:
-            raise ValueError('uppercase must be bigger than zero')
-
-        lowercase = Aux.lowercase_count(lst)
-        if uppercase == 0 or lowercase == 0:
-            return lst
-        elif uppercase >= lowercase:
-            # Make it all uppercase
-            return Aux.make_all_uppercase(lst)
-
-        arr = list(lst)
-
-        # Check if at least an element is supported
-        # This is required to avoid an infinite loop below
-        supported = False
-        for element in arr:
-            if isinstance(element, (list, tuple, str, set)):
-                supported = True
-                break
-
-        if supported:
-            # Pick a word at random, then make a character uppercase
-            count = 0
-            while count < uppercase:
-                windex = randbelow(len(arr))
-                element = arr[windex]
-                # Skip unsupported types or empty ones
-                if element:
-                    aux = element
-                    if isinstance(element, str):
-                        aux = Passphrase._make_one_char_uppercase(element)
-                    elif isinstance(element, (list, tuple, set)):
-                        aux = Passphrase.make_chars_uppercase(element, 1)
-
-                    if aux != element:
-                        arr[windex] = aux
-                        count += 1
-
-        if isinstance(lst, set):
-            return set(arr)
-        elif isinstance(lst, str):
-            return ''.join(arr)
-        elif isinstance(lst, tuple):
-            return tuple(arr)
-
-        return arr
 
     def load_internal_wordlist(self) -> None:
         """Load internal wordlist."""
@@ -381,9 +302,9 @@ class Passphrase():
                                inputfile: str,
                                is_diceware: bool) -> None:
 
-        if not Aux.isfile(inputfile):
-            raise FileNotFoundError('Input file does not exists: '
-                                    '{}'.format(inputfile))
+        if not Aux.isfile_notempty(inputfile):
+            raise FileNotFoundError('Input file does not exists, is not valid '
+                                    'or is empty: {}'.format(inputfile))
 
         if is_diceware:
             self.wordlist = self._read_words_from_diceware(inputfile)
@@ -396,12 +317,12 @@ class Passphrase():
 
         characters = self._get_password_characters()
         if (
-            self.entropy_bits_req is None
-            or not characters
+                self.entropy_bits_req is None
+                or not characters
         ):
-            raise ValueError('Can\'t calculate the password length needed: '
-                             'entropy_bits_req isn\'t set or the character '
-                             'set is empty')
+            raise ValueError("Can't calculate the password length needed: "
+                             "entropy_bits_req isn't set or the character "
+                             "set is empty")
 
         from .calc import password_length_needed as calc_password_length_needed
 
@@ -415,13 +336,13 @@ class Passphrase():
         for the given wordlist."""
 
         if (
-            self.entropy_bits_req is None
-            or self.amount_n is None
-            or not self.wordlist
+                self.entropy_bits_req is None
+                or self.amount_n is None
+                or not self.wordlist
         ):
-            raise ValueError('Cant\' calculate the words amount needed: '
-                             'wordlist is empty or entropy_bits_req or '
-                             'amount_n isn\'t set')
+            raise ValueError("Can't calculate the words amount needed: "
+                             "wordlist is empty or entropy_bits_req or "
+                             "amount_n isn't set")
 
         from .calc import words_amount_needed as calc_words_amount_needed
 
@@ -450,11 +371,11 @@ class Passphrase():
 
         characters = self._get_password_characters()
         if (
-            self.passwordlen is None
-            or not characters
+                self.passwordlen is None
+                or not characters
         ):
-            raise ValueError('Can\'t calculate the password entropy: character'
-                             ' set is empty or passwordlen isn\'t set')
+            raise ValueError("Can't calculate the password entropy: character"
+                             " set is empty or passwordlen isn't set")
 
         if self.passwordlen == 0:
             return 0.0
@@ -467,13 +388,13 @@ class Passphrase():
         """Calculate the entropy of a passphrase that would be generated"""
 
         if (
-            self.amount_w is None
-            or self.amount_n is None
-            or not self.wordlist
+                self.amount_w is None
+                or self.amount_n is None
+                or not self.wordlist
         ):
-            raise ValueError('Can\'t calculate the passphrase entropy: '
-                             'wordlist is empty or amount_n or '
-                             'amount_w isn\'t set')
+            raise ValueError("Can't calculate the passphrase entropy: "
+                             "wordlist is empty or amount_n or "
+                             "amount_w isn't set")
 
         if self.amount_n == 0 and self.amount_w == 0:
             return 0.0
@@ -495,7 +416,7 @@ class Passphrase():
             self.amount_n
         )
 
-    def generate(self, uppercase: int=None) -> list:
+    def generate(self, uppercase: int = None) -> list:
         """Generates a list of words randomly chosen from a wordlist.
 
         Keyword arguments:
@@ -506,13 +427,13 @@ class Passphrase():
         """
 
         if (
-            self.amount_n is None
-            or self.amount_w is None
-            or not self.wordlist
+                self.amount_n is None
+                or self.amount_w is None
+                or not self.wordlist
         ):
-            raise ValueError('Can\'t generate passphrase: '
-                             'wordlist is empty or amount_n or '
-                             'amount_w isn\'t set')
+            raise ValueError("Can't generate passphrase: "
+                             "wordlist is empty or amount_n or "
+                             "amount_w isn't set")
 
         if uppercase is not None and not isinstance(uppercase, int):
             raise TypeError('uppercase must be an integer number')
@@ -525,17 +446,17 @@ class Passphrase():
         lowercase = Aux.lowercase_count(passphrase)
         if passphrase and uppercase is not None:
             if (
-                uppercase < 0
-                and lowercase > (uppercase * -1)
+                    uppercase < 0
+                    and lowercase > (uppercase * -1)
             ):
                 uppercase = lowercase + uppercase
 
             # If it's still negative, then means no uppercase
-            if uppercase == 0:
+            if uppercase == 0 or uppercase > lowercase:
                 # Make it all uppercase
                 passphrase = Aux.make_all_uppercase(passphrase)
             elif uppercase > 0:
-                passphrase = Passphrase.make_chars_uppercase(
+                passphrase = Aux.make_chars_uppercase(
                     passphrase,
                     uppercase
                 )
@@ -553,11 +474,11 @@ class Passphrase():
         password = []
         characters = self._get_password_characters()
         if (
-            self.passwordlen is None
-            or not characters
+                self.passwordlen is None
+                or not characters
         ):
-            raise ValueError('Can\'t generate password: character set is '
-                             'empty or passwordlen isn\'t set')
+            raise ValueError("Can't generate password: character set is "
+                             "empty or passwordlen isn't set")
 
         for _ in range(0, self.passwordlen):
             password.append(randchoice(characters))

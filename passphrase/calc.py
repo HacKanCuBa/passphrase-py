@@ -23,7 +23,7 @@
 
 from math import ceil, fabs, log10
 
-__version__ = "0.4.5"
+__version__ = '0.4.5'
 
 try:
     from math import log2   # Python 3.3+
@@ -39,8 +39,8 @@ def entropy_bits(lst: list) -> float:
     if not isinstance(lst, (list, tuple)):
         raise TypeError('lst must be a list or a tuple')
 
-    for n in lst:
-        if not isinstance(n, (int, str, float, complex)):
+    for num in lst:
+        if not isinstance(num, (int, str, float, complex)):
             raise TypeError('lst can only be comprised of int, str, float, '
                             'complex')
 
@@ -58,11 +58,11 @@ def entropy_bits(lst: list) -> float:
         return 0.0
 
     # Compute entropy
-    ent = 0.0
-    for p in probs:
-        ent -= p * log2(p)
+    entropy = 0.0
+    for prob in probs:
+        entropy -= prob * log2(prob)
 
-    return ent
+    return entropy
 
 
 def entropy_bits_nrange(minimum: float, maximum: float) -> float:
@@ -95,7 +95,7 @@ def password_length_needed(entropybits: float, chars: str) -> int:
     if not isinstance(chars, str):
         raise TypeError('chars can only be string')
     if not chars:
-        raise ValueError('chars can\t be null')
+        raise ValueError("chars can't be null")
 
     # entropy_bits(list(characters)) = 6.554588
     entropy_c = entropy_bits(list(chars))
@@ -145,7 +145,7 @@ def password_entropy(length: int, chars: str) -> float:
     if not isinstance(chars, str):
         raise TypeError('chars can only be string')
     if not chars:
-        raise ValueError('chars can\t be null')
+        raise ValueError("chars can't be null")
 
     if length == 0:
         return 0.0
