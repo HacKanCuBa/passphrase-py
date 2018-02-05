@@ -1,0 +1,13 @@
+language: python
+python:
+    - "3.2"
+    - "3.5"
+    - "3.6"
+install:
+    - pip install -r requirements-dev.txt
+script:
+    - nosetests -q
+    - nosetests --with-coverage --cover-erase --cover-package=passphrase
+branches:
+    only:
+        - master
