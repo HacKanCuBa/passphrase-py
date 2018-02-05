@@ -1,3 +1,5 @@
+|Build Status|
+
 Passphrase
 ==========
 
@@ -338,3 +340,6 @@ the terms of that `license <LICENSE>`__.
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+.. |Build Status| image:: https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master
+   :target: https://travis-ci.org/HacKanCuBa/passphrase-py

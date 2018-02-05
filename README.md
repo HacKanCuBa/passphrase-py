@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master)](https://travis-ci.org/HacKanCuBa/passphrase-py)
+
 # Passphrase
 
 **Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. A passphrase is a list of words usually separated by a blank space. This tool acts like a [diceware](http://world.std.com/~reinhold/diceware.html) generator (more info in [EFF's website](https://www.eff.org/es/dice)).
