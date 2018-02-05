@@ -22,132 +22,124 @@ from unittest import TestCase
 from random import randint
 
 from passphrase.aux import Aux
-
-
-STRING = 'The quick brown fox jumps over the Lazy dog 123456'
-LST = (
-    [
-        [[], ['b']],
-        ['a'],
-        {12, 'bTh', 0},
-        ('f', 1, 2, 3, ((3, 4, ['v', 'bjk']), (['a', 4, 'HC'])))
-    ]
-)
+import passphrase.tests.constants as constants
 
 
 class TestValidInputs(TestCase):
 
     def test_make_all_uppercase(self):
-        strupper = Aux.make_all_uppercase(STRING)
-        self.assertIsInstance(strupper, type(STRING))
+        strupper = Aux.make_all_uppercase(constants.SOMESTRING)
+        self.assertIsInstance(strupper, type(constants.SOMESTRING))
         self.assertTrue(strupper.isupper())
 
-        lstupper = Aux.make_all_uppercase(LST)
-        self.assertIsInstance(lstupper, type(LST))
+        lstupper = Aux.make_all_uppercase(constants.SOMEMIXEDLIST)
+        self.assertIsInstance(lstupper, type(constants.SOMEMIXEDLIST))
         self.assertTrue(str(lstupper).isupper())
 
-        arr = list(STRING)
+        arr = list(constants.SOMESTRING)
         lstupper = Aux.make_all_uppercase(arr)
         self.assertIsInstance(lstupper, type(arr))
         self.assertTrue(str(lstupper).isupper())
 
     def test_lowercase_chars(self):
         self.assertEqual(
-            Aux.lowercase_chars(STRING),
-            'hequickbrownfoxjumpsovertheazydog'
+            Aux.lowercase_chars(constants.SOMESTRING),
+            constants.SOMESTRING_LOWERS
         )
         self.assertEqual(
-            Aux.lowercase_chars(list(STRING)),
-            'hequickbrownfoxjumpsovertheazydog'
+            Aux.lowercase_chars(list(constants.SOMESTRING)),
+            constants.SOMESTRING_LOWERS
         )
         self.assertEqual(
-            Aux.lowercase_chars(LST),
-            'babhfvbjka'
+            Aux.lowercase_chars(constants.SOMEMIXEDLIST),
+            constants.SOMEMIXEDLIST_LOWERS
         )
 
     def test_uppercase_chars(self):
         self.assertEqual(
-            Aux.uppercase_chars(STRING),
-            'TL'
+            Aux.uppercase_chars(constants.SOMESTRING),
+            constants.SOMESTRING_UPPERS
         )
         self.assertEqual(
-            Aux.uppercase_chars(list(STRING)),
-            'TL'
+            Aux.uppercase_chars(list(constants.SOMESTRING)),
+            constants.SOMESTRING_UPPERS
         )
         self.assertEqual(
-            Aux.uppercase_chars(LST),
-            'THC'
+            Aux.uppercase_chars(constants.SOMEMIXEDLIST),
+            constants.SOMEMIXEDLIST_UPPERS
         )
 
     def test_chars(self):
         self.assertEqual(
-            Aux.chars(STRING),
-            'ThequickbrownfoxjumpsovertheLazydog'
+            Aux.chars(constants.SOMESTRING),
+            constants.SOMESTRING_CHARS
         )
         self.assertEqual(
-            Aux.chars(list(STRING)),
-            'ThequickbrownfoxjumpsovertheLazydog'
+            Aux.chars(list(constants.SOMESTRING)),
+            constants.SOMESTRING_CHARS
         )
         self.assertEqual(
-            Aux.chars(LST),
-            'babThfvbjkaHC'
+            Aux.chars(constants.SOMEMIXEDLIST),
+            constants.SOMEMIXEDLIST_CHARS
         )
 
     def test_lowercase_count(self):
         self.assertEqual(
-            Aux.lowercase_count(STRING),
-            33
+            Aux.lowercase_count(constants.SOMESTRING),
+            len(constants.SOMESTRING_LOWERS)
         )
         self.assertEqual(
-            Aux.lowercase_count(list(STRING)),
-            33
+            Aux.lowercase_count(list(constants.SOMESTRING)),
+            len(constants.SOMESTRING_LOWERS)
         )
         self.assertEqual(
-            Aux.lowercase_count(LST),
-            10
+            Aux.lowercase_count(constants.SOMEMIXEDLIST),
+            len(constants.SOMEMIXEDLIST_LOWERS)
         )
 
     def test_uppercase_count(self):
         self.assertEqual(
-            Aux.uppercase_count(STRING),
-            2
+            Aux.uppercase_count(constants.SOMESTRING),
+            len(constants.SOMESTRING_UPPERS)
         )
         self.assertEqual(
-            Aux.uppercase_count(list(STRING)),
-            2
+            Aux.uppercase_count(list(constants.SOMESTRING)),
+            len(constants.SOMESTRING_UPPERS)
         )
         self.assertEqual(
-            Aux.uppercase_count(LST),
-            3
+            Aux.uppercase_count(constants.SOMEMIXEDLIST),
+            len(constants.SOMEMIXEDLIST_UPPERS)
         )
 
     def test_chars_count(self):
         self.assertEqual(
-            Aux.chars_count(STRING),
-            35
+            Aux.chars_count(constants.SOMESTRING),
+            len(constants.SOMESTRING_CHARS)
         )
         self.assertEqual(
-            Aux.chars_count(list(STRING)),
-            35
+            Aux.chars_count(list(constants.SOMESTRING)),
+            len(constants.SOMESTRING_CHARS)
         )
         self.assertEqual(
-            Aux.chars_count(LST),
-            13
+            Aux.chars_count(constants.SOMEMIXEDLIST),
+            len(constants.SOMEMIXEDLIST_CHARS)
         )
 
     def test_make_chars_uppercase(self):
-        string = 'The quick brown fox jumps over the lazy dog 123456'
-        upperstart = Aux.uppercase_count(string)
+        upperstart = Aux.uppercase_count(constants.SOMESTRING)
         uppercase = randint(0, 10)
         for _ in range(0, 1000):
-            strupper = Aux.make_chars_uppercase(string, uppercase)
+            strupper = Aux.make_chars_uppercase(
+                constants.SOMESTRING,
+                uppercase
+            )
             self.assertIsInstance(strupper, str)
             self.assertEqual(
                 Aux.uppercase_count(strupper),
                 uppercase + upperstart
             )
 
-        lst = list(string)
+        lst = list(constants.SOMESTRING)
         lstupper = Aux.make_chars_uppercase(lst, uppercase)
         self.assertIsInstance(lstupper, list)
         self.assertEqual(
@@ -155,46 +147,29 @@ class TestValidInputs(TestCase):
             uppercase + upperstart
         )
 
-        uppercase = len(string) * 2
-        strupper = Aux.make_chars_uppercase(string, uppercase)
+        uppercase = len(constants.SOMESTRING) * 2
+        strupper = Aux.make_chars_uppercase(constants.SOMESTRING, uppercase)
         self.assertIsInstance(strupper, str)
         self.assertTrue(strupper.isupper())
 
-        uppercase = randint(0, 2)
-        lst = (
-            [
-                [[], ['b']],
-                ['a'],
-                {12, 'bsh', 0},
-                ('f', 1, 2, 3, ((3, 4, ['v', 'bjk']), (['a', 4, 'p'])))
-            ]
-        )
-        lstupper = Aux.make_chars_uppercase(lst, uppercase)
-        self.assertIsInstance(lstupper, type(lst))
+        uppercase = randint(0, 5)
+        upperstart = Aux.uppercase_count(constants.SOMEMIXEDLIST)
+        lstupper = Aux.make_chars_uppercase(constants.SOMEMIXEDLIST, uppercase)
+        self.assertIsInstance(lstupper, type(constants.SOMEMIXEDLIST))
         self.assertEqual(
             Aux.uppercase_count(lstupper),
-            uppercase
+            uppercase + upperstart
         )
 
 
 class TestInvalidInputs(TestCase):
 
     def test_make_all_uppercase(self):
-        wrongtypes = (
-            {'a': 1, 'b': 2},
-            1.2,
-            1
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_LIST_SET_TUPLE_STR:
             self.assertRaises(TypeError, Aux.make_all_uppercase, wrongtype)
 
     def test_make_chars_uppercase(self):
-        wrongtypes = (
-            {'a': 1, 'b': 2},
-            1.2,
-            1
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_LIST_SET_TUPLE_STR:
             self.assertRaises(
                 TypeError,
                 Aux.make_chars_uppercase,
@@ -202,16 +177,7 @@ class TestInvalidInputs(TestCase):
                 0
             )
 
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            {1, 2, 3, 4},
-            (1, 2),
-            [1, 2],
-            1.2
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(
                 TypeError, Aux.make_chars_uppercase,
                 [],

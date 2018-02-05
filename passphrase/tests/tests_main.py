@@ -26,6 +26,7 @@ from shutil import rmtree
 import subprocess
 
 import passphrase.__main__
+import passphrase.tests.constants as constants
 
 
 class TestValidInputs(TestCase):
@@ -55,7 +56,7 @@ class TestValidInputs(TestCase):
         result = result[:-1]
         # has only letters, and are lowercase
         self.assertTrue(
-            all([(c.islower() or c == ' ') for c in result])
+            all([c.islower() for c in result.split()])
         )
         # has 6 words
         self.assertEqual(len(result.split()), 6)
@@ -329,20 +330,12 @@ class TestValidInputs(TestCase):
     def test_main_option_input(self):
         from random import randint
 
-        words = [
-            'vivacious',
-            'frigidly',
-            'condiment',
-            'passive',
-            'reverse',
-            'brunt'
-        ]
         tmpfile = os_path_join(
             self.tmpdir,
             'test_main_option_input.' + str(randint(100000, 999999))
         )
         with open(tmpfile, mode='wt+', encoding='utf-8') as wordfile:
-            wordfile.write('\n'.join(words))
+            wordfile.write('\n'.join(constants.WORDS))
 
         cmds = (
             ['python3', '-m', 'passphrase', '--input', wordfile.name],
@@ -355,26 +348,17 @@ class TestValidInputs(TestCase):
             ).stdout.decode('utf-8')
             self.assertTrue(result)
             for word in result.split():
-                self.assertIn(word, words)
+                self.assertIn(word, constants.WORDS)
 
     def test_main_option_input_diceware(self):
         from random import randint
 
-        wordsd = [
-            '123456\tvivacious',
-            '163456\tfrigidly',
-            '153456\tcondiment',
-            '143456\tpassive',
-            '133456\tpenpal',
-            '113456\talarm'
-        ]
-        words = [word.split()[1] for word in wordsd]
         tmpfile = os_path_join(
             self.tmpdir,
             'test_main_option_input.' + str(randint(100000, 999999))
         )
         with open(tmpfile, mode='wt+', encoding='utf-8') as wordfile:
-            wordfile.write('\n'.join(wordsd))
+            wordfile.write('\n'.join(constants.WORDSD))
 
         cmds = (
             ['python3', '-m', 'passphrase', '--input', wordfile.name,
@@ -387,6 +371,7 @@ class TestValidInputs(TestCase):
                 stdout=subprocess.PIPE,
             ).stdout.decode('utf-8')
             self.assertTrue(result)
+            words = [word.split()[1] for word in constants.WORDSD]
             for word in result.split():
                 self.assertIn(word, words)
 

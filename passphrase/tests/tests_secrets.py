@@ -21,6 +21,7 @@
 from unittest import TestCase
 
 import passphrase.secrets
+import passphrase.tests.constants as constants
 
 
 class TestValidInputs(TestCase):
@@ -72,11 +73,7 @@ class TestValidInputs(TestCase):
 class TestInvalidInputs(TestCase):
 
     def test_randchoice(self):
-        wrongtypes = (
-            1.234,
-            1
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_LIST_SET_TUPLE_STR_DICT:
             self.assertRaises(
                 TypeError,
                 passphrase.secrets.randchoice,
@@ -89,17 +86,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_randbelow(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            1.234,
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            [],
-            ()
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(
                 TypeError,
                 passphrase.secrets.randbelow,
@@ -109,17 +96,7 @@ class TestInvalidInputs(TestCase):
         self.assertRaises(ValueError, passphrase.secrets.randbelow, -1)
 
     def test_randbetween(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            1.234,
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            [],
-            ()
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(
                 TypeError,
                 passphrase.secrets.randbetween,
@@ -130,17 +107,7 @@ class TestInvalidInputs(TestCase):
         self.assertRaises(ValueError, passphrase.secrets.randbetween, -1, -1)
 
     def test_randhex(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            1.234,
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            [],
-            ()
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(
                 TypeError,
                 passphrase.secrets.randhex,

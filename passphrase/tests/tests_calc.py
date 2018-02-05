@@ -21,24 +21,14 @@
 from unittest import TestCase
 
 import passphrase.calc
-
-WORDS = (
-    'vivacious',
-    'frigidly',
-    'condiment',
-    'passive',
-    'reverse',
-    'brunt'
-)
-
-WORDS_ENTROPY = 2.58
+import passphrase.tests.constants as constants
 
 
 class TestValidInputs(TestCase):
 
     def test_entropy_bits(self):
         values = (
-            (WORDS, WORDS_ENTROPY),
+            (constants.WORDS, constants.WORDS_ENTROPY),
             ((1, 2), 1.0),
             ((), 0.0),
             ([], 0.0),
@@ -138,16 +128,13 @@ class TestValidInputs(TestCase):
 class TestInvalidInputs(TestCase):
 
     def test_entropy_bits(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            1234,
-            1.234,
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4})
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_LIST_TUPLE:
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.entropy_bits,
+                wrongtype
+            )
+        for wrongtype in constants.WRONGTYPES_LISTOF_INT_FLOAT_COMPLEX_STR:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.entropy_bits,
@@ -155,15 +142,7 @@ class TestInvalidInputs(TestCase):
             )
 
     def test_entropy_bits_nrange(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            []
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT_FLOAT:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.entropy_bits_nrange,
@@ -178,31 +157,14 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_password_length_needed(self):
-        wrongtypes_e = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            []
-        )
-        for wrongtype in wrongtypes_e:
+        for wrongtype in constants.WRONGTYPES_INT_FLOAT:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_length_needed,
                 wrongtype,
                 'a'
             )
-        wrongtypes_c = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            [],
-            1,
-            1.234
-        )
-        for wrongtype in wrongtypes_c:
+        for wrongtype in constants.WRONGTYPES_STR:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_length_needed,
@@ -223,15 +185,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_words_amount_needed(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            []
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT_FLOAT:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.words_amount_needed,
@@ -274,30 +228,14 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_password_entropy(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            (1, 2, (3, 4)),
-            [],
-            1.0
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_entropy,
                 wrongtype,
                 'a'
             )
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            (1, 2, (3, 4)),
-            [],
-            1.0,
-            1
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_STR:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.password_entropy,
@@ -318,15 +256,7 @@ class TestInvalidInputs(TestCase):
         )
 
     def test_passphrase_entropy(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            (1, 2, (3, 4)),
-            [],
-            1.0
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT_FLOAT:
             self.assertRaises(
                 TypeError,
                 passphrase.calc.passphrase_entropy,

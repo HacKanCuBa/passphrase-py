@@ -24,6 +24,7 @@ from test.support.script_helper import assert_python_ok
 from os.path import dirname, realpath, join as os_path_join
 
 import passphrase.random
+import passphrase.tests.constants as constants
 
 
 class TestValidInputs(TestCase):
@@ -77,33 +78,13 @@ class TestValidInputs(TestCase):
 class TestInvalidInputs(TestCase):
 
     def test_randint(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            1.234,
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            [],
-            ()
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(TypeError, passphrase.random.randint, wrongtype)
         self.assertRaises(ValueError, passphrase.random.randint, 0)
         self.assertRaises(ValueError, passphrase.random.randint, -1)
 
     def test_randbytes(self):
-        wrongtypes = (
-            {1, 2},
-            {'a': 1, 'b': 2},
-            'aaaa',
-            1.234,
-            (1, 2, (3, 4)),
-            set({1, 2, 3, 4}),
-            [],
-            ()
-        )
-        for wrongtype in wrongtypes:
+        for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(
                 TypeError,
                 passphrase.random.randbytes,
