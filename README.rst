@@ -175,7 +175,7 @@ Generate a passphrase avoiding `shoulder surfing <https://en.wikipedia.org/wiki/
 
 ::
 
-    :~$ passphrase -q -o pass.txt
+    :~$ passphrase -m -o pass.txt
 
 Is this really secure?
 ----------------------

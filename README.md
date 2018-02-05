@@ -122,7 +122,7 @@ gpg: encrypted with 1 passphrase
 ##### Generate a passphrase avoiding [shoulder surfing](https://en.wikipedia.org/wiki/Shoulder_surfing_(computer_security))
 
 ```
-:~$ passphrase -q -o pass.txt
+:~$ passphrase -m -o pass.txt
 ```
 
 ## Is this really secure?
