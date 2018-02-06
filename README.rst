@@ -1,4 +1,4 @@
-|Build Status|
+|GitHub license| |GitHub release| |GitHub version| |Build Status|
 
 Passphrase
 ==========
@@ -7,7 +7,7 @@ Passphrase
 passphrases and passwords. A passphrase is a list of words usually
 separated by a blank space. This tool acts like a
 `diceware <http://world.std.com/~reinhold/diceware.html>`__ generator
-(more info in `EFF's website <https://www.eff.org/es/dice>`__).
+(more about this in `EFF's website <https://www.eff.org/es/dice>`__).
 
 Its security is based on Python's
 `os.urandom <https://docs.python.org/3/library/os.html#os.urandom>`__ to
@@ -67,7 +67,8 @@ How to use it
 As a package
 ~~~~~~~~~~~~
 
-Check the `developers guide <DEVELOPERS.md>`__.
+Check the `developers
+guide <https://github.com/HacKanCuBa/passphrase-py/blob/master/DEVELOPERS.md>`__.
 
 As a script
 ~~~~~~~~~~~
@@ -84,7 +85,9 @@ To uninstall, run respectively ``make package-uninstall``,
 Examples of use
 ^^^^^^^^^^^^^^^
 
-Check the `man page <man/passphrase.md>`__ for more information.
+Check the `man
+page <https://github.com/HacKanCuBa/passphrase-py/blob/master/man/passphrase.md>`__
+for more information.
 
 Generally, you should rely on **Passphrase**'s entropy calculation
 instead of fixing a desired amount, unless you specifically need some
@@ -209,21 +212,19 @@ Is this really secure?
   generator. The whole program is quite big, but most of it is just the
   menues and the word list.
 | The generator algorithms are very short and simple, they are in
-  `passphrase.passphrase <passphrase/passphrase.py>`__:
+  `passphrase.passphrase <https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/passphrase.py>`__:
   ``Passphrase::generate()`` and ``Passphrase::generate_password()``.
   The lower level functions are in
-  `passphrase.random <passphrase/random.py>`__, which directly uses
-  ``os.urandom``; higher level functions are in
-  `passphrase.secrets <passphrase/secrets.py>`__, that provides a
-  convenient interface to those low level functions, so that
-  implementation errors are avoided.
+  `passphrase.random <https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/random.py>`__,
+  which directly uses ``os.urandom``; higher level functions are in
+  `passphrase.secrets <https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/secrets.py>`__,
+  that provides a convenient interface to those low level functions, so
+  that implementation errors are avoided.
 
-| The whole magic is done by
-  ```passphrase.secrets.randbelow()`` <passphrase/secrets.py>`__, that
+| The whole magic is done by ``passphrase.secrets.randbelow()``, that
   returns a random natural number lower than the given value, that is
   then used as index for the word or character list by
-  ```passphrase.secrets.randchoice`` <passphrase/secrets.py>`__,
-  function used by the generators.
+  ``passphrase.secrets.randchoice()``, function used by the generators.
 | Both ``randbelow()`` and ``randint()`` where copyied from Python's
   Lib/random, but trimmed down so that they don't allow anything fishy.
   This also makes **Passphrase** independent from unnecessary libraries
@@ -251,10 +252,10 @@ Attacker can modify source code or wordlist
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If it can modify the source code somehow, or the default
-`wordlist <passphrase/wordlist.py>`__, it's also game over since a
-software that succesfully checks itself doesn't exist yet. However, it
-could be mitigated by placing the files under the ownership of some
-privileged user (*root*).
+`wordlist <https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/wordlist.py>`__,
+it's also game over since a software that succesfully checks itself
+doesn't exist yet. However, it could be mitigated by placing the files
+under the ownership of some privileged user (*root*).
 
 Attacker can modify external libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -325,7 +326,8 @@ License
 
 **Passphrase** is made by `HacKan <https://hackan.net>`__ under GNU GPL
 v3.0+. You are free to use, share, modify and share modifications under
-the terms of that `license <LICENSE>`__.
+the terms of that
+`license <https://github.com/HacKanCuBa/passphrase-py/blob/master/LICENSE>`__.
 
 ::
 
@@ -344,5 +346,11 @@ the terms of that `license <LICENSE>`__.
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+.. |GitHub license| image:: https://img.shields.io/github/license/hackancuba/passphrase-py.svg
+   :target: https://github.com/HacKanCuBa/passphrase-py/blob/master/LICENSE
+.. |GitHub release| image:: https://img.shields.io/github/release/hackancuba/passphrase-py.svg
+   :target: https://github.com/hackancuba/passphrase-py/releases/
+.. |GitHub version| image:: https://badge.fury.io/gh/hackancuba%2Fpassphrase-py.svg
+   :target: https://badge.fury.io/gh/hackancuba%2Fpassphrase-py
 .. |Build Status| image:: https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master
    :target: https://travis-ci.org/HacKanCuBa/passphrase-py

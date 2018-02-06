@@ -1,8 +1,11 @@
-[![Build Status](https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master)](https://travis-ci.org/HacKanCuBa/passphrase-py)
+[![GitHub license](https://img.shields.io/github/license/hackancuba/passphrase-py.svg)](https://github.com/HacKanCuBa/passphrase-py/blob/master/LICENSE) 
+[![GitHub release](https://img.shields.io/github/release/hackancuba/passphrase-py.svg)](https://github.com/hackancuba/passphrase-py/releases/) 
+[![GitHub version](https://badge.fury.io/gh/hackancuba%2Fpassphrase-py.svg)](https://badge.fury.io/gh/hackancuba%2Fpassphrase-py) 
+[![Build Status](https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master)](https://travis-ci.org/HacKanCuBa/passphrase-py) 
 
 # Passphrase
 
-**Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. A passphrase is a list of words usually separated by a blank space. This tool acts like a [diceware](http://world.std.com/~reinhold/diceware.html) generator (more info in [EFF's website](https://www.eff.org/es/dice)).
+**Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. A passphrase is a list of words usually separated by a blank space. This tool acts like a [diceware](http://world.std.com/~reinhold/diceware.html) generator (more about this in [EFF's website](https://www.eff.org/es/dice)).
 
 Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number. It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
 
@@ -30,7 +33,7 @@ Start by downloading the files, preferrably fom the [latest release](https://git
 
 ### As a package
 
-Check the [developers guide](DEVELOPERS.md).
+Check the [developers guide](https://github.com/HacKanCuBa/passphrase-py/blob/master/DEVELOPERS.md).
 
 ### As a script
 
@@ -40,7 +43,7 @@ To uninstall, run respectively `make package-uninstall`, `make uninstall` or `ma
 
 #### Examples of use
 
-Check the [man page](man/passphrase.md) for more information.
+Check the [man page](https://github.com/HacKanCuBa/passphrase-py/blob/master/man/passphrase.md) for more information.
 
 Generally, you should rely on **Passphrase**'s entropy calculation instead of fixing a desired amount, unless you specifically need some length/word amount. The default entropy is 77 bits, and using over 128 bits is a wiser choice on the long term.
 
@@ -143,9 +146,9 @@ gpg: encrypted with 1 passphrase
 ## Is this really secure?
 
 First of all, we will say that a password or passphrase generator algorithm is secure if its output is *trully* random. To achieve that, **Passphrase** relies entirely on `os.urandom`, which always provides an interface to the OS's cryptographically secure random generator. The whole program is quite big, but most of it is just the menues and the word list.  
-The generator algorithms are very short and simple, they are in [passphrase.passphrase](passphrase/passphrase.py): `Passphrase::generate()` and `Passphrase::generate_password()`. The lower level functions are in [passphrase.random](passphrase/random.py), which directly uses `os.urandom`; higher level functions are in [passphrase.secrets](passphrase/secrets.py), that provides a convenient interface to those low level functions, so that implementation errors are avoided.
+The generator algorithms are very short and simple, they are in [passphrase.passphrase](https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/passphrase.py): `Passphrase::generate()` and `Passphrase::generate_password()`. The lower level functions are in [passphrase.random](https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/random.py), which directly uses `os.urandom`; higher level functions are in [passphrase.secrets](https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/secrets.py), that provides a convenient interface to those low level functions, so that implementation errors are avoided.
 
-The whole magic is done by [`passphrase.secrets.randbelow()`](passphrase/secrets.py), that returns a random natural number lower than the given value, that is then used as index for the word or character list by [`passphrase.secrets.randchoice`](passphrase/secrets.py), function used by the generators.  
+The whole magic is done by `passphrase.secrets.randbelow()`, that returns a random natural number lower than the given value, that is then used as index for the word or character list by `passphrase.secrets.randchoice()`, function used by the generators.  
 Both `randbelow()` and `randint()` where copyied from Python's Lib/random, but trimmed down so that they don't allow anything fishy. This also makes **Passphrase** independent from unnecessary libraries and potential external vulnerabilities.
 
 The algorithms are very straight forward, easy to understand and verify. *Boring crypto is the best crypto*.
@@ -162,7 +165,7 @@ An attacker that is *root* can do whatever it wants, so it's out of the scope of
 
 #### Attacker can modify source code or wordlist
 
-If it can modify the source code somehow, or the default [wordlist](passphrase/wordlist.py), it's also game over since a software that succesfully checks itself doesn't exist yet. However, it could be mitigated by placing the files under the ownership of some privileged user (*root*).
+If it can modify the source code somehow, or the default [wordlist](https://github.com/HacKanCuBa/passphrase-py/blob/master/passphrase/wordlist.py), it's also game over since a software that succesfully checks itself doesn't exist yet. However, it could be mitigated by placing the files under the ownership of some privileged user (*root*).
 
 #### Attacker can modify external libraries
 
@@ -201,7 +204,7 @@ The command to run, depending on the release version, is:
 
 ## License
 
-**Passphrase** is made by [HacKan](https://hackan.net) under GNU GPL v3.0+. You are free to use, share, modify and share modifications under the terms of that [license](LICENSE).
+**Passphrase** is made by [HacKan](https://hackan.net) under GNU GPL v3.0+. You are free to use, share, modify and share modifications under the terms of that [license](https://github.com/HacKanCuBa/passphrase-py/blob/master/LICENSE).
 
     Copyright (C) 2017 HacKan (https://hackan.net)
 
