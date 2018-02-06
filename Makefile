@@ -10,7 +10,7 @@ TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX")
 all:
 	@echo "Passphrase by HacKan (https://hackan.net)"
 	@echo "Commands for this makefile:"
-	@echo -e "\tinstall\n\taltinstall\n\tuninstall\n\taltuninstall\n\tpackage-install\n\tpackage-uninstall\n\tlint\n\ttest\n\tcoverage\n\ttimeit\n\tclean"
+	@echo -e "\tinstall\n\taltinstall\n\tuninstall\n\taltuninstall\n\tpackage-install\n\tpackage-uninstall\n\tdevenvironment\n\tlint\n\ttest\n\tcoverage\n\ttimeit\n\tclean"
 
 clean:
 	@rm -vrf \
@@ -85,4 +85,16 @@ coverage:
 timeit:
 	python3 -m timeit -n 100 -r 10 -s 'import os' 'os.system("python3 -m passphrase -w6 -m")'
 
-.PHONY: install altinstall uninstall altuninstall lint test coverage timeit clean
+devenvironment:
+	@echo "Creating virtualenv"
+	@[ -d venv ] || virtualenv -p python3 venv
+	@echo "Installing dev dependencies"
+	venv/bin/pip install -r requirements-dev.txt
+	@echo "Installing passphrase"
+	@venv/bin/python3 setup.py --fullname
+	@venv/bin/python3 setup.py --description
+	@venv/bin/python3 setup.py --url
+	venv/bin/python3 setup.py install
+	@echo -e '\nAll done. You might want to activate the virtualenv (I can not do it for you): `source venv/bin/activate`'
+
+.PHONY: install altinstall uninstall altuninstall lint test coverage timeit clean devenvironment

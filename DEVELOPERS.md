@@ -2,7 +2,13 @@
 
 [![Ballmer "developers!"](https://passh.hackan.net/img/developers.png)](http://www.youtube.com/watch?v=V-FkalybggA "Developers")
 
-This guide is intended for developers that want to implement **Passphrase** in their projects.
+This guide is intended for developers that want to implement **Passphrase** in their projects or that want to contribute to this project.
+
+## Contributing
+
+If you want to develope or contribute to this project, you can quickly start by issuing `make devenvironment`: it creates a virtualenv directory and installs requirements and the *Passphrase* package. This is, of course, not mandatory.
+
+Every contribution must be acompanied by it's tests. As a general guideline, follow PEP8 (flake8 must run without warnings) and prefer Exceptions over assumptions. Try hard on not to add dependencies: I'm going to reject PRs with external dependencies that are not entirely justified (and for this project in particular, having 0 dependencies is very important).
 
 ## About the package
 
@@ -27,7 +33,9 @@ my_async_sleep(pause_sec(1, 5))
 
 Of course, you can't just pause the whole server, or let the user hanging there for some seconds... or maybe, you can. I let you decide how to solve it. Another, even better, way to solve this is to provide the system for a secure external random source, such as a randomness generator like Chaoskey.
 
-## Requirements
+If you are using a Linux OS, you can use `Aux::system_entropy()` to determine how much entropy does your system have prior making a request for random data (**Passphrase** does this when runs as a script). You should always have more than 128 bits or the call to `os.urandom()` might hang or fail.
+
+### Requirements
 
 * **Python 3.5+**.
 * [Flake8](http://flake8.pycqa.org/en/latest/) [optional] for linting.
