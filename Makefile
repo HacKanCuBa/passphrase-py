@@ -18,8 +18,11 @@ clean:
 		dist/ \
 		passphrase.egg-info/ \
 		passphrase/__pycache__/ \
+		passphrase/tests/__pycache__/ \
 		cover/ \
+		.coverage \
 		passphrase/passphrase.egg-info/
+	@find . -type f -name "*.pyc" -delete
 
 package-install:
 	python3 setup.py install
