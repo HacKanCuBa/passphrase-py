@@ -15,12 +15,12 @@ clean:
 	@rm -vrf \
 		build/ \
 		dist/ \
-		passphrase.egg-info/ \
+		hc_passphrase.egg-info/ \
 		passphrase/__pycache__/ \
 		passphrase/tests/__pycache__/ \
 		cover/ \
 		.coverage \
-		passphrase/passphrase.egg-info/
+		passphrase/hc_passphrase.egg-info/
 	@find . -type f -name "*.pyc" -delete
 
 package-install:
@@ -77,7 +77,7 @@ altuninstall:
 		"$(DESTDIR)$(ALTPREFIX)$(MANDIR)/man1/passphrase.1"
 
 lint:
-	flake8 .
+	flake8 --exclude=venv/ .
 
 test:
 	nosetests -v
