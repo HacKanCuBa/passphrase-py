@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/hc-passphrase.svg)](https://badge.fury.io/py/hc-passphrase) 
 [![GitHub release](https://img.shields.io/github/release/hackancuba/passphrase-py.svg)](https://github.com/hackancuba/passphrase-py/releases/) 
 [![GitHub version](https://badge.fury.io/gh/hackancuba%2Fpassphrase-py.svg)](https://badge.fury.io/gh/hackancuba%2Fpassphrase-py) 
+[![Updates](https://pyup.io/repos/github/HacKanCuBa/passphrase-py/shield.svg)](https://pyup.io/repos/github/HacKanCuBa/passphrase-py/) 
 [![Build Status](https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master)](https://travis-ci.org/HacKanCuBa/passphrase-py) 
 
 # Passphrase

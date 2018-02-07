@@ -1,5 +1,5 @@
 |GitHub license| |PyPI pyversions| |PyPI version| |GitHub release|
-|GitHub version| |Build Status|
+|GitHub version| |Updates| |Build Status|
 
 Passphrase
 ==========
@@ -326,6 +326,10 @@ runtime table for each tag:
 +-----------------+----------------+--------------------+-----------------------------------+
 | v1.0.0rc0       | 37.3           | 0.87               | -0%                               |
 +-----------------+----------------+--------------------+-----------------------------------+
+| v1.0.0rc1       | 37.3           | 0.87               | +0%                               |
++-----------------+----------------+--------------------+-----------------------------------+
+| v1.0.0rc2       | 37.3           | 0.87               | +0%                               |
++-----------------+----------------+--------------------+-----------------------------------+
 
 | You can try it yourself: download each release, unpack it and time it.
 | The command to run, depending on the release version, is:
@@ -371,5 +375,7 @@ the terms of that
    :target: https://github.com/hackancuba/passphrase-py/releases/
 .. |GitHub version| image:: https://badge.fury.io/gh/hackancuba%2Fpassphrase-py.svg
    :target: https://badge.fury.io/gh/hackancuba%2Fpassphrase-py
+.. |Updates| image:: https://pyup.io/repos/github/HacKanCuBa/passphrase-py/shield.svg
+   :target: https://pyup.io/repos/github/HacKanCuBa/passphrase-py/
 .. |Build Status| image:: https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master
    :target: https://travis-ci.org/HacKanCuBa/passphrase-py
