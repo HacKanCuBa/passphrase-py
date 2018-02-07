@@ -1,4 +1,5 @@
-|GitHub license| |GitHub release| |GitHub version| |Build Status|
+|GitHub license| |PyPI pyversions| |PyPI version| |GitHub release|
+|GitHub version| |Build Status|
 
 Passphrase
 ==========
@@ -15,6 +16,10 @@ get cryptographically secure random bits to make an integer number. It
 also makes use of the `EFF's Large
 Wordlist <https://www.eff.org/es/document/passphrase-wordlists>`__ as
 words reference for passphrases.
+
+**Who is this tool for**: **Passphrase** is a library and a CLI tool,
+thus its intended audience are developers and advanced users that love
+to use the terminal :)
 
 A secure passphrase must be of at least 6 words, but 7 is better, and
 maybe you can add a random number to the list. If you need a password,
@@ -64,6 +69,10 @@ How to use it
   release <https://github.com/HacKanCuBa/passphrase-py/releases/latest>`__
   - releases are always signed -.
 
+You can also use *`pip <https://pypi.python.org/pypi/hc-passphrase>`__*
+but I discourage it, given that there's no cryptographic verification of
+signatures nor hashes at all.
+
 As a package
 ~~~~~~~~~~~~
 
@@ -81,6 +90,12 @@ plus install the man page.
 
 To uninstall, run respectively ``make package-uninstall``,
 ``make uninstall`` or ``make altuninstall``.
+
+Another option is to run ``pip install --user hc-passphrase`` (for
+user-wide installation) or ``pip install hc-passphrase`` (for
+system-wide installation), but I advise against this way given that pip
+doesn't do any cryptographic verification of signatures nor hashes at
+all.
 
 Examples of use
 ^^^^^^^^^^^^^^^
@@ -348,6 +363,10 @@ the terms of that
 
 .. |GitHub license| image:: https://img.shields.io/github/license/hackancuba/passphrase-py.svg
    :target: https://github.com/HacKanCuBa/passphrase-py/blob/master/LICENSE
+.. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/hc-passphrase.svg
+   :target: https://pypi.python.org/pypi/hc-passphrase/
+.. |PyPI version| image:: https://badge.fury.io/py/hc-passphrase.svg
+   :target: https://badge.fury.io/py/hc-passphrase
 .. |GitHub release| image:: https://img.shields.io/github/release/hackancuba/passphrase-py.svg
    :target: https://github.com/hackancuba/passphrase-py/releases/
 .. |GitHub version| image:: https://badge.fury.io/gh/hackancuba%2Fpassphrase-py.svg

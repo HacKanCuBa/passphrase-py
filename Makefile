@@ -5,7 +5,6 @@ ALTPREFIX ?= $(HOME)/.local
 DESTDIR ?=
 BINDIR ?= /bin
 MANDIR ?= /share/man
-TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX")
 
 all:
 	@echo "Passphrase by HacKan (https://hackan.net)"
@@ -28,9 +27,10 @@ package-install:
 	python3 setup.py install
 
 package-uninstall:
-	pip uninstall passphrase
+	pip uninstall hc-passphrase
 
 install-common:
+	$(eval TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX"))
 	mkdir $(TMPDIR)/src/
 	cp -f passphrase/*.py $(TMPDIR)/src/
 	@sed -i "s/from .passphrase/from passphrase/g; s/from .settings/from settings/g; s/from .aux/from aux/g" "$(TMPDIR)/src/__main__.py"

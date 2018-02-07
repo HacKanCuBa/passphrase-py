@@ -10,6 +10,14 @@ If you want to develope or contribute to this project, you can quickly start by 
 
 Every contribution must be acompanied by it's tests. As a general guideline, follow PEP8 (flake8 must run without warnings) and prefer Exceptions over assumptions. Try hard on not to add dependencies: I'm going to reject PRs with external dependencies that are not entirely justified (and for this project in particular, having 0 dependencies is very important).
 
+Not sure on what to contribute with? Here you go:
+
+* Solve opened issues.
+* Review PRs.
+* Add support for unsupported OSes.
+* Improve code quality or provide code reviews.
+* Improve current tests or add new ones.
+
 ## About the package
 
 **Passphrase** modules were written with usability and security in mind. Most, if not all, methods and functions will severily restrict the data type it can process; this is to avoid unexpected issues. The library always prefers to fail (raise exception) instead of doing something wrong, so when in doubt during implementation, i.e. when using parameters from the user, use a `try-except` block.
@@ -53,8 +61,8 @@ Run `make test` or `nosetests -v`. Remove the `-v` if you don't want a verbose o
 ## How to use it as a package
 
 Download the files, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed -. Once downloaded and verified, use `setup.py` to install (I let you decide whether to use virtualenv or not): `./setup.py install`. You can also do `make package-install` with the same outcome. Run it with `sudo` or elevated privileges to install it system-wide.  
-Using *pip* for installation is not recommended given that it's very insecure.  
-To uninstall, run `make package-uninstall` or `pip uninstall passphrase`.  
+Using *pip* for installation is not recommended given that it's very insecure. But if you insist, just do `pip install hc-passphrase`.  
+To uninstall, run `make package-uninstall` or `pip uninstall hc-passphrase`.  
 
 Please let me know if you use this in your app, I would love that :)
 
@@ -128,6 +136,27 @@ def generate_password() -> str:
     proposedPassword = str(passphrase)
     return proposedPassword
 ```
+
+#### Docker
+
+To securely use it in a Dockerfile, do:
+
+```
+ENV PASSPHRASE_VERSION 1.0.0
+
+RUN gpg --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys 0x35710D312FDE468B
+RUN wget -O /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz https://github.com/HacKanCuBa/passphrase-py/archive/v${PASSPHRASE_VERSION}.tar.gz
+RUN wget -O /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig https://github.com/HacKanCuBa/passphrase-py/releases/download/v1.0.0rc1/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig
+RUN gpg --trust-model always --verify /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz \
+    && cd /tmp \
+    && tar -xf passphrase-v${PASSPHRASE_VERSION}.tar.gz \
+    && cd passphrase-py-${PASSPHRASE_VERSION} \
+    && make package-install
+```
+
+It doesn't matter which OS is the base, as long as it has GnuPG package installed (either versions 1.4+ or 2+).
+
+You can also just `pip install hc-passphrase` but, again, it's insecure. Yeah, I know: it's a single line vs. all that... If only *pip* used some crypto...
 
 ## License
 

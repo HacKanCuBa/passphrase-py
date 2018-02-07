@@ -9,7 +9,7 @@ def readme():
 
 
 setup(
-    name='passphrase',
+    name='hc-passphrase',
     version=passphrase_version,
     description='Generates cryptographically secure passphrases and '
                 'passwords',
@@ -33,7 +33,7 @@ setup(
     ],
     keywords='cryptography passphrase password security',
     url='http://github.com/hackancuba/passphrase-py',
-    download_url='https://github.com/HacKanCuBa/passphrase-py/archive/v1.0.0rc1.tar.gz',
+    download_url='https://github.com/HacKanCuBa/passphrase-py/archive/v{}.tar.gz'.format(passphrase_version),
     author='HacKan',
     author_email='hackan@gmail.com',
     license='GNU GPL 3.0+',

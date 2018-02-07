@@ -1,4 +1,6 @@
 [![GitHub license](https://img.shields.io/github/license/hackancuba/passphrase-py.svg)](https://github.com/HacKanCuBa/passphrase-py/blob/master/LICENSE) 
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/hc-passphrase.svg)](https://pypi.python.org/pypi/hc-passphrase/) 
+[![PyPI version](https://badge.fury.io/py/hc-passphrase.svg)](https://badge.fury.io/py/hc-passphrase) 
 [![GitHub release](https://img.shields.io/github/release/hackancuba/passphrase-py.svg)](https://github.com/hackancuba/passphrase-py/releases/) 
 [![GitHub version](https://badge.fury.io/gh/hackancuba%2Fpassphrase-py.svg)](https://badge.fury.io/gh/hackancuba%2Fpassphrase-py) 
 [![Build Status](https://travis-ci.org/HacKanCuBa/passphrase-py.svg?branch=master)](https://travis-ci.org/HacKanCuBa/passphrase-py) 
@@ -8,6 +10,8 @@
 **Passphrase** is a tool to generate **cryptographically secure** passphrases and passwords. A passphrase is a list of words usually separated by a blank space. This tool acts like a [diceware](http://world.std.com/~reinhold/diceware.html) generator (more about this in [EFF's website](https://www.eff.org/es/dice)).
 
 Its security is based on Python's [os.urandom](https://docs.python.org/3/library/os.html#os.urandom) to get cryptographically secure random bits to make an integer number. It also makes use of the [EFF's Large Wordlist](https://www.eff.org/es/document/passphrase-wordlists) as words reference for passphrases.
+
+**Who is this tool for**: **Passphrase** is a library and a CLI tool, thus its intended audience are developers and advanced users that love to use the terminal :)
 
 A secure passphrase must be of at least 6 words, but 7 is better, and maybe you can add a random number to the list. If you need a password, make it bigger than 8 characters ([NIST's latest recommendation](https://nakedsecurity.sophos.com/2016/08/18/nists-new-password-rules-what-you-need-to-know/)), and prefer more than 12 (I recommend 16 or more). Passwords are comprised of digits, upper and lowercase letters and punctuation symbols - more specifically: `ascii_lowercase`, `ascii_uppercase`, `digits` and `punctuation` from [Lib/string](https://docs.python.org/3.6/library/string.html#string-constants) -.
 
@@ -31,6 +35,8 @@ It might work with Python 3.2+, but I won't give support to old Python versions.
 **Passphrase** can be used as a *package* in other apps, or as a *stand-alone script*.  
 Start by downloading the files, preferrably fom the [latest release](https://github.com/HacKanCuBa/passphrase-py/releases/latest) - releases are always signed -.
 
+You can also use *[pip](https://pypi.python.org/pypi/hc-passphrase)* but I discourage it, given that there's no cryptographic verification of signatures nor hashes at all.
+
 ### As a package
 
 Check the [developers guide](https://github.com/HacKanCuBa/passphrase-py/blob/master/DEVELOPERS.md).
@@ -40,6 +46,8 @@ Check the [developers guide](https://github.com/HacKanCuBa/passphrase-py/blob/ma
 Once downloaded and verified, you can install it with `setup.py install` or `make package-install` but I recommend you do `make install` for system-wide installation or `make altinstall` for user-wide installation, as it will create a single executable zip file plus install the man page.
 
 To uninstall, run respectively `make package-uninstall`, `make uninstall` or `make altuninstall`.
+
+Another option is to run `pip install --user hc-passphrase` (for user-wide installation) or `pip install hc-passphrase` (for system-wide installation), but I advise against this way given that pip doesn't do any cryptographic verification of signatures nor hashes at all.
 
 #### Examples of use
 
@@ -194,6 +202,8 @@ v0.4.8        | 35.6         | 0.83             | +16%
 v0.5.0        | 35.6         | 0.83             | +0%
 v0.5.1        | 37.5         | 0.87             | +5%
 v1.0.0rc0     | 37.3         | 0.87             | -0%
+v1.0.0rc1     | 37.3         | 0.87             | +0%
+v1.0.0rc2     | 37.3         | 0.87             | +0%
 
 You can try it yourself: download each release, unpack it and time it.  
 The command to run, depending on the release version, is:
