@@ -57,9 +57,6 @@ Requirements
 
 -  **Python 3.5+**.
 
-It might work with Python 3.2+, but I won't give support to old Python
-versions.
-
 How to use it
 -------------
 

@@ -34,13 +34,13 @@ from .aux import Aux
 
 __author__ = 'HacKan'
 __license__ = 'GNU GPL 3.0+'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __version_string__ = (
     'Passphrase v{}\nby HacKan (https://hackan.net) FOSS '
     'under GNU GPL v3.0 or newer'.format(__version__)
 )
 
-assert (version_info >= (3, 2)), 'This script requires Python 3.2+'
+assert (version_info >= (3, 5)), 'This script requires Python 3.5+'
 
 
 def bigger_than_zero(value: int) -> int:

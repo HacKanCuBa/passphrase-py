@@ -29,8 +29,6 @@ If you are not sure which wordlist to use, just use the one provided by **Passph
 
 * **Python 3.5+**.
 
-It might work with Python 3.2+, but I won't give support to old Python versions.
-
 ## How to use it
 
 **Passphrase** can be used as a *package* in other apps, or as a *stand-alone script*.  

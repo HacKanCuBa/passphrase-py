@@ -21,17 +21,9 @@
 """Calc: Auxiliar calculations
 """
 
-from math import ceil, fabs, log10
+from math import ceil, fabs, log10, log2
 
-__version__ = '0.4.5'
-
-try:
-    from math import log2   # Python 3.3+
-except ImportError:
-    from math import log
-
-    def log2(num: float) -> float:
-        return log(num, 2)
+__version__ = '0.4.6'
 
 
 def entropy_bits(lst: list) -> float:
