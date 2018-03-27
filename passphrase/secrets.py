@@ -123,3 +123,15 @@ def randhex(ndigits: int) -> str:
         hexstr = hexlify(rbytes).decode('utf8')[:ndigits]
 
     return hexstr
+
+
+def randbool() -> bool:
+    """Return boolean random value.
+
+    >>> randbool()  #doctest:+SKIP
+    True
+    """
+
+    num = random_randint(8)
+
+    return num > 127

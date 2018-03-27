@@ -165,6 +165,17 @@ class TestValidInputs(TestCase):
             r'[0-9a-f]{12}'
         )
 
+    def test_main_option_coin(self):
+        cmd = ['python3', '-m', 'passphrase', '--coin']
+        for _ in range(10):
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE
+            ).stdout.decode('utf-8')
+            # remove newline
+            result = result[:-1]
+            self.assertIn(result, ('Heads', 'Tails'))
+
     def test_main_option_password(self):
         cmds = (
             ['python3', '-m', 'passphrase', '--password', '20'],

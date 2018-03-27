@@ -69,6 +69,18 @@ class TestValidInputs(TestCase):
             self.assertEqual(len(rand), i)
             self.assertTrue(all(c in set(hexdigits) for c in rand))
 
+    def test_randbool(self):
+        numrep = 1000000
+        for _ in range(10):
+            truecount = 0
+            for _ in range(numrep):
+                rand = passphrase.secrets.randbool()
+                self.assertIsInstance(rand, bool)
+                truecount = truecount + 1 if rand else truecount
+            hitpercent = truecount * 100 / numrep
+            tolerance = 0.15
+            self.assertTrue((50 - tolerance) < hitpercent < (50 + tolerance))
+
 
 class TestInvalidInputs(TestCase):
 
