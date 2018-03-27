@@ -319,7 +319,7 @@ def main():
     if gen_uuid4:
         # Generate uuid4
         gen_what = 'UUID v4'
-        gen_ent = 133.78
+        gen_ent = 120
 
         if verbose:
             Aux.print_stderr('Generating UUID v4')
