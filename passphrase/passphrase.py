@@ -210,7 +210,7 @@ class Passphrase():
             word.split()[1] for word in open(inputfile, mode='rt')
         ]
 
-    def _get_password_characters(self) -> str:
+    def _get_password_characters(self, cathegorized=False) -> str:
         from string import (
             digits,
             ascii_lowercase,
@@ -218,18 +218,18 @@ class Passphrase():
             punctuation
         )
 
-        characters = ''
+        group = []
 
         if self.password_use_lowercase:
-            characters += ascii_lowercase
+            group.append(ascii_lowercase)
         if self.password_use_uppercase:
-            characters += ascii_uppercase
+            group.append(ascii_uppercase)
         if self.password_use_digits:
-            characters += digits
+            group.append(digits)
         if self.password_use_punctuation:
-            characters += punctuation
+            group.append(punctuation)
 
-        return characters
+        return group if cathegorized else ''.join(group)
 
     def __init__(
             self,
@@ -472,16 +472,18 @@ class Passphrase():
         """Generates a list of random characters."""
 
         password = []
-        characters = self._get_password_characters()
+        characterset = self._get_password_characters(cathegorized=True)
         if (
                 self.passwordlen is None
-                or not characters
+                or not characterset
         ):
             raise ValueError("Can't generate password: character set is "
                              "empty or passwordlen isn't set")
 
         for _ in range(0, self.passwordlen):
-            password.append(randchoice(characters))
+            # The first choice is done to choose the set
+            # The second chooses an item in that set
+            password.append(randchoice(randchoice(characterset)))
 
         self.last_result = password
         return password
