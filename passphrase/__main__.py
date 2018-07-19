@@ -34,7 +34,7 @@ from .aux import Aux
 
 __author__ = 'HacKan'
 __license__ = 'GNU GPL 3.0+'
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 __version_string__ = (
     'Passphrase v{}\nby HacKan (https://hackan.net) FOSS '
     'under GNU GPL v3.0 or newer'.format(__version__)
