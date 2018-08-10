@@ -472,7 +472,7 @@ class Passphrase():
         """Generates a list of random characters."""
 
         password = []
-        characterset = self._get_password_characters(cathegorized=True)
+        characterset = self._get_password_characters()
         if (
                 self.passwordlen is None
                 or not characterset
@@ -481,9 +481,7 @@ class Passphrase():
                              "empty or passwordlen isn't set")
 
         for _ in range(0, self.passwordlen):
-            # The first choice is done to choose the set
-            # The second chooses an item in that set
-            password.append(randchoice(randchoice(characterset)))
+            password.append(randchoice(characterset))
 
         self.last_result = password
         return password
