@@ -406,12 +406,10 @@ def main():
                 try:
                     passphrase.import_words_from_file(inputfile, is_diceware)
 
-                except IOError as ioerr:
+                except IOError:
                     Aux.print_stderr(
-                        "Error: file {} can't be opened or read, reason: "
-                        "{}".format(
+                        "Error: file {} can't be opened or read".format(
                             inputfile,
-                            os_strerror(ioerr.errno)
                         )
                     )
                     sys_exit(1)
