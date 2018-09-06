@@ -121,7 +121,7 @@ fbwzekpmmridyapdouvejmlzlrjn
 ```
 :~$ passphrase -i eff_short_wordlist_1_1column.txt
 wimp broke dash pasta zebra viral outer clasp
-:~$ passphrase -d -i eff_short_wordlist_1.txt 
+:~$ passphrase -d -i eff_short_wordlist_1.txt
 mouse trend coach stain shut rhyme baggy scale
 ```
 
@@ -148,6 +148,26 @@ gpg: encrypted with 1 passphrase
 
 ```
 :~$ passphrase -m -o pass.txt
+```
+
+##### Generate using the verbose mode
+
+```
+:~$ passphrase -v
+Passphrase v1.1.3
+by HacKan (https://hackan.net) FOSS under GNU GPL v3.0 or newer
+Using 77 bits of entropy for calculations (if any). The minimum recommended is 77
+Generating a passphrase of 6 words and 0 numbers using internal wordlist
+The entropy of this passphrase is 77.55 bits
+porridge browse undertone credibly underline gullible
+:~$ passphrase -v -p
+Passphrase v1.1.3
+by HacKan (https://hackan.net) FOSS under GNU GPL v3.0 or newer
+Using 77 bits of entropy for calculations (if any). The minimum recommended is 77
+Generating password of 12 characters long using uppercase characters, lowercase characters, digits, punctuation characters
+The entropy of this password is 78.66 bits
+ZJN(Lvy{D'9H
+
 ```
 
 ## Is this really secure?
