@@ -71,7 +71,7 @@ Please let me know if you use this in your app, I would love that :)
 A good example is how [I implemented it](passphrase/__main__.py).
 
 ```python
->>> from passphrase.passphrase import Passphrase
+>>> from passphrase import Passphrase
 >>> passphrase = Passphrase('/tmp/mi_own_wordlist.txt')
 >>> 
 >>> # WARNING: entropy and good default values ARE NOT automatically calculated!
@@ -113,7 +113,7 @@ ValueError: Cant' calculate the words amount needed: entropy_bits_req or amount_
 # use, or a safe password.
 
 def generate_passphrase() -> str:
-    from passphrase.passphrase import Passphrase
+    from passphrase import Passphrase
     # Use internal wordlist (if it doesn't exists, an exception raises)
     passphrase = Passphrase('internal')
     passphrase.entropy_bits_req = 77    # EFF's minimum recommended
@@ -126,7 +126,7 @@ def generate_passphrase() -> str:
     return proposedPassphrase
 
 def generate_password() -> str:
-    from passphrase.passphrase import Passphrase
+    from passphrase import Passphrase
     passphrase = Passphrase()
     passphrase.entropy_bits_req = 77    # EFF's minimum recommended
     passphrase.passwordlen = passphrase.password_length_needed()
