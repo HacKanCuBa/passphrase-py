@@ -47,7 +47,7 @@ __version_string__ = (
 assert (version_info >= (3, 5)), 'This script requires Python 3.5+'
 
 
-def bigger_than_zero(value: int) -> int:
+def bigger_than_zero(value: str) -> int:
     ivalue = int(value)
     if ivalue < 0:
         raise ArgumentTypeError(
