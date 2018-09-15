@@ -30,6 +30,7 @@ from os import strerror as os_strerror
 import argparse
 from .settings import ENTROPY_BITS_MIN, SYSTEM_ENTROPY_BITS_MIN
 from .passphrase import Passphrase
+from .secrets import randbool
 from .aux import Aux
 
 __author__ = 'HacKan'
@@ -327,9 +328,11 @@ def main():
         passphrase.separator = '-'
     elif gen_coin:
         # Generate a coin throw
+        if verbose:
+            Aux.print_stderr('Throwing a coin')
         gen_what = 'coin'
-        gen_ent = 0
-        from passphrase.secrets import randbool
+        gen_ent = 1
+
         passphrase = 'Heads' if randbool() else 'Tails'
     elif passwordlen is not None:
         # Generate a password

@@ -33,7 +33,7 @@ install-common:
 	$(eval TMPDIR := $(shell mktemp -d --tmpdir "passphrase.XXXXXXXXXX"))
 	mkdir $(TMPDIR)/src/
 	cp -f passphrase/*.py $(TMPDIR)/src/
-	@sed -i "s/from .passphrase/from passphrase/g; s/from .settings/from settings/g; s/from .aux/from aux/g" "$(TMPDIR)/src/__main__.py"
+	@sed -i "s/from .passphrase/from passphrase/g; s/from .settings/from settings/g; s/from .secrets/from secrets/g; s/from .aux/from aux/g" "$(TMPDIR)/src/__main__.py"
 	@sed -i "s/from .secrets/from secrets/g; s/from .calc/from calc/g; s/from .settings/from settings/g; s/from .aux/from aux/g; s/from .wordlist/from wordlist/g" "$(TMPDIR)/src/passphrase.py"
 	@sed -i "s/from .secrets/from secrets/g" "$(TMPDIR)/src/aux.py"
 	@sed -i "s/from .random/from random/g" "$(TMPDIR)/src/secrets.py"
