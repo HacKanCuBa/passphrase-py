@@ -56,7 +56,7 @@ def bigger_than_zero(value: str) -> int:
     return ivalue
 
 
-def main():
+def main() -> int:
     passphrase = Passphrase()
 
     # Set defaults
@@ -280,7 +280,7 @@ def main():
 
     if show_version:
         print(__version_string__)
-        sys_exit()
+        return 0
 
     if verbose:
         Aux.print_stderr(__version_string__)
@@ -289,7 +289,7 @@ def main():
     system_entropy = Aux.system_entropy()
     if system_entropy < SYSTEM_ENTROPY_BITS_MIN:
         Aux.print_stderr(
-            'Warning: the system has too little entropy: {} bits; randomness '
+            'Warning: the system has too few entropy: {} bits; randomness '
             'quality could be poor'.format(system_entropy)
         )
         if not gen_insecure:
@@ -300,7 +300,7 @@ def main():
                     system_entropy_min=SYSTEM_ENTROPY_BITS_MIN
                 )
             )
-            sys_exit(1)
+            return 1
 
     if verbose:
         Aux.print_stderr(
@@ -322,11 +322,11 @@ def main():
     # Generate whatever is requested
     if gen_uuid4:
         # Generate uuid4
+        if verbose:
+            Aux.print_stderr('Generating UUID v4')
         gen_what = 'UUID v4'
         gen_ent = 120
 
-        if verbose:
-            Aux.print_stderr('Generating UUID v4')
         passphrase.generate_uuid4()
         passphrase.separator = '-'
     elif gen_coin:
@@ -418,11 +418,11 @@ def main():
                             inputfile,
                         )
                     )
-                    sys_exit(1)
+                    return 1
 
         except FileNotFoundError as err:
             Aux.print_stderr('Error: {}'.format(err))
-            sys_exit(1)
+            return 1
 
         passphrase.amount_n = amount_n
         amount_w_good = passphrase.words_amount_needed()
@@ -489,8 +489,11 @@ def main():
                     os_strerror(ioerr.errno)
                 )
             )
-            sys_exit(1)
+            return 1
+
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    ecode = main()
+    sys_exit(ecode)
