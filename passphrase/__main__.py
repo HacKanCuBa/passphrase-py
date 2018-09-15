@@ -26,8 +26,11 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+
 """
 
 from sys import version_info, exit as sys_exit
-from os import strerror as os_strerror
-import argparse
+from os.path import dirname as os_path_dirname
+from os import makedirs as os_makedirs
+from argparse import ArgumentParser, ArgumentTypeError
+from argparse import RawDescriptionHelpFormatter
+
 from .settings import ENTROPY_BITS_MIN, SYSTEM_ENTROPY_BITS_MIN
 from .passphrase import Passphrase
 from .secrets import randbool
@@ -47,7 +50,7 @@ assert (version_info >= (3, 5)), 'This script requires Python 3.5+'
 def bigger_than_zero(value: int) -> int:
     ivalue = int(value)
     if ivalue < 0:
-        raise argparse.ArgumentTypeError(
+        raise ArgumentTypeError(
             '{} should be bigger than 0'.format(ivalue)
         )
     return ivalue
@@ -65,8 +68,8 @@ def main():
     # It's ok, it's only used to show help information
     amount_w_default = 6
 
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+    parser = ArgumentParser(
+        formatter_class=RawDescriptionHelpFormatter,
         description='{version_string}\n\n'
         'Generates a cryptographically secure passphrase, based on '
         'a wordlist, or a\npassword, and prints it to standard output.\n'
@@ -471,9 +474,6 @@ def main():
 
     if outputfile is not None:
         # ensure path to file exists or create
-        from os.path import dirname as os_path_dirname
-        from os import makedirs as os_makedirs
-
         os_makedirs(os_path_dirname(outputfile), exist_ok=True)
 
         try:
