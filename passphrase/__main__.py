@@ -481,12 +481,10 @@ def main() -> int:
                 linefeed = '' if no_newline else '\n'
                 outfile.write(str(passphrase) + linefeed)
 
-        except IOError as ioerr:
+        except IOError:
             Aux.print_stderr(
-                "Error: file {} can't be opened or written, reason: "
-                "{}".format(
+                "Error: file {} can't be opened or written".format(
                     outputfile,
-                    os_strerror(ioerr.errno)
                 )
             )
             return 1
