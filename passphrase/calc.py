@@ -18,12 +18,11 @@
 #
 #  ***************************************************************************
 
-"""Calc: Auxiliar calculations
-"""
+"""Auxiliar calculations."""
 
 from math import ceil, fabs, log10, log2
 
-__version__ = '0.4.6'
+__version__ = '0.4.7'
 
 
 def entropy_bits(lst: list) -> float:

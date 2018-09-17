@@ -18,12 +18,22 @@
 #
 #  ***************************************************************************
 
-"""Passphrase: Generates cryptographically secure passphrases and passwords
+"""Generate cryptographically secure passphrases, passwords and others.
 
 Passphrases are built by picking from a word list using cryptographically
 secure random number generator. Passwords are built from printable characters.
+
 """
 
+from string import digits, ascii_lowercase, ascii_uppercase, punctuation
+
+from .wordlist import EFF_LONG_WORDLIST, EFF_LONG_WORDLIST_ENTROPY
+from .calc import password_length_needed as calc_password_length_needed
+from .calc import words_amount_needed as calc_words_amount_needed
+from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
+from .calc import passphrase_entropy as calc_passphrase_entropy
+from .calc import password_entropy as calc_password_entropy
+from .calc import entropy_bits as calc_entropy_bits
 from .secrets import randchoice, randhex, randbetween
 from .settings import MIN_NUM, MAX_NUM
 from .aux import Aux
@@ -31,11 +41,11 @@ from .aux import Aux
 
 __author__ = 'HacKan'
 __license__ = 'GNU GPL 3.0+'
-__version__ = '0.5.4'
+__version__ = '0.5.5'
 
 
-class Passphrase():
-    """Generates cryptographically secure passphrases and passwords.
+class Passphrase:
+    """Generate cryptographically secure passphrases, passwords and others.
 
     Attributes:
         wordlist: A list of words to be consumed by the passphrase generator.
@@ -55,6 +65,7 @@ class Passphrase():
                                 generation.
         password_use_punctuation: Set the use of punctuation symbols for
                                   password generation.
+
     """
 
     _passwordlen = None
@@ -66,7 +77,6 @@ class Passphrase():
     _entropy_bits_req = None
     _wordlist = None
     _wordlist_entropy_bits = None
-    _external_wordlist = None
     _separator = ' '
     _password_use_lowercase = True
     _password_use_uppercase = True
@@ -78,7 +88,7 @@ class Passphrase():
         return self._entropy_bits_req
 
     @entropy_bits_req.setter
-    def entropy_bits_req(self, entropybits: float) -> None:
+    def entropy_bits_req(self, entropybits: (float, int)) -> None:
         if not isinstance(entropybits, (int, float)):
             raise TypeError('entropy_bits_req can only be int or float')
         if entropybits < 0:
@@ -160,11 +170,11 @@ class Passphrase():
         return self._wordlist
 
     @wordlist.setter
-    def wordlist(self, words: list) -> None:
+    def wordlist(self, words: (list, tuple)) -> None:
         if not isinstance(words, (list, tuple)):
             raise TypeError('wordlist can only be list or tuple')
         self._wordlist = list(words)
-        self._external_wordlist = True
+        self._wordlist_entropy_bits = None
 
     @property
     def password_use_lowercase(self):
@@ -211,13 +221,6 @@ class Passphrase():
         ]
 
     def _get_password_characters(self, cathegorized=False) -> str:
-        from string import (
-            digits,
-            ascii_lowercase,
-            ascii_uppercase,
-            punctuation
-        )
-
         group = []
 
         if self.password_use_lowercase:
@@ -236,15 +239,15 @@ class Passphrase():
             inputfile: str = None,
             is_diceware: bool = False
     ) -> None:
-        """Generates cryptographically secure passphrases and passwords.
+        """Generate cryptographically secure passphrases and passwords.
 
         Keyword arguments:
         inputfile -- A string with the path to the wordlist file to load, or
         the value 'internal' to load the internal one.
         is_diceware -- True if the wordlist is diceware-like (not needed for
         internal).
-        """
 
+        """
         if inputfile == 'internal':
             self.load_internal_wordlist()
         elif inputfile is not None:
@@ -264,7 +267,7 @@ class Passphrase():
         )[:rm_last_separator:]
 
     @staticmethod
-    def entropy_bits(lst: list) -> float:
+    def entropy_bits(lst: (list, tuple)) -> float:
         """Calculate the entropy of a wordlist or a numerical range.
 
         Keyword arguments:
@@ -272,13 +275,10 @@ class Passphrase():
                (minimum, maximum)
 
         Returns: float
-        """
 
+        """
         if not isinstance(lst, (tuple, list)):
             raise TypeError('lst must be a list or a tuple')
-
-        from .calc import entropy_bits_nrange as calc_entropy_bits_nrange
-        from .calc import entropy_bits as calc_entropy_bits
 
         size = len(lst)
         if (
@@ -292,11 +292,8 @@ class Passphrase():
 
     def load_internal_wordlist(self) -> None:
         """Load internal wordlist."""
-
-        from .wordlist import EFF_LONG_WORDLIST, EFF_LONG_WORDLIST_ENTROPY
         self.wordlist = EFF_LONG_WORDLIST
         self._wordlist_entropy_bits = EFF_LONG_WORDLIST_ENTROPY
-        self._external_wordlist = False
 
     def import_words_from_file(self,
                                inputfile: str,
@@ -312,9 +309,11 @@ class Passphrase():
             self.wordlist = self._read_words_from_wordfile(inputfile)
 
     def password_length_needed(self) -> int:
-        """Calculate the needed password length to satisfy the entropy number
-        for the given character set."""
+        """Calculate the needed password length to satisfy the entropy number.
 
+        This is for the given character set.
+
+        """
         characters = self._get_password_characters()
         if (
                 self.entropy_bits_req is None
@@ -324,17 +323,17 @@ class Passphrase():
                              "entropy_bits_req isn't set or the character "
                              "set is empty")
 
-        from .calc import password_length_needed as calc_password_length_needed
-
         return calc_password_length_needed(
             self.entropy_bits_req,
             characters
         )
 
     def words_amount_needed(self) -> int:
-        """Calculate the needed amount of words to satisfy the entropy number
-        for the given wordlist."""
+        """Calculate the needed amount of words to satisfy the entropy number.
 
+        This is for the given wordlist.
+
+        """
         if (
                 self.entropy_bits_req is None
                 or self.amount_n is None
@@ -344,8 +343,6 @@ class Passphrase():
                              "wordlist is empty or entropy_bits_req or "
                              "amount_n isn't set")
 
-        from .calc import words_amount_needed as calc_words_amount_needed
-
         # Thanks to @julianor for this tip to calculate default amount of
         # entropy: minbitlen/log2(len(wordlist)).
         # I set the minimum entropy bits and calculate the amount of words
@@ -354,10 +351,9 @@ class Passphrase():
         entropy_n = self.entropy_bits((self.randnum_min, self.randnum_max))
 
         # The entropy for EFF Large Wordlist is ~12.9, no need to calculate
-        if self._external_wordlist:
-            entropy_w = self.entropy_bits(self.wordlist)
-        else:
-            entropy_w = self._wordlist_entropy_bits
+        entropy_w = self._wordlist_entropy_bits \
+            if self._wordlist_entropy_bits \
+            else self.entropy_bits(self.wordlist)
 
         return calc_words_amount_needed(
             self.entropy_bits_req,
@@ -367,8 +363,7 @@ class Passphrase():
         )
 
     def generated_password_entropy(self) -> float:
-        """Calculate the entropy of a password that would be generated"""
-
+        """Calculate the entropy of a password that would be generated."""
         characters = self._get_password_characters()
         if (
                 self.passwordlen is None
@@ -380,13 +375,10 @@ class Passphrase():
         if self.passwordlen == 0:
             return 0.0
 
-        from .calc import password_entropy as calc_password_entropy
-
         return calc_password_entropy(self.passwordlen, characters)
 
     def generated_passphrase_entropy(self) -> float:
-        """Calculate the entropy of a passphrase that would be generated"""
-
+        """Calculate the entropy of a passphrase that would be generated."""
         if (
                 self.amount_w is None
                 or self.amount_n is None
@@ -402,12 +394,9 @@ class Passphrase():
         entropy_n = self.entropy_bits((self.randnum_min, self.randnum_max))
 
         # The entropy for EFF Large Wordlist is ~12.9, no need to calculate
-        if self._external_wordlist:
-            entropy_w = self.entropy_bits(self.wordlist)
-        else:
-            entropy_w = self._wordlist_entropy_bits
-
-        from .calc import passphrase_entropy as calc_passphrase_entropy
+        entropy_w = self._wordlist_entropy_bits \
+            if self._wordlist_entropy_bits \
+            else self.entropy_bits(self.wordlist)
 
         return calc_passphrase_entropy(
             self.amount_w,
@@ -417,15 +406,15 @@ class Passphrase():
         )
 
     def generate(self, uppercase: int = None) -> list:
-        """Generates a list of words randomly chosen from a wordlist.
+        """Generate a list of words randomly chosen from a wordlist.
 
         Keyword arguments:
         uppercase -- An integer number indicating how many uppercase
         characters are wanted: bigger than zero means that many characters and
         lower than zero means all uppercase except that many. Use 0 to make
         them all uppercase, and None for no one.
-        """
 
+        """
         if (
                 self.amount_n is None
                 or self.amount_w is None
@@ -469,9 +458,7 @@ class Passphrase():
         return passphrase
 
     def generate_password(self) -> list:
-        """Generates a list of random characters."""
-
-        password = []
+        """Generate a list of random characters."""
         characterset = self._get_password_characters()
         if (
                 self.passwordlen is None
@@ -480,6 +467,7 @@ class Passphrase():
             raise ValueError("Can't generate password: character set is "
                              "empty or passwordlen isn't set")
 
+        password = []
         for _ in range(0, self.passwordlen):
             password.append(randchoice(characterset))
 
@@ -487,22 +475,22 @@ class Passphrase():
         return password
 
     def generate_uuid4(self) -> list:
-        """Generates a list of parts of a UUID version 4 string.
+        """Generate a list of parts of a UUID version 4 string.
 
         Usually, these parts are concatenated together using dashes.
-        """
 
+        """
         # uuid4: 8-4-4-4-12: xxxxxxxx-xxxx-4xxx-{8,9,a,b}xxx-xxxxxxxxxxxx
         # instead of requesting small amounts of bytes, it's better to do it
         # for the full amount of them.
         hexstr = randhex(30)
 
-        uuid4 = []
-        uuid4.append(hexstr[:8])
-        uuid4.append(hexstr[8:12])
-        uuid4.append('4' + hexstr[12:15])
-        uuid4.append('{:x}{}'.format(randbetween(8, 11), hexstr[15:18]))
-        uuid4.append(hexstr[18:])
-
+        uuid4 = [
+            hexstr[:8],
+            hexstr[8:12],
+            '4' + hexstr[12:15],
+            '{:x}{}'.format(randbetween(8, 11), hexstr[15:18]),
+            hexstr[18:]
+        ]
         self.last_result = uuid4
         return uuid4

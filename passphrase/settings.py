@@ -1,4 +1,4 @@
-"""Settings file for Passphrase modules"""
+"""Settings file for Passphrase modules."""
 
 # Random numbers in passphrases are generated in the range [MIN_NUM, MAX_NUM].
 # Scope: all

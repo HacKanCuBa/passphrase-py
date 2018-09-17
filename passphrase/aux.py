@@ -18,15 +18,20 @@
 #
 #  ***************************************************************************
 
-"""Aux: auxiliar functions"""
+"""Auxiliar functions."""
+
+from os.path import isfile, getsize
+from sys import stderr
+from subprocess import Popen, PIPE, DEVNULL
 
 from .secrets import randbelow
 
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
-class Aux():
+class Aux:
+    """Auxiliar functions."""
 
     @staticmethod
     def lowercase_chars(string: any) -> str:
@@ -57,8 +62,8 @@ class Aux():
         """Make all characters uppercase.
 
         It supports characters in a (mix of) list, tuple, set or string.
-        """
 
+        """
         if not isinstance(lst, (list, tuple, str, set)):
             raise TypeError('lst must be a list, a tuple, a set or a string')
 
@@ -87,7 +92,6 @@ class Aux():
     @staticmethod
     def _make_one_char_uppercase(string: str) -> str:
         """Make a single char from the string uppercase."""
-
         if not isinstance(string, str):
             raise TypeError('string must be a string')
 
@@ -111,8 +115,8 @@ class Aux():
         Keyword arguments:
         lst -- A string, list, tuple or set.
         uppercase -- Number of characters to be set as uppercase.
-        """
 
+        """
         if not isinstance(lst, (list, tuple, str, set)):
             raise TypeError('lst must be a list, a tuple, a set or a string')
         if not isinstance(uppercase, int):
@@ -166,8 +170,6 @@ class Aux():
 
     @staticmethod
     def isfile_notempty(inputfile: str) -> bool:
-        from os.path import isfile, getsize
-
         try:
             return isfile(inputfile) and getsize(inputfile) > 0
         except TypeError:
@@ -175,16 +177,11 @@ class Aux():
 
     @staticmethod
     def print_stderr(string: str) -> None:
-        from sys import stderr
-
         print("{}".format(string), file=stderr)
 
     @staticmethod
     def system_entropy():
-        """Return the system's entropy bit count, or -1 if unknown"""
-
-        from subprocess import Popen, PIPE, DEVNULL
-
+        """Return the system's entropy bit count, or -1 if unknown."""
         arg = ['cat', '/proc/sys/kernel/random/entropy_avail']
         proc = Popen(arg, stdout=PIPE, stderr=DEVNULL)
         response = proc.communicate()[0]

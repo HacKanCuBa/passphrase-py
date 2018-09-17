@@ -18,11 +18,12 @@
 #
 #  ***************************************************************************
 
-"""Passphrase - Generates cryptographically secure passphrases and passwords
+"""Passphrase - Generates cryptographically secure passphrases and passwords.
 
 Passphrases are built by picking from a word list using cryptographically
 secure random number generator. Passwords are built from printable characters.
-by HacKan (https://hackan.net) under GNU GPL v3.0+
+by HacKan (https://hackan.net) under GNU GPL v3.0+.
+
 """
 
 from sys import version_info, exit as sys_exit
@@ -48,6 +49,7 @@ assert (version_info >= (3, 5)), 'This script requires Python 3.5+'
 
 
 def bigger_than_zero(value: str) -> int:
+    """Type evaluator for argparse."""
     ivalue = int(value)
     if ivalue < 0:
         raise ArgumentTypeError(
@@ -57,6 +59,7 @@ def bigger_than_zero(value: str) -> int:
 
 
 def main() -> int:
+    """Passphrase CLI interface."""
     passphrase = Passphrase()
 
     # Set defaults

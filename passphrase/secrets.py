@@ -18,15 +18,18 @@
 #
 #  ***************************************************************************
 
-"""Secrets: Generate cryptographically strong pseudo-random numbers
+"""Generate cryptographically strong pseudo-random numbers.
 
 Numbers generated with this module are suitable for managing secrets such as
 account authentication, tokens, and similar.
+
 """
+
+from math import ceil
 
 from .random import randint as random_randint, randbytes as random_randbytes
 
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 
 def randchoice(seq: any) -> any:
@@ -37,8 +40,8 @@ def randchoice(seq: any) -> any:
 
     >>> randchoice((1, 2, 'a', 'b'))  #doctest:+SKIP
     'a'
-    """
 
+    """
     if not isinstance(seq, (str, list, tuple, dict, set)):
         raise TypeError('seq must be str, list, tuple, dict or set')
     if len(seq) <= 0:
@@ -63,8 +66,8 @@ def randbelow(num: int) -> int:
 
     >>> randbelow(16)  #doctest:+SKIP
     13
-    """
 
+    """
     if not isinstance(num, int):
         raise TypeError('number must be an integer')
     if num <= 0:
@@ -85,8 +88,8 @@ def randbetween(lower: int, upper: int) -> int:
 
     Raises ValueError if any is lower than 0, and TypeError if any is not an
     integer.
-    """
 
+    """
     if not isinstance(lower, int) or not isinstance(upper, int):
         raise TypeError('lower and upper must be integers')
     if lower < 0 or upper <= 0:
@@ -97,20 +100,18 @@ def randbetween(lower: int, upper: int) -> int:
 
 def randhex(ndigits: int) -> str:
     """Return a random text string of hexadecimal characters.
-    The string has *ndigits* random digits.
 
+    The string has *ndigits* random digits.
     Raises ValueError if ndigits <= 0, and TypeError if it's not an integer.
 
     >>> randhex(16)  #doctest:+SKIP
     '56054d728fc56f63'
-    """
 
+    """
     if not isinstance(ndigits, int):
         raise TypeError('number of digits must be an integer')
     if ndigits <= 0:
         raise ValueError('number of digits must be greater than zero')
-
-    from math import ceil
 
     nbytes = ceil(ndigits / 2)
     rbytes = random_randbytes(nbytes)
@@ -124,8 +125,7 @@ def randbool() -> bool:
 
     >>> randbool()  #doctest:+SKIP
     True
+
     """
-
     num = random_randint(8)
-
     return num > 127
