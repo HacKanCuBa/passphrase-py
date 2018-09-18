@@ -1,3 +1,9 @@
+"""Internal wordlist for Passphrase.
+
+Currently, it only holds the EFF long wordlist.
+
+"""
+
 # https://www.eff.org/es/document/passphrase-wordlists
 EFF_LONG_WORDLIST_ENTROPY = 12.92481
 EFF_LONG_WORDLIST = (

@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
+
+"""Passphrase installer script.
+
+Install with `setup.py install`.
+
+"""
+
 from setuptools import setup
 from passphrase.__main__ import __version__ as passphrase_version
 
 
-def readme():
+def _readme():
     with open('README.rst') as rst:
         return rst.read()
 
@@ -12,7 +19,7 @@ setup(
     name='hc-passphrase',
     version=passphrase_version,
     description='Generates cryptographically secure passphrases and passwords',
-    long_description=readme(),
+    long_description=_readme(),
     classifiers=[
       'Development Status :: 5 - Production/Stable',
       'Environment :: Console',

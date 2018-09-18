@@ -25,18 +25,19 @@ account authentication, tokens, and similar.
 
 """
 
+from typing import Union
 from math import ceil
 
 from .random import randint as random_randint, randbytes as random_randbytes
 
-__version__ = '0.5.4'
+__version__ = '0.5.5'
 
 
-def randchoice(seq: any) -> any:
+def randchoice(seq: Union[str, list, tuple, dict, set]) -> any:
     """Return a randomly chosen element from the given sequence.
 
-    Raises TypeError if *seq* is not str, list, tuple, dict, set
-    and an IndexError if it is empty.
+    Raises TypeError if *seq* is not str, list, tuple, dict, set and an
+    IndexError if it is empty.
 
     >>> randchoice((1, 2, 'a', 'b'))  #doctest:+SKIP
     'a'

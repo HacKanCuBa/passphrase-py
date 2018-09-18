@@ -46,13 +46,14 @@ If you are using a Linux OS, you can use `Aux::system_entropy()` to determine ho
 ### Requirements
 
 * **Python 3.5+**.
-* [Flake8](http://flake8.pycqa.org/en/latest/) [optional] for linting.
+* [Flake8](http://flake8.pycqa.org/en/latest/) [optional] for linting with PEP8.
 * [Nose](https://nose.readthedocs.io/en/latest/) [optional] for collecting and running tests.
 * [Coverage](https://bitbucket.org/ned/coveragepy) [optional] for coverage check with Nose.
+* [PyDocstyle](http://www.pydocstyle.org/) [optional] for linting with PEP257.
 
 ## Linting
 
-Run `make lint` or `flake8 .`.
+Run `make lint` or `flake8 .` and `pydocstyle -e --match-dir=passphrase .`.
 
 ## Testing
 

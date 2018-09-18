@@ -20,12 +20,19 @@
 
 """Auxiliar calculations."""
 
+from typing import Union, List, Tuple
 from math import ceil, fabs, log10, log2
 
-__version__ = '0.4.7'
+__version__ = '0.4.8'
 
 
-def entropy_bits(lst: list) -> float:
+def entropy_bits(
+        lst: Union[
+            List[Union[int, str, float, complex]],
+            Tuple[Union[int, str, float, complex]]
+        ]
+) -> float:
+    """Calculate the number of entropy bits in a list or tuple of elements."""
     # Based on https://stackoverflow.com/a/45091961
     if not isinstance(lst, (list, tuple)):
         raise TypeError('lst must be a list or a tuple')
@@ -56,7 +63,10 @@ def entropy_bits(lst: list) -> float:
     return entropy
 
 
-def entropy_bits_nrange(minimum: float, maximum: float) -> float:
+def entropy_bits_nrange(
+        minimum: Union[int, float], maximum: Union[int, float]
+) -> float:
+    """Calculate the number of entropy bits in a range of numbers."""
     # Shannon:
     # d = fabs(maximum - minimum)
     # ent = -(1/d) * log(1/d, 2) * d
@@ -78,7 +88,8 @@ def entropy_bits_nrange(minimum: float, maximum: float) -> float:
     return ent
 
 
-def password_length_needed(entropybits: float, chars: str) -> int:
+def password_length_needed(entropybits: Union[int, float], chars: str) -> int:
+    """Calculate the length of a password for a given entropy and chars."""
     if not isinstance(entropybits, (int, float)):
         raise TypeError('entropybits can only be int or float')
     if entropybits < 0:
@@ -93,10 +104,11 @@ def password_length_needed(entropybits: float, chars: str) -> int:
     return ceil(entropybits / entropy_c)
 
 
-def words_amount_needed(entropybits: float,
-                        entropy_w: float,
-                        entropy_n: float,
+def words_amount_needed(entropybits: Union[int, float],
+                        entropy_w: Union[int, float],
+                        entropy_n: Union[int, float],
                         amount_n: int) -> int:
+    """Calculate words needed for a passphrase based on entropy."""
     # Thanks to @julianor for this tip to calculate default amount of
     # entropy: minbitlen/log2(len(wordlist)).
     # I set the minimum entropy bits and calculate the amount of words
@@ -129,6 +141,7 @@ def words_amount_needed(entropybits: float,
 
 
 def password_entropy(length: int, chars: str) -> float:
+    """Calculate the entropy of a password with given length and chars."""
     if not isinstance(length, int):
         raise TypeError('length can only be int')
     if length < 0:
@@ -146,10 +159,10 @@ def password_entropy(length: int, chars: str) -> float:
 
 
 def passphrase_entropy(amount_w: int,
-                       entropy_w: float,
-                       entropy_n: float,
+                       entropy_w: Union[int, float],
+                       entropy_n: Union[int, float],
                        amount_n: int) -> float:
-
+    """Calculate the entropy of a passphrase with given words and numbers."""
     if not isinstance(amount_w, int):
         raise TypeError('amount_w can only be int')
     if not isinstance(entropy_w, (int, float)):

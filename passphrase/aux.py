@@ -20,14 +20,15 @@
 
 """Auxiliar functions."""
 
-from os.path import isfile, getsize
-from sys import stderr
 from subprocess import Popen, PIPE, DEVNULL
+from os.path import isfile, getsize
+from typing import Union
+from sys import stderr
 
 from .secrets import randbelow
 
 
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 
 
 class Aux:
@@ -35,33 +36,42 @@ class Aux:
 
     @staticmethod
     def lowercase_chars(string: any) -> str:
+        """Return all (and only) the lowercase chars in the given string."""
         return ''.join([c if c.islower() else '' for c in str(string)])
 
     @staticmethod
     def uppercase_chars(string: any) -> str:
+        """Return all (and only) the uppercase chars in the given string."""
         return ''.join([c if c.isupper() else '' for c in str(string)])
 
     @staticmethod
     def chars(string: any) -> str:
+        """Return all (and only) the chars in the given string."""
         return ''.join([c if c.isalpha() else '' for c in str(string)])
 
     @staticmethod
     def lowercase_count(string: any) -> int:
+        """Return the number of lowercase chars in the given string."""
         return len(Aux.lowercase_chars(string))
 
     @staticmethod
     def uppercase_count(string: any) -> int:
+        """Return the number of uppercase chars in the given string."""
         return len(Aux.uppercase_chars(string))
 
     @staticmethod
     def chars_count(string: any) -> int:
+        """Return the number of chars in the given string."""
         return len(Aux.chars(string))
 
     @staticmethod
-    def make_all_uppercase(lst: any) -> any:
+    def make_all_uppercase(
+            lst: Union[list, tuple, str, set]
+    ) -> Union[list, tuple, str, set]:
         """Make all characters uppercase.
 
         It supports characters in a (mix of) list, tuple, set or string.
+        The return value is of the same type of the input value.
 
         """
         if not isinstance(lst, (list, tuple, str, set)):
@@ -107,13 +117,17 @@ class Aux:
         return string
 
     @staticmethod
-    def make_chars_uppercase(lst: any, uppercase: int) -> any:
+    def make_chars_uppercase(
+            lst: Union[list, tuple, str, set],
+            uppercase: int
+    ) -> Union[list, tuple, str, set]:
         """Make uppercase some randomly selected characters.
 
         The characters can be in a (mix of) string, list, tuple or set.
 
         Keyword arguments:
-        lst -- A string, list, tuple or set.
+        lst -- the object to make all chars uppercase, which can be a (mix of)
+        list, tuple, string or set.
         uppercase -- Number of characters to be set as uppercase.
 
         """
@@ -170,6 +184,7 @@ class Aux:
 
     @staticmethod
     def isfile_notempty(inputfile: str) -> bool:
+        """Check if the input filename with path is a file and is not empty."""
         try:
             return isfile(inputfile) and getsize(inputfile) > 0
         except TypeError:
@@ -177,6 +192,7 @@ class Aux:
 
     @staticmethod
     def print_stderr(string: str) -> None:
+        """Print the given string to STDERR."""
         print("{}".format(string), file=stderr)
 
     @staticmethod

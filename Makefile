@@ -78,6 +78,7 @@ altuninstall:
 
 lint:
 	flake8 --exclude=venv/ .
+	pydocstyle -e --match-dir=passphrase .
 
 test:
 	nosetests -v
