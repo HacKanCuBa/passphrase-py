@@ -32,6 +32,7 @@ class TestValidInputs(TestCase):
             ((1, 2), 1.0),
             ((), 0.0),
             ([], 0.0),
+            ((1, ), 0.0),
         )
         for val in values:
             bits = passphrase.calc.entropy_bits(val[0])
@@ -147,13 +148,25 @@ class TestInvalidInputs(TestCase):
                 TypeError,
                 passphrase.calc.entropy_bits_nrange,
                 wrongtype,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.entropy_bits_nrange,
+                1,
                 wrongtype
             )
         self.assertRaises(
             ValueError,
             passphrase.calc.entropy_bits_nrange,
             -1,
-            0
+            1
+        )
+        self.assertRaises(
+            ValueError,
+            passphrase.calc.entropy_bits_nrange,
+            1,
+            -1
         )
 
     def test_password_length_needed(self):
@@ -190,8 +203,32 @@ class TestInvalidInputs(TestCase):
                 TypeError,
                 passphrase.calc.words_amount_needed,
                 wrongtype,
+                1,
+                1,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.words_amount_needed,
+                1,
                 wrongtype,
+                1,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.words_amount_needed,
+                1,
+                1,
                 wrongtype,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.words_amount_needed,
+                1,
+                1,
+                1,
                 wrongtype
             )
         self.assertRaises(
@@ -261,8 +298,32 @@ class TestInvalidInputs(TestCase):
                 TypeError,
                 passphrase.calc.passphrase_entropy,
                 wrongtype,
+                1,
+                1,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.passphrase_entropy,
+                1,
                 wrongtype,
+                1,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.passphrase_entropy,
+                1,
+                1,
                 wrongtype,
+                1
+            )
+            self.assertRaises(
+                TypeError,
+                passphrase.calc.passphrase_entropy,
+                1,
+                1,
+                1,
                 wrongtype
             )
         self.assertRaises(
