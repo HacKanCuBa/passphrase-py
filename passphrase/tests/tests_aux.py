@@ -182,12 +182,11 @@ class TestValidInputs(TestCase):
                     string
                 )
             ],
-            encoding='UTF-8',
             stdout=PIPE,
             stderr=PIPE,
         )
-        self.assertEqual(proc.stdout, '')
-        self.assertEqual(proc.stderr, string + '\n')
+        self.assertEqual(proc.stdout.decode('utf-8'), '')
+        self.assertEqual(proc.stderr.decode('utf-8'), string + '\n')
         # The following is just for coverage, the actual test is above
         Aux.print_stderr('')
 
