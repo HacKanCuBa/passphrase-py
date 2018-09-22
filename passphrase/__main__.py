@@ -477,8 +477,17 @@ def main() -> int:
 
     if outputfile is not None:
         # ensure path to file exists or create
-        os_makedirs(os_path_dirname(outputfile), exist_ok=True)
-
+        dir_ = os_path_dirname(outputfile)
+        if dir_:
+            try:
+                os_makedirs(dir_, exist_ok=True)
+            except PermissionError:
+                Aux.print_stderr(
+                    "Error: permission denied to write file {}".format(
+                        outputfile,
+                    )
+                )
+                return 1
         try:
             with open(outputfile, mode='wt', encoding='utf-8') as outfile:
                 linefeed = '' if no_newline else '\n'
