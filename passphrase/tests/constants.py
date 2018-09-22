@@ -7,15 +7,28 @@ SOMESTRING_CHARS = 'ThequickbrownfoxjumpsovertheLazydog'
 SOMEMIXEDLIST = (
     [
         [[], ['b']],
-        ['a'],
+        ('a', ),
         {12, 'bTh', 0},
         ('f', 1, 2, 3, ((3, 4, ['v', 'bjk']), (['a', 4, 'HC']))),
+        'OoO',
     ],
     0xff,
 )
-SOMEMIXEDLIST_LOWERS = 'babhfvbjka'
-SOMEMIXEDLIST_UPPERS = 'THC'
-SOMEMIXEDLIST_CHARS = 'babThfvbjkaHC'
+SOMEMIXEDLIST_LOWERS = 'babhfvbjkao'
+SOMEMIXEDLIST_UPPERS = 'THCOO'
+SOMEMIXEDLIST_CHARS = 'babThfvbjkaHCOoO'
+SOMEMIXEDLIST_UPPERCASE = (
+    [
+        [[], ['B']],
+        ('A', ),
+        {12, 'BTH', 0},
+        ('F', 1, 2, 3, ((3, 4, ['V', 'BJK']), (['A', 4, 'HC']))),
+        'OOO',
+    ],
+    0xff,
+)
+
+SOMENONLETTERSLIST = (1, 2, '.', {1: '--'})
 # <>
 
 # tests_calc tests_main tests_passphrase
@@ -57,6 +70,14 @@ WRONGTYPES_STR = (
     (1, 2),
     [],
     1,
+    1.234,
+    1j,
+)
+WRONGTYPES_STR_INT = (
+    {1, 2},
+    {'a': 1, 'b': 2},
+    (1, 2),
+    [],
     1.234,
     1j,
 )

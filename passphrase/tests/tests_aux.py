@@ -18,6 +18,7 @@
 #
 #  ***************************************************************************
 
+from subprocess import run, PIPE
 from unittest import TestCase
 from random import randint
 
@@ -126,6 +127,8 @@ class TestValidInputs(TestCase):
         )
 
     def test_make_chars_uppercase(self):
+        self.assertEqual(Aux.make_chars_uppercase(constants.SOMESTRING, 0),
+                         constants.SOMESTRING)
         upperstart = Aux.uppercase_count(constants.SOMESTRING)
         uppercase = randint(0, 10)
         for _ in range(0, 1000):
@@ -161,6 +164,33 @@ class TestValidInputs(TestCase):
             uppercase + upperstart
         )
 
+        self.assertEqual(
+            Aux.make_chars_uppercase(constants.SOMEMIXEDLIST, 100),
+            constants.SOMEMIXEDLIST_UPPERCASE
+        )
+
+    def test_system_entropy(self):
+        self.assertGreater(Aux.system_entropy(), 0)
+
+    def test_print_stderr(self):
+        string = constants.SOMESTRING
+        proc = run(
+            [
+                'python',
+                '-c',
+                'from passphrase import Aux; Aux.print_stderr("{}")'.format(
+                    string
+                )
+            ],
+            encoding='UTF-8',
+            stdout=PIPE,
+            stderr=PIPE,
+        )
+        self.assertEqual(proc.stdout, '')
+        self.assertEqual(proc.stderr, string + '\n')
+        # The following is just for coverage, the actual test is above
+        Aux.print_stderr('')
+
 
 class TestInvalidInputs(TestCase):
 
@@ -185,20 +215,14 @@ class TestInvalidInputs(TestCase):
             )
         self.assertRaises(ValueError, Aux.make_chars_uppercase, [], -1)
 
-    def test_lowercase_chars(self):
-        pass
+    def test_make_one_char_uppercase(self):
+        for wrongtype in constants.WRONGTYPES_STR:
+            self.assertRaises(
+                TypeError,
+                Aux._make_one_char_uppercase,
+                wrongtype
+            )
 
-    def test_uppercase_chars(self):
-        pass
-
-    def test_chars(self):
-        pass
-
-    def test_lowercase_count(self):
-        pass
-
-    def test_uppercase_count(self):
-        pass
-
-    def test_chars_count(self):
-        pass
+    def test_isfile_notempty(self):
+        for wrongtype in constants.WRONGTYPES_STR_INT:
+            self.assertRaises(TypeError, Aux.isfile_notempty, wrongtype)
