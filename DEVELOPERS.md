@@ -110,8 +110,8 @@ ValueError: Cant' calculate the words amount needed: entropy_bits_req or amount_
 ```
 
 ```python
-# In a system backend, propose the user a good random passphrase for him to
-# use, or a safe password.
+# In a system backend, propose the user a good random passphrase for him/her
+# to use, or a safe password.
 
 def generate_passphrase() -> str:
     from passphrase import Passphrase
@@ -143,17 +143,19 @@ def generate_password() -> str:
 To securely use it in a Dockerfile, do:
 
 ```
-ENV PASSPHRASE_VERSION 1.0.0
+ARG PASSPHRASE_VERSION=1.0.0
 
 RUN gpg --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys 0x35710D312FDE468B
 RUN wget -O /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz https://github.com/HacKanCuBa/passphrase-py/archive/v${PASSPHRASE_VERSION}.tar.gz
-RUN wget -O /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig https://github.com/HacKanCuBa/passphrase-py/releases/download/v1.0.0rc1/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig
+RUN wget -O /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig https://github.com/HacKanCuBa/passphrase-py/releases/download/v${PASSPHRASE_VERSION}/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig
 RUN gpg --trust-model always --verify /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz.sig /tmp/passphrase-v${PASSPHRASE_VERSION}.tar.gz \
     && cd /tmp \
     && tar -xf passphrase-v${PASSPHRASE_VERSION}.tar.gz \
     && cd passphrase-py-${PASSPHRASE_VERSION} \
     && make package-install
 ```
+
+Change `PASSPHRASE_VERSION` to the [desire version](https://github.com/HacKanCuBa/passphrase-py/releases).
 
 It doesn't matter which OS is the base, as long as it has GnuPG package installed (either versions 1.4+ or 2+).
 
