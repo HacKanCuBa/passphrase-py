@@ -18,11 +18,12 @@
 #
 #  ***************************************************************************
 
-from os.path import join as os_path_join
+from os.path import join as os_path_join, isfile as os_path_isfile
 from os import mkdir
 from tempfile import gettempdir
 from unittest import TestCase
 from shutil import rmtree
+from random import randint
 import subprocess
 
 import passphrase.__main__
@@ -318,9 +319,6 @@ class TestValidInputs(TestCase):
             )
 
     def test_main_option_output(self):
-        from random import randint
-        from os.path import isfile as os_path_isfile
-
         tmpfile = os_path_join(
             self.tmpdir,
             'test_main_option_output.' + str(randint(100000, 999999))
@@ -339,8 +337,6 @@ class TestValidInputs(TestCase):
                 self.assertEqual(result, tfile.read())
 
     def test_main_option_input(self):
-        from random import randint
-
         tmpfile = os_path_join(
             self.tmpdir,
             'test_main_option_input.' + str(randint(100000, 999999))
@@ -362,8 +358,6 @@ class TestValidInputs(TestCase):
                 self.assertIn(word, constants.WORDS)
 
     def test_main_option_input_diceware(self):
-        from random import randint
-
         tmpfile = os_path_join(
             self.tmpdir,
             'test_main_option_input.' + str(randint(100000, 999999))
@@ -389,5 +383,148 @@ class TestValidInputs(TestCase):
 
 class TestInvalidInputs(TestCase):
 
-    def test_main(self):
-        pass
+    def setUp(self):
+        self.tmpdir = os_path_join(
+            gettempdir(),
+            'passphrase_tests'
+        )
+        try:
+            mkdir(self.tmpdir, 0o755)
+        except FileExistsError:
+            pass
+
+    def tearDown(self):
+        rmtree(self.tmpdir, ignore_errors=True)
+
+    def _test_base(self, cmds, expected):
+        for index, cmd in enumerate(cmds):
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+            ).stderr.decode('utf-8')
+            self.assertIn(
+                expected[index] if len(expected) > 1 else expected[0],
+                result
+            )
+
+    def test_main_inexistent_option(self):
+        cmds = (['python3', '-m', 'passphrase', '--inexistent'], )
+        expected = ('error: unrecognized arguments', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_words(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--words'],
+            ['python3', '-m', 'passphrase', '-w'],
+            ['python3', '-m', 'passphrase', '--words', 'a'],
+            ['python3', '-m', 'passphrase', '-w', 'a'],
+            ['python3', '-m', 'passphrase', '--words', '-1'],
+            ['python3', '-m', 'passphrase', '-w', '-1'],
+            ['python3', '-m', 'passphrase', '--words', '1.0'],
+            ['python3', '-m', 'passphrase', '-w', '1.0'],
+        )
+        expected = ('error: argument', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_numbers(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--numbers'],
+            ['python3', '-m', 'passphrase', '-n'],
+            ['python3', '-m', 'passphrase', '--numbers', 'a'],
+            ['python3', '-m', 'passphrase', '-n', 'a'],
+            ['python3', '-m', 'passphrase', '--numbers', '-1'],
+            ['python3', '-m', 'passphrase', '-n', '-1'],
+            ['python3', '-m', 'passphrase', '--numbers', '1.0'],
+            ['python3', '-m', 'passphrase', '-n', '1.0'],
+        )
+        expected = ('error: argument', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_entropybits(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--entropybits'],
+            ['python3', '-m', 'passphrase', '-e'],
+            ['python3', '-m', 'passphrase', '--entropybits', 'a'],
+            ['python3', '-m', 'passphrase', '-e', 'a'],
+            ['python3', '-m', 'passphrase', '--entropybits', '-1'],
+            ['python3', '-m', 'passphrase', '-e', '-1'],
+            ['python3', '-m', 'passphrase', '--entropybits', '1.0'],
+            ['python3', '-m', 'passphrase', '-e', '1.0'],
+        )
+        expected = ('error: argument', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_use_uppercase(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--use-uppercase', 'a'],
+            ['python3', '-m', 'passphrase', '--use-uppercase', '-1'],
+            ['python3', '-m', 'passphrase', '--use-uppercase', '1.0'],
+        )
+        expected = ('error: argument', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_use_lowercase(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--use-lowercase', 'a'],
+            ['python3', '-m', 'passphrase', '--use-lowercase', '-1'],
+            ['python3', '-m', 'passphrase', '--use-lowercase', '1.0'],
+        )
+        expected = ('error: argument', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_password(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--password', 'a'],
+            ['python3', '-m', 'passphrase', '-p', 'a'],
+            ['python3', '-m', 'passphrase', '--password', '-1'],
+            ['python3', '-m', 'passphrase', '-p', '-1'],
+            ['python3', '-m', 'passphrase', '--password', '1.0'],
+            ['python3', '-m', 'passphrase', '-p', '1.0'],
+        )
+        expected = ('error: argument', )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_output(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--output', '/'],
+            ['python3', '-m', 'passphrase', '-o', '/'],
+            ['python3', '-m', 'passphrase', '--output', '/inexistent'],
+            ['python3', '-m', 'passphrase', '-o', '/inexistent'],
+            ['python3', '-m', 'passphrase', '--output', '/inexistent/denied'],
+            ['python3', '-m', 'passphrase', '-o', '/inexistent/denied'],
+        )
+        expected = (
+            'Error: file',
+            'Error: file',
+            'Error: file',
+            'Error: file',
+            'Error: permission denied',
+            'Error: permission denied',
+        )
+        self._test_base(cmds, expected)
+
+    def test_main_invalid_param_input(self):
+        cmds = (
+            ['python3', '-m', 'passphrase', '--input', '/'],
+            ['python3', '-m', 'passphrase', '-i', '/'],
+            ['python3', '-m', 'passphrase', '--input', '/inexistent'],
+            ['python3', '-m', 'passphrase', '-i', '/inexistent'],
+            ['python3', '-m', 'passphrase', '--input', '/inexistent/denied'],
+            ['python3', '-m', 'passphrase', '-i', '/inexistent/denied'],
+            ['python3', '-m', 'passphrase', '--input', '/dev/zero'],
+            ['python3', '-m', 'passphrase', '-i', '/dev/zero'],
+            ['python3', '-m', 'passphrase', '--diceware', '--input', '/'],
+            ['python3', '-m', 'passphrase', '-d', '-i', '/'],
+            ['python3', '-m', 'passphrase', '--diceware', '--input',
+             '/inexistent'],
+            ['python3', '-m', 'passphrase', '-d', '-i', '/inexistent'],
+            ['python3', '-m', 'passphrase', '--diceware', '--input',
+             '/inexistent/denied'],
+            ['python3', '-m', 'passphrase', '-d', '-i', '/inexistent/denied'],
+            ['python3', '-m', 'passphrase', '--diceware', '--input',
+             '/dev/zero'],
+            ['python3', '-m', 'passphrase', '-d', '-i', '/dev/zero'],
+        )
+        expected = ('Error: file', )
+        self._test_base(cmds, expected)
