@@ -244,6 +244,71 @@ class TestValidInputs(TestCase):
             places=2
         )
 
+    def test_separator(self):
+        passp = Passphrase('internal')
+        passp.amount_w = 1
+        passp.amount_n = 1
+        passp.separator = '-.-'
+        passp.generate()
+        self.assertIn('-.-', str(passp))
+
+    def test_password_use_lowercase(self):
+        passp = Passphrase()
+        passp.separator = ''
+        passp.passwordlen = 5
+        passp.password_use_lowercase = True
+        passp.password_use_uppercase = False
+        passp.password_use_digits = False
+        passp.password_use_punctuation = False
+        passp.generate_password()
+        self.assertRegex(
+            str(passp),
+            r'[a-z\-]+'
+        )
+
+    def test_password_use_uppercase(self):
+        passp = Passphrase()
+        passp.separator = ''
+        passp.passwordlen = 5
+        passp.password_use_lowercase = False
+        passp.password_use_uppercase = True
+        passp.password_use_digits = False
+        passp.password_use_punctuation = False
+        passp.generate_password()
+        self.assertRegex(
+            str(passp),
+            r'[A-Z\-]+'
+        )
+
+    def test_password_use_digits(self):
+        passp = Passphrase()
+        passp.separator = ''
+        passp.passwordlen = 5
+        passp.password_use_lowercase = False
+        passp.password_use_uppercase = False
+        passp.password_use_digits = True
+        passp.password_use_punctuation = False
+        passp.generate_password()
+        self.assertRegex(
+            str(passp),
+            r'[\d]+'
+        )
+
+    def test_password_use_punctuation(self):
+        passp = Passphrase()
+        passp.separator = ''
+        passp.passwordlen = 5
+        passp.password_use_lowercase = False
+        passp.password_use_uppercase = False
+        passp.password_use_digits = False
+        passp.password_use_punctuation = True
+        passp.generate_password()
+        self.assertRegex(
+            str(passp),
+            r'[\!\"\#\$\%\&\\\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]\^\_'
+            r'\`\{\|\}\~]+'
+        )
+
 
 class TestInvalidInputs(TestCase):
 
@@ -306,6 +371,15 @@ class TestInvalidInputs(TestCase):
             'entropybits should be greater than 0',
             str(context.exception)
         )
+        passp = Passphrase()
+        self.assertRaises(ValueError, passp.password_length_needed)
+        passp.password_use_lowercase = False
+        passp.password_use_uppercase = False
+        passp.password_use_digits = False
+        passp.password_use_punctuation = False
+        self.assertRaises(ValueError, passp.password_length_needed)
+        passp.entropy_bits_req = 77
+        self.assertRaises(ValueError, passp.password_length_needed)
 
     def test_entropy_bits_req(self):
         passp = Passphrase()
@@ -426,8 +500,49 @@ class TestInvalidInputs(TestCase):
         for wrongtype in constants.WRONGTYPES_INT:
             self.assertRaises(TypeError, passp.generate, wrongtype)
 
+    def test_generate_password(self):
+        passp = Passphrase()
+        self.assertRaises(ValueError, passp.generate_password)
+        passp.password_use_lowercase = False
+        passp.password_use_uppercase = False
+        passp.password_use_digits = False
+        passp.password_use_punctuation = False
+        self.assertRaises(ValueError, passp.generate_password)
+        passp.passwordlen = 77
+        self.assertRaises(ValueError, passp.generate_password)
+
+    def test_separator(self):
+        passp = Passphrase()
+        for wrongtype in constants.WRONGTYPES_STR:
+            with self.assertRaises(TypeError) as context:
+                passp.separator = wrongtype
+            self.assertIn(
+                'separator can only be string',
+                str(context.exception)
+            )
+
+    def test_words_amount_needed(self):
+        passp = Passphrase()
+        self.assertRaises(ValueError, passp.words_amount_needed)
+        passp.amount_n = 1
+        self.assertRaises(ValueError, passp.words_amount_needed)
+        passp.entropy_bits_req = 77
+        self.assertRaises(ValueError, passp.words_amount_needed)
+        passp.load_internal_wordlist()
+        self.assertEqual(passp.words_amount_needed(), 5)
+
     def test_generated_password_entropy(self):
-        pass
+        passp = Passphrase()
+        self.assertRaises(ValueError, passp.generated_password_entropy)
+        passp.passwordlen = 0
+        self.assertEqual(passp.generated_password_entropy(), 0.0)
 
     def test_generated_passphrase_entropy(self):
-        pass
+        passp = Passphrase()
+        self.assertRaises(ValueError, passp.generated_passphrase_entropy)
+        passp.load_internal_wordlist()
+        self.assertRaises(ValueError, passp.generated_passphrase_entropy)
+        passp.amount_n = 0
+        self.assertRaises(ValueError, passp.generated_passphrase_entropy)
+        passp.amount_w = 0
+        self.assertEqual(passp.generated_passphrase_entropy(), 0.0)
