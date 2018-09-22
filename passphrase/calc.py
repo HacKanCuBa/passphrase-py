@@ -50,10 +50,6 @@ def entropy_bits(
     # Some NumPy replacements
     counts = [lst.count(x) for x in lst]
     probs = [c / n_lst for c in counts]
-    n_classes = len([x for x in probs if x != 0])
-
-    if n_classes <= 1:
-        return 0.0
 
     # Compute entropy
     entropy = 0.0
