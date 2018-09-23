@@ -47,7 +47,7 @@ class TestValidInputs(TestCase):
             'import sys',
             'import importlib.util',
             'spec = importlib.util.spec_from_file_location'
-            '("passphrase.random", "%s")' % (random_module_path),
+            '("passphrase.random", "%s")' % random_module_path,
             'random = importlib.util.module_from_spec(spec)',
             'spec.loader.exec_module(random)',
             'data = random.randbytes(%s)' % count,

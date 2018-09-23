@@ -18,6 +18,7 @@
 #
 #  ***************************************************************************
 
+from string import digits, punctuation, ascii_lowercase, ascii_uppercase
 from unittest import TestCase
 
 import passphrase.calc
@@ -52,9 +53,7 @@ class TestValidInputs(TestCase):
             self.assertAlmostEqual(bits, val[2], places=2)
 
     def test_password_length_needed(self):
-        from string import digits, ascii_letters, punctuation
-
-        chars = digits + ascii_letters + punctuation
+        chars = digits + ascii_lowercase + ascii_uppercase + punctuation
         values = (
             (52, 8),
             (53, 9),
@@ -84,13 +83,6 @@ class TestValidInputs(TestCase):
             self.assertEqual(result, val[4])
 
     def test_password_entropy(self):
-        from string import (
-            digits,
-            ascii_lowercase,
-            ascii_uppercase,
-            punctuation
-        )
-
         values = (
             (0, digits, 0.0),
             (10, ascii_lowercase + ascii_uppercase, 57.00),

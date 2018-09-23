@@ -141,13 +141,9 @@ class TestValidInputs(TestCase):
 
     def test_import_words_from_file(self):
         passp = Passphrase()
-
-        ret = passp.import_words_from_file(self.words_file, False)
-        self.assertIsNone(ret)
+        self.assertIsNone(passp.import_words_from_file(self.words_file, False))
         self.assertEqual(passp.wordlist, constants.WORDS)
-
-        ret = passp.import_words_from_file(self.wordsd_file, True)
-        self.assertIsNone(ret)
+        self.assertIsNone(passp.import_words_from_file(self.wordsd_file, True))
         self.assertEqual(
             passp.wordlist,
             [word.split()[1] for word in constants.WORDSD]

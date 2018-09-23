@@ -19,6 +19,7 @@
 #  ***************************************************************************
 
 from unittest import TestCase
+from string import hexdigits
 
 import passphrase.secrets
 import passphrase.tests.constants as constants
@@ -48,7 +49,7 @@ class TestValidInputs(TestCase):
                 repeat += 1
             self.assertTrue(
                 repeat < 2,
-                'randbelow(%d) returned the same number twice in a row!' % (i)
+                'randbelow(%d) returned the same number twice in a row!' % i
             )
             prev = rand
 
@@ -61,8 +62,6 @@ class TestValidInputs(TestCase):
             lower = upper
 
     def test_randhex(self):
-        from string import hexdigits
-
         for i in (1, 10, 100):
             rand = passphrase.secrets.randhex(i)
             self.assertIsInstance(rand, str)
