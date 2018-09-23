@@ -26,7 +26,7 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+.
 
 """
 
-from sys import version_info, exit as sys_exit
+from sys import version_info, exit as sys_exit, argv as sys_argv
 from os.path import dirname as os_path_dirname
 from os import makedirs as os_makedirs
 from argparse import ArgumentParser, ArgumentTypeError
@@ -48,7 +48,7 @@ __version_string__ = (
 assert (version_info >= (3, 5)), 'This script requires Python 3.5+'
 
 
-def bigger_than_zero(value: str) -> int:
+def _bigger_than_zero(value: str) -> int:
     """Type evaluator for argparse."""
     ivalue = int(value)
     if ivalue < 0:
@@ -58,7 +58,7 @@ def bigger_than_zero(value: str) -> int:
     return ivalue
 
 
-def main() -> int:
+def main(argv: list) -> int:
     """Passphrase CLI interface."""
     passphrase = Passphrase()
 
@@ -151,7 +151,7 @@ def main() -> int:
     parser.add_argument(
         '-e',
         '--entropybits',
-        type=bigger_than_zero,
+        type=_bigger_than_zero,
         default=ENTROPY_BITS_MIN,
         help='specify the number of bits to use for entropy calculations '
              '(defaults to {})'.format(ENTROPY_BITS_MIN)
@@ -171,7 +171,7 @@ def main() -> int:
     parser.add_argument(
         '-p',
         '--password',
-        type=bigger_than_zero,
+        type=_bigger_than_zero,
         const=-1,
         nargs='?',
         help='generate a password of the specified length from all printable '
@@ -179,7 +179,7 @@ def main() -> int:
     )
     parser.add_argument(
         '--use-uppercase',
-        type=bigger_than_zero,
+        type=_bigger_than_zero,
         const=0,
         nargs='?',
         help='use uppercase characters for password generation or give the '
@@ -189,7 +189,7 @@ def main() -> int:
     )
     parser.add_argument(
         '--use-lowercase',
-        type=bigger_than_zero,
+        type=_bigger_than_zero,
         const=0,
         nargs='?',
         help='use lowercase characters for password generation or give the '
@@ -220,13 +220,13 @@ def main() -> int:
     parser.add_argument(
         '-w',
         '--words',
-        type=bigger_than_zero,
+        type=_bigger_than_zero,
         help='specify the amount of words (0 or more)'
     )
     parser.add_argument(
         '-n',
         '--numbers',
-        type=bigger_than_zero,
+        type=_bigger_than_zero,
         default=amount_n_default,
         help='specify the amount of numbers (0 or more)'
     )
@@ -258,7 +258,7 @@ def main() -> int:
         help='specify input file as a diceware list (format: two colums)'
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     inputfile = args.input
     outputfile = args.output
@@ -408,24 +408,17 @@ def main() -> int:
         gen_what = 'passphrase'
 
         # Read wordlist if indicated
-        try:
-            if inputfile is None:
-                passphrase.load_internal_wordlist()
-            else:
-                try:
-                    passphrase.import_words_from_file(inputfile, is_diceware)
-
-                except IOError:
-                    Aux.print_stderr(
-                        "Error: file {} can't be opened or read".format(
-                            inputfile,
-                        )
-                    )
-                    return 1
-
-        except FileNotFoundError as err:
-            Aux.print_stderr('Error: {}'.format(err))
-            return 1
+        if inputfile is None:
+            passphrase.load_internal_wordlist()
+        else:
+            try:
+                passphrase.import_words_from_file(inputfile, is_diceware)
+            except IOError:
+                Aux.print_stderr(
+                    "Error: input file {} is empty or it can't be opened or "
+                    "read".format(inputfile)
+                )
+                return 1
 
         passphrase.amount_n = amount_n
         amount_w_good = passphrase.words_amount_needed()
@@ -483,8 +476,8 @@ def main() -> int:
                 os_makedirs(dir_, exist_ok=True)
             except PermissionError:
                 Aux.print_stderr(
-                    "Error: permission denied to write file {}".format(
-                        outputfile,
+                    'Error: permission denied to create directory {}'.format(
+                        dir_,
                     )
                 )
                 return 1
@@ -505,5 +498,5 @@ def main() -> int:
 
 
 if __name__ == '__main__':
-    ecode = main()
+    ecode = main(sys_argv[1:])
     sys_exit(ecode)

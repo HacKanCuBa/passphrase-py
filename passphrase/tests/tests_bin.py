@@ -544,5 +544,5 @@ class TestInvalidInputs(TestCase):
             [self.bin, '--diceware', '--input', '/dev/zero'],
             [self.bin, '-d', '-i', '/dev/zero'],
         )
-        expected = ('Error: file', )
+        expected = ('Error: input file', )
         self._test_base(cmds, expected)

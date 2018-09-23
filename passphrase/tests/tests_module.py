@@ -20,13 +20,14 @@
 
 from os.path import join as os_path_join, isfile as os_path_isfile
 from os import mkdir
+from argparse import ArgumentTypeError
 from tempfile import gettempdir
 from unittest import TestCase
 from shutil import rmtree
 from random import randint
 import subprocess
 
-import passphrase.__main__
+from passphrase import __main__
 import passphrase.tests.constants as constants
 
 
@@ -68,7 +69,7 @@ class TestValidInputs(TestCase):
             cmd,
             stdout=subprocess.PIPE
         ).stdout.decode('utf-8')
-        self.assertEqual(result, passphrase.__main__.__version_string__ + '\n')
+        self.assertEqual(result, __main__.__version_string__ + '\n')
 
     def test_main_option_help(self):
         cmds = (
@@ -81,13 +82,13 @@ class TestValidInputs(TestCase):
                 stdout=subprocess.PIPE
             ).stdout.decode('utf-8')
             self.assertIn(
-                passphrase.__main__.__version_string__,
+                __main__.__version_string__,
                 result
             )
 
     def test_main_option_insecure(self):
-        # How can simulate low system entropy?? (without actually consuming
-        # all of it...)
+        # I can not mock this test when run as module, but it's being
+        # tested at tests_main
         pass
 
     def test_main_option_no_newline(self):
@@ -122,7 +123,7 @@ class TestValidInputs(TestCase):
                 stderr=subprocess.PIPE
             )
             self.assertIn(
-                passphrase.__main__.__version_string__,
+                __main__.__version_string__,
                 result.stderr.decode('utf-8')
             )
             self.assertIn(
@@ -380,6 +381,9 @@ class TestValidInputs(TestCase):
             for word in result.split():
                 self.assertIn(word, words)
 
+    def test_bigger_than_zero(self):
+        self.assertEqual(__main__._bigger_than_zero('1'), 1)
+
 
 class TestInvalidInputs(TestCase):
 
@@ -526,5 +530,8 @@ class TestInvalidInputs(TestCase):
              '/dev/zero'],
             ['python3', '-m', 'passphrase', '-d', '-i', '/dev/zero'],
         )
-        expected = ('Error: file', )
+        expected = ('Error: input file', )
         self._test_base(cmds, expected)
+
+    def test_bigger_than_zero(self):
+        self.assertRaises(ArgumentTypeError, __main__._bigger_than_zero, '-1')
