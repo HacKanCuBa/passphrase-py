@@ -48,6 +48,8 @@ To uninstall, run respectively `make package-uninstall`, `make uninstall` or `ma
 
 Another option is to run `pip install --user hc-passphrase` (for user-wide installation) or `pip install hc-passphrase` (for system-wide installation), but I advise against this way given that pip doesn't do any cryptographic verification of signatures nor hashes at all.
 
+This project supports [semver](https://semver.org) since *v1.0.0*.
+
 #### Examples of use
 
 Check the [man page](https://github.com/HacKanCuBa/passphrase-py/blob/master/man/passphrase.md) for more information.
