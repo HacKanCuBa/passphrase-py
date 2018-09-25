@@ -26,7 +26,7 @@ by HacKan (https://hackan.net) under GNU GPL v3.0+.
 
 """
 
-from sys import version_info, exit as sys_exit, argv as sys_argv
+import sys
 from os.path import dirname as os_path_dirname
 from os import makedirs as os_makedirs
 from argparse import ArgumentParser, ArgumentTypeError
@@ -45,7 +45,7 @@ __version_string__ = (
     'under GNU GPL v3.0 or newer'.format(__version__)
 )
 
-assert (version_info >= (3, 5)), 'This script requires Python 3.5+'
+assert (sys.version_info >= (3, 5)), 'This script requires Python 3.5+'
 
 
 def _bigger_than_zero(value: str) -> int:
@@ -58,7 +58,7 @@ def _bigger_than_zero(value: str) -> int:
     return ivalue
 
 
-def main(argv: list) -> int:
+def main() -> int:
     """Passphrase CLI interface."""
     passphrase = Passphrase()
 
@@ -258,7 +258,7 @@ def main(argv: list) -> int:
         help='specify input file as a diceware list (format: two colums)'
     )
 
-    args = parser.parse_args(argv)
+    args = parser.parse_args()
 
     inputfile = args.input
     outputfile = args.output
@@ -497,11 +497,5 @@ def main(argv: list) -> int:
     return 0
 
 
-def entry_point():
-    """Console script entry point."""
-    return main(sys_argv[1:])
-
-
 if __name__ == '__main__':
-    ecode = entry_point()
-    sys_exit(ecode)
+    sys.exit(main())
