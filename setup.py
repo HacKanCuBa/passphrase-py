@@ -52,7 +52,7 @@ setup(
     test_suite='nose.collector',
     tests_require=['nose'],
     entry_points={
-        'console_scripts': ['passphrase=passphrase.__main__:main'],
+        'console_scripts': ['passphrase=passphrase.__main__:entry_point'],
     },
     zip_safe=False
 )

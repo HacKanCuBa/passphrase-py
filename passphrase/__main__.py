@@ -497,6 +497,11 @@ def main(argv: list) -> int:
     return 0
 
 
+def entry_point():
+    """Console script entry point."""
+    return main(sys_argv[1:])
+
+
 if __name__ == '__main__':
-    ecode = main(sys_argv[1:])
+    ecode = entry_point()
     sys_exit(ecode)
