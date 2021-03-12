@@ -269,7 +269,7 @@ class Passphrase:
     def entropy_bits(
             lst: Union[
                 List[Union[int, str, float, complex]],
-                Tuple[Union[int, str, float, complex]]
+                Tuple[Union[int, str, float, complex], ...],
             ]
     ) -> float:
         """Calculate the entropy of a wordlist or a numerical range.
